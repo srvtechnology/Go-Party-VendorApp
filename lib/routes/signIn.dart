@@ -39,7 +39,7 @@ class _SignInState extends State<SignIn> {
   }
   Widget InputField(String title,TextEditingController controller){
       return Container(
-        margin: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+        margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
         child: TextFormField(
           controller: controller,
           decoration: InputDecoration(labelText: title),
