@@ -29,7 +29,7 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
     return GestureDetector(
       onTap: widget.ontap,
       child: Container(
-        margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+        margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 5),
         decoration:const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(5)),
           color: Colors.white,
@@ -42,7 +42,7 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
           ]
         ),
        width: 100.w,
-       height: 7.h,
+       height: 8.h,
        child: Row(children: [
           Expanded(flex:4,child: Text(widget.title,textAlign: TextAlign.center,)),
           Expanded(flex:4,child: Text(widget.date,style: TextStyle(fontSize: 12.sp),)),

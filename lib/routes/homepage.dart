@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/components/drawer.dart';
 import 'package:utsavlife/core/components/filters.dart';
 import 'package:utsavlife/core/components/listItems.dart';
 import 'package:utsavlife/core/components/nav.dart';
+import 'package:utsavlife/core/provider/AuthProvider.dart';
+import 'package:utsavlife/routes/notifications.dart';
 
 class Homepage extends StatefulWidget {
   static const routeName = "home";
@@ -26,6 +29,11 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.pushNamed(context, NotificationPage.routeName);
+          }, icon:const Icon(Icons.notifications))
+        ],
       ),
         body: items[index],
         drawer: CustomDrawer(
@@ -75,7 +83,7 @@ class _ProfileState extends State<Profile> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(margin:const EdgeInsets.symmetric(vertical: 5),child: Text(title,style: Theme.of(context).textTheme.headlineSmall,)),
+          Container(margin:const EdgeInsets.symmetric(vertical: 5),child: Text(title,style:const TextStyle(fontWeight: FontWeight.bold),)),
           Container(margin:const EdgeInsets.symmetric(vertical: 5),child: Text(content)),
         ],
       ),
@@ -84,10 +92,27 @@ class _ProfileState extends State<Profile> {
   Widget _ProfileHeader(BuildContext context){
     return Container(
       margin: const EdgeInsets.all(10),
-        child: const CircleAvatar(
-          backgroundColor: Colors.grey,
-          radius: 50,
-          child: CircleAvatar(backgroundColor: Colors.black,child: Icon(Icons.person),),
+        child: Row(
+          children: [
+             const Expanded(
+               flex: 3,
+               child: CircleAvatar(
+                backgroundColor: Colors.grey,
+                radius: 40,
+                child: CircleAvatar(backgroundColor: Colors.black,child: Icon(Icons.person),),
+            ),
+             ),
+            Expanded(flex:6,child: Container(
+              margin:const EdgeInsets.only(left: 5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("John Doe",style: Theme.of(context).textTheme.headlineSmall,),
+                  Text("testemail@gmail.com",),
+                ],
+              ),
+            ))
+          ],
         ),
     );
   }
@@ -113,7 +138,7 @@ class _HistoryState extends State<History> {
             child: Container(
               margin:const EdgeInsets.symmetric(vertical: 5,horizontal: 20),
               child: Row(children:const [
-              Expanded(flex:4,child: Text("Title"),),
+              Expanded(flex:4,child: Text("Title",),),
               Expanded(flex:4,child: Text("Date"),),
               Expanded(flex:4,child: Text("Amount"),),
               Expanded(flex:4,child: Text("Location"),),
@@ -147,14 +172,32 @@ class _OrdersState extends State<Orders> {
       width: double.infinity,
       padding:const EdgeInsets.all(10),
       child: Column(children: [
-        Row(children:const [
-          Expanded(child: Text("Title"),),
-          Expanded(child: Text("Date"),),
-          Expanded(child: Text("Amount"),),
-          Expanded(child: Text("Location"),),
-        ],)
-
-      ]),  
+        const Expanded(child: Filter()),
+        Expanded(
+          child: Container(
+            margin:const EdgeInsets.symmetric(vertical: 5,horizontal: 20),
+            child: Row(children:const [
+              Expanded(flex:4,child: Text("Title"),),
+              Expanded(flex:4,child: Text("Date"),),
+              Expanded(flex:4,child: Text("Amount"),),
+              Expanded(flex:4,child: Text("Location"),),
+              Expanded(child: Text(""),),
+            ],),
+          ),
+        ),
+        Expanded(flex: 8,child: SingleChildScrollView(child: Column(children: [
+          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
+          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.green,),
+          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.yellow,),
+          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
+          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
+          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
+          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
+          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
+          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
+          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
+        ]),))
+      ]),
     );
   }
 }
