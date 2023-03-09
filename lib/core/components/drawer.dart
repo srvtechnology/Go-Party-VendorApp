@@ -1,5 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:utsavlife/core/provider/AuthProvider.dart';
+import 'package:utsavlife/routes/mainpage.dart';
+import 'package:utsavlife/routes/signIn.dart';
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({ Key? key }) : super(key: key);
@@ -28,8 +32,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
         },
       ),
       ListTile(
-        title: const Text('Item 2'),
+        title: const Text('Logout'),
         onTap: () {
+          Provider.of<AuthProvider>(context,listen: false).logout();
+          Navigator.pushReplacementNamed(context, MainPage.routeName);
         },
       ),
     ],

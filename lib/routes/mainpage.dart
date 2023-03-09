@@ -6,6 +6,7 @@ import 'package:utsavlife/routes/homepage.dart';
 import 'package:utsavlife/routes/signIn.dart';
 
 class MainPage extends StatelessWidget {
+  static const routeName ="mainpage";
   const MainPage({Key? key}) : super(key: key);
 
   @override

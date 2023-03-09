@@ -7,6 +7,8 @@ import 'package:utsavlife/core/components/filters.dart';
 import 'package:utsavlife/core/components/listItems.dart';
 import 'package:utsavlife/core/components/nav.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
+import 'package:utsavlife/core/provider/OrderProvider.dart';
+import 'package:utsavlife/routes/SingleOrder.dart';
 import 'package:utsavlife/routes/notifications.dart';
 
 class Homepage extends StatefulWidget {
@@ -27,27 +29,34 @@ class _HomepageState extends State<Homepage> {
   ];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(onPressed: (){
-            Navigator.pushNamed(context, NotificationPage.routeName);
-          }, icon:const Icon(Icons.notifications))
-        ],
-      ),
-        body: items[index],
-        drawer: CustomDrawer(
-            key: _drawerKey,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_)=>OrderProvider(
+          auth: Provider.of<AuthProvider>(context)
+        ))
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            IconButton(onPressed: (){
+              Navigator.pushNamed(context, NotificationPage.routeName);
+            }, icon:const Icon(Icons.notifications))
+          ],
+        ),
+          body: items[index],
+          drawer: CustomDrawer(
+              key: _drawerKey,
 
-        ),
-        bottomNavigationBar:CustomBottomNavBar(
-          index: index,
-          ontap: (i){
-            setState(() {
-              index = i;
-            });
-          },
-        ),
+          ),
+          bottomNavigationBar:CustomBottomNavBar(
+            index: index,
+            ontap: (i){
+              setState(() {
+                index = i;
+              });
+            },
+          ),
+      ),
     );
   }
 }
@@ -147,10 +156,7 @@ class _HistoryState extends State<History> {
             ),
           ),
           Expanded(flex: 8,child: SingleChildScrollView(child: Column(children: [
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.green,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.yellow,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),  
+
           ]),))
         ]),
     );
@@ -166,6 +172,10 @@ class Orders extends StatefulWidget {
 
 class _OrdersState extends State<Orders> {
   @override
+  void initState(){
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     return Container(
       height: double.infinity,
@@ -177,26 +187,36 @@ class _OrdersState extends State<Orders> {
           child: Container(
             margin:const EdgeInsets.symmetric(vertical: 5,horizontal: 20),
             child: Row(children:const [
-              Expanded(flex:4,child: Text("Title"),),
-              Expanded(flex:4,child: Text("Date"),),
               Expanded(flex:4,child: Text("Amount"),),
+              Expanded(flex:4,child: Text("Date"),),
               Expanded(flex:4,child: Text("Location"),),
+              Expanded(flex:4,child: Text("Days",textAlign: TextAlign.center,),),
               Expanded(child: Text(""),),
             ],),
           ),
         ),
-        Expanded(flex: 8,child: SingleChildScrollView(child: Column(children: [
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.green,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.yellow,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
-          CustomOrderItem(title: "Test",date: "10-10-2021",amount: "3000",location: "Kolkata",status: Colors.red,),
-        ]),))
+        Expanded(flex: 8,child: Consumer<OrderProvider>(
+          builder: (context,orderState,child){
+            if(orderState.isLoading){
+              return Container(
+                alignment: Alignment.topCenter,
+                child:const CircularProgressIndicator(),
+              );
+            }
+            else if(orderState.orders.isEmpty){
+              return Container(
+                margin: EdgeInsets.all(10),
+                child: Text("No upcoming orders"),
+              );
+            }
+            return SingleChildScrollView(
+              child: Column(
+                  children: orderState.orders.map((e) => CustomOrderItem(order: e,ontap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id)));
+                  },)).toList()),
+            );
+          },
+        ))
       ]),
     );
   }

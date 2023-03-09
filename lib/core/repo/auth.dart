@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:dio/adapter.dart';
 import 'package:utsavlife/config.dart';
 
 Future<String> login(String email,String password)async{

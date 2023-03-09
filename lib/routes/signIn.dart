@@ -59,7 +59,7 @@ class _SignInState extends State<SignIn> {
                         child: Column(
                           children: [
                             InputField("Email", _email),
-                            InputField("Password", _password),
+                            InputField("Password", _password,obscureText: true),
                           ],
                         )),
                     SignInButton(context),
@@ -91,10 +91,11 @@ class _SignInState extends State<SignIn> {
       child: const Text("Sign In"),
     );
   }
-  Widget InputField(String title,TextEditingController controller){
+  Widget InputField(String title,TextEditingController controller,{bool obscureText=false}){
       return Container(
         margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
         child: TextFormField(
+          obscureText: obscureText,
           controller: controller,
           decoration: InputDecoration(labelText: title,border: const OutlineInputBorder()),
           validator: (value){
