@@ -35,7 +35,7 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
             child: Consumer<SingleOrderProvider>(
               builder: (context,singleOrderState,child){
                 if(singleOrderState.isLoading){
-                  Container(
+                  return Container(
                     alignment: Alignment.center,
                     child: CircularProgressIndicator(),
                   );

@@ -46,6 +46,8 @@ class OrderModel {
   factory OrderModel.fromJson(Map json){
     VendorOrderStatus tempStatus = VendorOrderStatus.pending;
     String tempTiming="Morning";
+    String tempServiceName = "";
+    String tempCategoryName = "";
     try{
       switch(json["data"]["vandor_order_status"]){
         case "AP":tempStatus = VendorOrderStatus.approved ;
@@ -53,6 +55,21 @@ class OrderModel {
         case "RJ":tempStatus = VendorOrderStatus.rejected ;
       }
     }catch(e){}
+    try{
+      tempServiceName=json["service_details"]["service"];
+    }catch(e){
+
+    }
+    try{
+      tempCategoryName=json["category_details"]["category_name"];
+    }catch(e){
+
+    }
+    try{
+      tempServiceName=json["service_details"]["service"];
+    }catch(e){
+
+    }
     try{
       switch(json["data"]["time"]){
         case "M":tempTiming = "Morning" ;
@@ -76,8 +93,8 @@ class OrderModel {
         days: json["days"].toString(),
         timing: tempTiming,
         end_date:json["event_end_date"].toString(),
-      service_name: json["service_details"]["service"],
-      category: json["category_details"]["category_name"],
+      service_name: tempServiceName,
+      category: tempCategoryName,
     );
   }
 }
