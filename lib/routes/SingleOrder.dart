@@ -8,7 +8,8 @@ import 'package:utsavlife/core/provider/OrderProvider.dart';
 
 class SingleOrderPage extends StatefulWidget {
   String id;
-  SingleOrderPage({Key? key,required this.id}) : super(key: key);
+  bool readOnly;
+  SingleOrderPage({Key? key,required this.id,required this.readOnly}) : super(key: key);
 
   @override
   State<SingleOrderPage> createState() => _SingleOrderPageState();
@@ -25,7 +26,8 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
     final auth = Provider.of<AuthProvider>(context);
     return ListenableProvider(
       create: (_)=>SingleOrderProvider(id: widget.id,auth: auth),
-      child: Scaffold(
+
+      builder:(context,child)=>Scaffold(
         appBar: AppBar(title: Text("Order details"),),
         body: Container(
           height: double.infinity,
@@ -65,8 +67,32 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
             ),
           ),
         ),
+        bottomNavigationBar:
+        (!widget.readOnly)
+            ?
+          BottomAppBar(
+          elevation: 0.5,
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: Row(
+            mainAxisAlignment:MainAxisAlignment.spaceEvenly,
+            children: [
+              BottomButton(context:context,onPressed: ()=>context.read<SingleOrderProvider>().change_status(VendorOrderStatus.approved),text: "Approve",primaryColor: Colors.green),
+              BottomButton(context:context,onPressed: () => context.read<SingleOrderProvider>().change_status(VendorOrderStatus.rejected),text: "Reject",primaryColor: Colors.red),
+            ],
+          ),
+        )
+      :
+        null,
       ),
     );
+  }
+
+  Widget BottomButton({required BuildContext context,Function()? onPressed,required String text,required Color primaryColor}){
+    return  OutlinedButton(
+        style: OutlinedButton.styleFrom(side: BorderSide(width: 1,color: primaryColor)),
+        onPressed: onPressed,
+        child: Text(text,style: TextStyle(color: primaryColor),));
+
   }
   Widget DetailTile(String header,String body){
     return Container(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/repo/auth.dart' as authRepo;
+import 'package:utsavlife/core/repo/user.dart';
 enum AuthState {
   LoggedOut,
   Waiting,
@@ -10,9 +12,11 @@ enum AuthState {
 class AuthProvider with ChangeNotifier {
   AuthState _authState = AuthState.Waiting;
   String? _token=null;
-  AuthState get authState => _authState;
-  String? get token => _token ;
+  UserModel? _user;
   late final SharedPreferences pref;
+  String? get token => _token ;
+  AuthState get authState => _authState;
+  UserModel? get user => _user ;
   void isLoggedIn(){
     if (_token==null){
       _authState = AuthState.LoggedOut ;
@@ -21,6 +25,9 @@ class AuthProvider with ChangeNotifier {
       _authState = AuthState.LoggedIn;
     }
     notifyListeners();
+  }
+  AuthProvider(){
+    init();
   }
   void init()async{
     pref = await SharedPreferences.getInstance();
@@ -31,8 +38,15 @@ class AuthProvider with ChangeNotifier {
      else{
        _token = tempToken;
        _authState = AuthState.LoggedIn ;
+       print("Logged in");
+       getUser();
      }
      notifyListeners();
+  }
+  void getUser()async{
+    print("Getting user data");
+    _user = await get_UserData(_token!); // from repo
+    notifyListeners();
   }
   void saveTokenToStorage(String tempToken){
       pref.setString("token", tempToken);
@@ -52,6 +66,7 @@ class AuthProvider with ChangeNotifier {
       saveTokenToStorage(tempToken);
       _token = tempToken;
       _authState = AuthState.LoggedIn;
+      getUser();
     }
     catch(e){
       _authState = AuthState.Error;

@@ -49,7 +49,7 @@ class OrderModel {
     String tempServiceName = "";
     String tempCategoryName = "";
     try{
-      switch(json["data"]["vandor_order_status"]){
+      switch(json["vandor_order_status"]){
         case "AP":tempStatus = VendorOrderStatus.approved ;
                   break;
         case "RJ":tempStatus = VendorOrderStatus.rejected ;

@@ -20,21 +20,25 @@ class CustomOrderItem extends StatefulWidget {
 
 class _CustomOrderItemState extends State<CustomOrderItem> {
   late Color _statusColor;
+  late String _statusText;
   @override
   void initState(){
     super.initState();
-    choose_statusColor();
+    choose_status();
   }
-  void choose_statusColor(){
+  void choose_status(){
     switch(widget.order.vendorOrderStatus){
       case VendorOrderStatus.rejected:
         _statusColor = Colors.red;
+        _statusText="Rejected";
         break;
       case VendorOrderStatus.approved:
         _statusColor = Colors.green;
+        _statusText="Approved";
         break;
       default:
         _statusColor = Colors.yellow;
+        _statusText="Pending";
     }
   }
   @override
@@ -60,8 +64,14 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
           Expanded(flex:4,child: Text(widget.order.amount,textAlign: TextAlign.center,)),
           Expanded(flex:4,child: Text(widget.order.date,style: TextStyle(fontSize: 12.sp),)),
           Expanded(flex:4,child: Text(widget.order.address)),
-          Expanded(flex:4,child: Text(widget.order.days,textAlign: TextAlign.center,),),
-          Expanded(child: Container(margin: EdgeInsets.only(left: 10,top: 10),height: 10,decoration: BoxDecoration(color: _statusColor),))
+          Expanded(flex:2,child: Text(widget.order.days,textAlign: TextAlign.center,),),
+          Expanded(flex:3,child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(_statusText),
+              Container(margin: EdgeInsets.only(left: 10,top: 10,right: 10),height: 10,decoration: BoxDecoration(color: _statusColor),),
+            ],
+          ))
        ]),
       ),
     );
