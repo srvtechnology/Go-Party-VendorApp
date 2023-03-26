@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/repo/auth.dart' as authRepo;
-import 'package:utsavlife/core/repo/user.dart';
+import 'package:utsavlife/core/repo/user.dart' as userRepo;
 enum AuthState {
   LoggedOut,
   Waiting,
@@ -45,7 +45,7 @@ class AuthProvider with ChangeNotifier {
   }
   void getUser()async{
     print("Getting user data");
-    _user = await get_UserData(_token!); // from repo
+    _user = await userRepo.get_UserData(_token!); // from repo
     notifyListeners();
   }
   void saveTokenToStorage(String tempToken){
@@ -78,5 +78,15 @@ class AuthProvider with ChangeNotifier {
       _authState = AuthState.LoggedOut;
       deleteTokenFromStorage();
       notifyListeners();
+  }
+
+  void editUser(Map fields)async{
+    bool status = await userRepo.edit_UserData(_token!, fields);
+    if(status == true){
+      getUser();
+    }
+    else {
+      
+    }
   }
 }

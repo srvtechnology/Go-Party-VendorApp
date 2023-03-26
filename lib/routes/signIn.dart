@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/routes/homepage.dart';
+import 'package:utsavlife/routes/sendotpPage.dart';
 import 'package:utsavlife/routes/signUp.dart';
 
 class SignIn extends StatefulWidget {
@@ -64,11 +65,18 @@ class _SignInState extends State<SignIn> {
                         )),
                     SignInButton(context),
                     Container(
+                      margin: const EdgeInsets.symmetric(vertical: 20,horizontal: 10),
+                      alignment: Alignment.center,
+                      child: TextButton(onPressed: () {
+                        Navigator.pushNamed(context, sendOtpPageRoute.routeName);
+                      }, child: const Text(" Forgot your password? Click here")),
+                    ),
+                    Container(
                       margin: const EdgeInsets.only(right: 20),
                       alignment: Alignment.bottomRight,
                       child: TextButton(onPressed: () {
                         Navigator.pushNamed(context, SignUp.routeName);
-                      }, child: const Text("New? Sign up")),
+                      }, child: const Text("New? Sign up",style: TextStyle(color: Colors.red),)),
                     )
                   ],)
               ),
@@ -92,12 +100,12 @@ class _SignInState extends State<SignIn> {
     );
   }
   Widget InputField(String title,TextEditingController controller,{bool obscureText=false}){
-      return Container(
-        margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
-        child: TextFormField(
-          obscureText: obscureText,
-          controller: controller,
-          decoration: InputDecoration(labelText: title,border: const OutlineInputBorder()),
+    return Container(
+    margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+    child: TextFormField(
+    obscureText: obscureText,
+    controller: controller,
+    decoration: InputDecoration(labelText: title,border: const OutlineInputBorder()),
           validator: (value){
             if(value==null || value.isEmpty){
               return "Please enter ${title.toLowerCase()}";

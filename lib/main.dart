@@ -9,6 +9,8 @@ import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/routes/homepage.dart';
 import 'package:utsavlife/routes/mainpage.dart';
 import 'package:utsavlife/routes/notifications.dart';
+import 'package:utsavlife/routes/otpPage.dart';
+import 'package:utsavlife/routes/sendotpPage.dart';
 import 'package:utsavlife/routes/signIn.dart';
 import 'package:utsavlife/routes/signUp.dart';
 import 'package:utsavlife/routes/splash.dart';
@@ -37,6 +39,9 @@ void main() {
                 MainPage.routeName:(context)=>const MainPage(),
                 NotificationPage.routeName:(context)=>const NotificationPage(),
                 Homepage.routeName:(context)=>const Homepage(),
+                sendOtpPageRoute.routeName:(context)=>const sendOtpPageRoute(),
+                OtpPageRoute.routeName:(context)=>const OtpPageRoute(),
+
             },
           ),
         ),

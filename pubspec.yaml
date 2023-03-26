@@ -41,6 +41,7 @@ dependencies:
   splash_view: ^2.0.1
   shared_preferences: ^2.0.18
   dio: ^5.0.1
+  otp_text_field: ^1.1.3
 
 
 dev_dependencies:
