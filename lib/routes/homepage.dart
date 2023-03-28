@@ -12,6 +12,8 @@ import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/routes/SingleOrder.dart';
 import 'package:utsavlife/routes/notifications.dart';
 
+import 'mainpage.dart';
+
 class Homepage extends StatefulWidget {
   static const routeName = "home";
   const Homepage({ Key? key }) : super(key: key);
@@ -44,15 +46,15 @@ class _HomepageState extends State<Homepage> {
           appBar: AppBar(
             actions: [
               IconButton(onPressed: (){
+                Provider.of<AuthProvider>(context,listen: false).logout();
+                Navigator.pushReplacementNamed(context, MainPage.routeName);
+              }, icon: Icon(Icons.logout)),
+              IconButton(onPressed: (){
                 Navigator.pushNamed(context, NotificationPage.routeName);
               }, icon:const Icon(Icons.notifications))
             ],
           ),
             body: items[index],
-            drawer: CustomDrawer(
-                key: _drawerKey,
-
-            ),
             bottomNavigationBar:CustomBottomNavBar(
               index: index,
               ontap: (i){
@@ -76,7 +78,9 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  bool editMode = false ;
+  bool ProfileEditMode = false ;
+  bool OfficeEditMode = false ;
+  bool DocumentsEditMode = false ;
   @override
   Widget build(BuildContext context) {
     final logger = Logger();
@@ -85,72 +89,160 @@ class _ProfileState extends State<Profile> {
         return Container(
           height: double.infinity,
           width: double.infinity,
-          padding:const EdgeInsets.symmetric(horizontal: 10),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: SingleChildScrollView(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                      _ProfileHeader(context,auth.user!.name,auth.user!.email),
-                      DefaultTabController(
-                        length: 3,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            TabBar(tabs: [
-                              Tab(child: Text("Personal",style: TextStyle(color: Colors.black),),),
-                              Tab(child: Text("Office",style: TextStyle(color: Colors.black),),),
-                              Tab(child: Text("Documents",style: TextStyle(color: Colors.black),),),
-                            ]),
-                            // TabBarView(children: [
-                            //   _PersonalInfo(auth),
-                            //   Text("Tba"),
-                            //   Text("Tba"),
-                            // ]),
-                          ],
-                        )
-                      ),
-
-                  ]),
-                ),
-              ),
-
-            ],
+          padding:const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+          child: DefaultTabController(
+              length: 3,
+            child: Column(
+              children: [
+                _ProfileHeader(context,auth.user!.name,auth.user!.email),
+                TabBar(tabs: [
+                  Tab(child: Text("Personal",style: TextStyle(color: Colors.black),),),
+                  Tab(child: Text("Office",style: TextStyle(color: Colors.black),),),
+                  Tab(child: Text("Documents",style: TextStyle(color: Colors.black),),),
+                ]),
+                Expanded(child: Container(child: TabBarView(children: [
+                  _PersonalInfo(auth),
+                  _OfficeInfo(auth),
+                  _DocumentInfo(auth),
+                ],),))
+                // Container(
+                //   height: 100.h,
+                //   child: SingleChildScrollView(
+                //     child: TabBarView(
+                //       children: [
+                //         _PersonalInfo(auth),
+                //         Text("tba"),
+                //         Text("tba"),
+                //       ],
+                //     ),
+                //   ),
+                // ),
+              ],
+            )
           ),
       );}
     );
   }
-  Widget _PersonalInfo(AuthProvider auth){
-    return Column(
-      children: [
-        IconButton(onPressed: (){
-          setState(() {
-            editMode = !editMode;
-          });
-        }, icon: Icon(Icons.edit,color: editMode?Theme.of(context).primaryColor:null),),
-        _CustomText(context, title: "Email",content: auth.user!.email),
-        _CustomText(context, title: "Name",content: auth.user!.name),
-        _CustomText(context, title: "Phone",content: auth.user!.mobileno??"Not set"),
-        _CustomText(context, title: "Country",content: auth.user!.country??"Not set"),
-        _CustomText(context, title: "State",content: auth.user!.state??"Not set"),
-        _CustomText(context, title: "City",content: auth.user!.city??"Not set"),
-        if(editMode)
+  Widget _OfficeInfo(AuthProvider auth){
+    return SingleChildScrollView(
+      child: Column(
+        children: [
           Container(
-            alignment: Alignment.center,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
-              ),
-              onPressed: () {  },
-              child: Text("Save"),
-            ),
+            alignment: Alignment.bottomRight,
+            child: IconButton(onPressed: (){
+              setState(() {
+                OfficeEditMode = !OfficeEditMode;
+              });
+            }, icon: Icon(Icons.edit,color: OfficeEditMode?Theme.of(context).primaryColor:null),),
           ),
-      ],
+          _CustomText(context, editMode:OfficeEditMode,title: "Office Number",content: "Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "PinCode",content: "Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "Area",content: "Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "Landmark",content: "Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "State",content: auth.user!.state??"Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "City",content: auth.user!.city??"Not set"),
+          if(OfficeEditMode)
+            Container(
+              alignment: Alignment.center,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+                ),
+                onPressed: () {  },
+                child: Text("Save"),
+              ),
+            ),
+        ],
+      ),
+    );
+
+  }
+  Widget _PersonalInfo(AuthProvider auth){
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
+            alignment: Alignment.bottomRight,
+            child: IconButton(onPressed: (){
+              setState(() {
+                ProfileEditMode = !ProfileEditMode;
+              });
+            }, icon: Icon(Icons.edit,color: ProfileEditMode?Theme.of(context).primaryColor:null),),
+          ),
+          _CustomText(context, editMode:ProfileEditMode,title: "Email",content: auth.user!.email,canEdit: false),
+          _CustomText(context, editMode:ProfileEditMode,title: "Phone",content: auth.user!.mobileno??"Not set",canEdit: false),
+          _CustomText(context, editMode:ProfileEditMode,title: "Name",content: auth.user!.name),
+          _CustomText(context, editMode:ProfileEditMode,title: "PanCard Number",content: ""),
+          _CustomText(context, editMode:ProfileEditMode,title: "ID Number",content: "Not set"),
+          _CustomText(context, editMode:ProfileEditMode, title: "PinCode",content: "Not set"),
+          _CustomText(context, editMode:ProfileEditMode, title: "Area",content: "Not set"),
+          _CustomText(context, editMode:ProfileEditMode,title: "Landmark",content: "Not set"),
+          _CustomText(context, editMode:ProfileEditMode,title: "State",content: auth.user!.state??"Not set"),
+          _CustomText(context, editMode:ProfileEditMode,title: "City",content: auth.user!.city??"Not set"),
+          _CustomText(context, editMode:ProfileEditMode,title: "Calling Number",content:"Not set"),
+          _CustomText(context, editMode:ProfileEditMode,title: "Gst Number",content:"Not set"),
+          if(ProfileEditMode)
+            Container(
+              alignment: Alignment.center,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+                ),
+                onPressed: () {  },
+                child: Text("Save"),
+              ),
+            ),
+        ],
+      ),
     );
   }
-  Widget _CustomText(BuildContext context,{required String title,required String content}){
+  Widget _DocumentInfo(AuthProvider auth){
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
+            alignment: Alignment.bottomRight,
+            child: IconButton(onPressed: (){
+              setState(() {
+                DocumentsEditMode = !DocumentsEditMode;
+              });
+            }, icon: Icon(Icons.edit,color: DocumentsEditMode?Theme.of(context).primaryColor:null),),
+          ),
+          _CustomImage(context, imageUrl: "", title: "Pan Card"),
+          _CustomImage(context, imageUrl: "", title: "KYC"),
+          _CustomImage(context, imageUrl: "", title: "GST"),
+          _CustomImage(context, imageUrl: "", title: "DL"),
+          _CustomImage(context, imageUrl: "", title: "Vendor"),
+          if(DocumentsEditMode)
+            Container(
+              alignment: Alignment.center,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+                ),
+                onPressed: () {  },
+                child: Text("Save"),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+  Widget _CustomImage(BuildContext context,{required String imageUrl,required String title}){
+    return Container(
+      height: 10.h,
+      margin: EdgeInsets.symmetric(horizontal: 20,vertical: 5),
+      child: Row(
+        children: [
+          Expanded(child: CircleAvatar(radius: 30,)),
+          Expanded(flex: 5,child: Container(margin: EdgeInsets.symmetric(horizontal: 20),alignment: Alignment.centerLeft,child: Text(title)),),
+          if(DocumentsEditMode)
+          Expanded(flex: 2,child: Container(height:40,child: TextButton(onPressed: null,child: Text("Choose Image",style: TextStyle(fontSize: 12.sp,color: Colors.black),),style: TextButton.styleFrom(backgroundColor: Colors.grey[200]!),)),)
+        ],
+      ),
+    );
+  }
+  Widget _CustomText(BuildContext context,{required String title,required String content,required bool editMode,bool canEdit=true}){
     return Container(
       margin:const EdgeInsets.symmetric(horizontal: 20),
       alignment: Alignment.centerLeft,
@@ -160,8 +252,8 @@ class _ProfileState extends State<Profile> {
           Container(margin:const EdgeInsets.symmetric(vertical: 5),child: Text(title,style:const TextStyle(fontWeight: FontWeight.bold),)),
           Container(margin:const EdgeInsets.symmetric(vertical: 5),
               child: TextFormField(
-                decoration: editMode?InputDecoration(border: const OutlineInputBorder()):InputDecoration(border: InputBorder.none),
-                readOnly: !editMode,
+                decoration: (editMode&&canEdit)?InputDecoration(border: const OutlineInputBorder()):InputDecoration(border: InputBorder.none),
+                readOnly: !(editMode&&canEdit),
                 initialValue: content,
               )),
         ],

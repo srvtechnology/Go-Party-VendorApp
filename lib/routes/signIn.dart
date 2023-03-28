@@ -5,8 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/routes/homepage.dart';
-import 'package:utsavlife/routes/sendotpPage.dart';
 import 'package:utsavlife/routes/signUp.dart';
+
+import 'otpPage.dart';
 
 class SignIn extends StatefulWidget {
   static const routeName ="signin";
@@ -68,7 +69,7 @@ class _SignInState extends State<SignIn> {
                       margin: const EdgeInsets.symmetric(vertical: 20,horizontal: 10),
                       alignment: Alignment.center,
                       child: TextButton(onPressed: () {
-                        Navigator.pushNamed(context, sendOtpPageRoute.routeName);
+                        Navigator.pushNamed(context, OtpPageRoute.routeName);
                       }, child: const Text(" Forgot your password? Click here")),
                     ),
                     Container(
