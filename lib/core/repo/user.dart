@@ -2,10 +2,13 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:logger/logger.dart';
 import 'package:utsavlife/core/models/user.dart';
 
 import '../../config.dart';
 import '../provider/AuthProvider.dart';
+
+final logger = Logger();
 
 Future<UserModel> get_UserData(String token)async{
   Response response;
@@ -24,7 +27,7 @@ Future<UserModel> get_UserData(String token)async{
             }
         )
     );
-    return UserModel.fromJson(response.data["result"]);
+    return UserModel.fromJson(response.data["data"]);
   }
   catch(e){
     print(e);

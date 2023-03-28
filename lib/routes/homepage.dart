@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/components/drawer.dart';
@@ -78,8 +79,10 @@ class _ProfileState extends State<Profile> {
   bool editMode = false ;
   @override
   Widget build(BuildContext context) {
+    final logger = Logger();
     return Consumer<AuthProvider>(
-      builder:(context,auth,child)=>Container(
+      builder:(context,auth,child){
+        return Container(
           height: double.infinity,
           width: double.infinity,
           padding:const EdgeInsets.symmetric(horizontal: 10),
@@ -91,38 +94,62 @@ class _ProfileState extends State<Profile> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                       _ProfileHeader(context,auth.user!.name,auth.user!.email),
-                      IconButton(onPressed: (){
-                        setState(() {
-                          editMode = !editMode;
-                        });
-                      }, icon: Icon(Icons.edit,color: editMode?Theme.of(context).primaryColor:null),),
-                      _CustomText(context, title: "Email",content: auth.user!.email),
-                      _CustomText(context, title: "Name",content: auth.user!.name),
-                      _CustomText(context, title: "Phone",content: auth.user!.mobileno??"Not set"),
-                      _CustomText(context, title: "Country",content: auth.user!.country??"Not set"),
-                      _CustomText(context, title: "State",content: auth.user!.state??"Not set"),
-                      _CustomText(context, title: "City",content: auth.user!.city??"Not set"),
-                        if(editMode)
-                          Container(
-                            alignment: Alignment.center,
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                  side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
-                              ),
-                              onPressed: () {  },
-                              child: Text("Save"),
-                            ),
-                          ),
+                      DefaultTabController(
+                        length: 3,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            TabBar(tabs: [
+                              Tab(child: Text("Personal",style: TextStyle(color: Colors.black),),),
+                              Tab(child: Text("Office",style: TextStyle(color: Colors.black),),),
+                              Tab(child: Text("Documents",style: TextStyle(color: Colors.black),),),
+                            ]),
+                            // TabBarView(children: [
+                            //   _PersonalInfo(auth),
+                            //   Text("Tba"),
+                            //   Text("Tba"),
+                            // ]),
+                          ],
+                        )
+                      ),
+
                   ]),
                 ),
               ),
 
             ],
           ),
-      ),
+      );}
     );
   }
-
+  Widget _PersonalInfo(AuthProvider auth){
+    return Column(
+      children: [
+        IconButton(onPressed: (){
+          setState(() {
+            editMode = !editMode;
+          });
+        }, icon: Icon(Icons.edit,color: editMode?Theme.of(context).primaryColor:null),),
+        _CustomText(context, title: "Email",content: auth.user!.email),
+        _CustomText(context, title: "Name",content: auth.user!.name),
+        _CustomText(context, title: "Phone",content: auth.user!.mobileno??"Not set"),
+        _CustomText(context, title: "Country",content: auth.user!.country??"Not set"),
+        _CustomText(context, title: "State",content: auth.user!.state??"Not set"),
+        _CustomText(context, title: "City",content: auth.user!.city??"Not set"),
+        if(editMode)
+          Container(
+            alignment: Alignment.center,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+              ),
+              onPressed: () {  },
+              child: Text("Save"),
+            ),
+          ),
+      ],
+    );
+  }
   Widget _CustomText(BuildContext context,{required String title,required String content}){
     return Container(
       margin:const EdgeInsets.symmetric(horizontal: 20),
@@ -169,6 +196,8 @@ class _ProfileState extends State<Profile> {
     );
   }
 }
+
+
 
 class History extends StatefulWidget {
   const History({super.key});
