@@ -81,13 +81,42 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
   }
 
-  void editUser(Map fields)async{
-    bool status = await userRepo.edit_UserData(_token!, fields);
+  void editProfile()async{
+    bool status = await userRepo.edit_profile(_token!, {
+
+    });
     if(status == true){
       getUser();
+      notifyListeners();
     }
     else {
       
+    }
+  }
+
+  void editOfficeDetails()async{
+    bool status = await userRepo.edit_office_details(_token!, {
+
+    });
+    if(status == true){
+      getUser();
+      notifyListeners();
+    }
+    else {
+
+    }
+  }
+
+  void editDocument()async{
+    bool status = await userRepo.edit_Document_details(_token!, {
+
+    });
+    if(status == true){
+      getUser();
+      notifyListeners();
+    }
+    else {
+
     }
   }
 }

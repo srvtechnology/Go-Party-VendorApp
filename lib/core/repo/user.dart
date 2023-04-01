@@ -27,7 +27,7 @@ Future<UserModel> get_UserData(String token)async{
             }
         )
     );
-    return UserModel.fromJson(response.data["data"]);
+    return UserModel.fromJson(response.data);
   }
   catch(e){
     print(e);
@@ -35,7 +35,7 @@ Future<UserModel> get_UserData(String token)async{
   }
 }
 
-Future<bool> edit_UserData(String token,Map updateFields)async{
+Future<bool> edit_profile(String token,Map updateFields)async{
   Response response;
   Dio dio = new Dio();
   (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
@@ -45,7 +45,7 @@ Future<bool> edit_UserData(String token,Map updateFields)async{
     return client;
   };
   try{
-    response = await dio.get("${APIConfig.baseUrl}/api/me",
+    response = await dio.get("${APIConfig.baseUrl}/api/vendor-profile-update",
         options: Options(
             headers: {
               "Authorization":"Bearer ${token}"
@@ -61,4 +61,56 @@ Future<bool> edit_UserData(String token,Map updateFields)async{
   }
 }
 
+
+Future<bool> edit_office_details(String token,Map updateFields)async{
+  Response response;
+  Dio dio = new Dio();
+  (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
+      (HttpClient client) {
+    client.badCertificateCallback =
+        (X509Certificate cert, String host, int port) => true;
+    return client;
+  };
+  try{
+    response = await dio.get("${APIConfig.baseUrl}/api/vendor-office-address-update",
+        options: Options(
+            headers: {
+              "Authorization":"Bearer ${token}"
+            }
+        ),
+        data: updateFields
+    );
+    return true;
+  }
+  catch(e){
+    print(e);
+    return false;
+  }
+}
+
+Future<bool> edit_Document_details(String token,Map updateFields)async{
+  Response response;
+  Dio dio = new Dio();
+  (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
+      (HttpClient client) {
+    client.badCertificateCallback =
+        (X509Certificate cert, String host, int port) => true;
+    return client;
+  };
+  try{
+    response = await dio.get("${APIConfig.baseUrl}/api/vendor-all-images-update",
+        options: Options(
+            headers: {
+              "Authorization":"Bearer ${token}"
+            }
+        ),
+        data: updateFields
+    );
+    return true;
+  }
+  catch(e){
+    print(e);
+    return false;
+  }
+}
 
