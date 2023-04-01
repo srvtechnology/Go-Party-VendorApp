@@ -45,7 +45,7 @@ Future<bool> edit_profile(String token,Map updateFields)async{
     return client;
   };
   try{
-    response = await dio.get("${APIConfig.baseUrl}/api/vendor-profile-update",
+    response = await dio.post("${APIConfig.baseUrl}/api/vendor-profile-update",
         options: Options(
             headers: {
               "Authorization":"Bearer ${token}"
@@ -72,7 +72,7 @@ Future<bool> edit_office_details(String token,Map updateFields)async{
     return client;
   };
   try{
-    response = await dio.get("${APIConfig.baseUrl}/api/vendor-office-address-update",
+    response = await dio.post("${APIConfig.baseUrl}/api/vendor-office-address-update",
         options: Options(
             headers: {
               "Authorization":"Bearer ${token}"
@@ -88,7 +88,7 @@ Future<bool> edit_office_details(String token,Map updateFields)async{
   }
 }
 
-Future<bool> edit_Document_details(String token,Map updateFields)async{
+Future<bool> edit_Document_details(String token,Map<String,dynamic> updateFields)async{
   Response response;
   Dio dio = new Dio();
   (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
@@ -98,13 +98,13 @@ Future<bool> edit_Document_details(String token,Map updateFields)async{
     return client;
   };
   try{
-    response = await dio.get("${APIConfig.baseUrl}/api/vendor-all-images-update",
+    response = await dio.post("${APIConfig.baseUrl}/api/vendor-all-images-update",
         options: Options(
             headers: {
               "Authorization":"Bearer ${token}"
             }
         ),
-        data: updateFields
+        data: FormData.fromMap(updateFields)
     );
     return true;
   }

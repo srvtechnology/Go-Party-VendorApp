@@ -8,6 +8,7 @@ class UserModel {
   String? officeNumber, officeZip, officeArea, officeLandmark, officeState, officeCity ;
   // Documents
   String? panCardUrl, kycUrl, gstUrl, dlUrl,vendorUrl ;
+
   UserModel({
    required this.id,
    required this.name,
@@ -50,6 +51,7 @@ class UserModel {
         country: json["data"]["country"],
         state: json["vendor_details"]["state"],
         city: json["vendor_details"]["city"],
+      area: json["vendor_details"]["area"],
       zip: json["vendor_details"]["pin_code"],
       landmark: json["vendor_details"]["landmark"],
       panCardNumber: json["vendor_details"]["pan_card"],

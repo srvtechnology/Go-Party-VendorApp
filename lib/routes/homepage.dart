@@ -1,15 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:utsavlife/core/components/drawer.dart';
 import 'package:utsavlife/core/components/filters.dart';
 import 'package:utsavlife/core/components/listItems.dart';
 import 'package:utsavlife/core/components/nav.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
+import 'package:utsavlife/core/provider/otpProvider.dart';
 import 'package:utsavlife/routes/SingleOrder.dart';
 import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/notifications.dart';
@@ -61,6 +62,7 @@ class _HomepageState extends State<Homepage> {
               index: index,
               ontap: (i){
                 setState(() {
+                  if(i==2)Provider.of<AuthProvider>(context,listen: false).getUser();
                   index = i;
                 });
               },
@@ -83,6 +85,33 @@ class _ProfileState extends State<Profile> {
   bool ProfileEditMode = false ;
   bool OfficeEditMode = false ;
   bool DocumentsEditMode = false ;
+  Map<String,TextEditingController> textControllers = {
+    "Email":new TextEditingController(),
+    "Phone":new TextEditingController(),
+    "Name":new TextEditingController(),
+    "PanCard Number":new TextEditingController(),
+    "Kyc Number":new TextEditingController(),
+    "Kyc Type":new TextEditingController(),
+    "PinCode":new TextEditingController(),
+    "Area":new TextEditingController(),
+    "Landmark":new TextEditingController(),
+    "State":new TextEditingController(),
+    "City":new TextEditingController(),
+    "Calling Number":new TextEditingController(),
+    "Gst Number":new TextEditingController(),
+    "Office Number":new TextEditingController(),
+    "Office PinCode":new TextEditingController(),
+    "Office Area":new TextEditingController(),
+    "Office Landmark":new TextEditingController(),
+    "Office State":new TextEditingController(),
+    "Office City":new TextEditingController(),
+  } ;
+  Map<String,String?> imgPath = {
+    "Pan Card":null,
+    "KYC":null,
+    "GST":null,
+    "Vendor":null
+  };
   @override
   Widget build(BuildContext context) {
     final logger = Logger();
@@ -137,12 +166,11 @@ class _ProfileState extends State<Profile> {
               });
             }, icon: Icon(Icons.edit,color: OfficeEditMode?Theme.of(context).primaryColor:null),),
           ),
-          _CustomText(context, editMode:OfficeEditMode,title: "Office Number",content: auth.user!.officeNumber ?? "Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "PinCode",content: auth.user!.officeZip ?? "Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "Area",content: auth.user!.officeArea ?? "Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "Landmark",content: auth.user!.officeLandmark ?? "Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "State",content: auth.user!.officeState??"Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "City",content: auth.user!.officeCity??"Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "Office PinCode",content: auth.user!.officeZip ?? "Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "Office Area",content: auth.user!.officeArea ?? "Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "Office Landmark",content: auth.user!.officeLandmark ?? "Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "Office State",content: auth.user!.officeState??"Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "Office City",content: auth.user!.officeCity??"Not set"),
           if(OfficeEditMode)
             Container(
               alignment: Alignment.center,
@@ -150,7 +178,13 @@ class _ProfileState extends State<Profile> {
                 style: OutlinedButton.styleFrom(
                     side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
                 ),
-                onPressed: () {  },
+                onPressed: () {
+                  setOfficeChanges(auth);
+                  auth.editOfficeDetails();
+                  setState(() {
+                    OfficeEditMode = false ;
+                  });
+                },
                 child: Text("Save"),
               ),
             ),
@@ -160,7 +194,7 @@ class _ProfileState extends State<Profile> {
 
   }
   Widget _PersonalInfo(AuthProvider auth){
-    return SingleChildScrollView(
+     return SingleChildScrollView(
       child: Column(
         children: [
           Container(
@@ -177,13 +211,11 @@ class _ProfileState extends State<Profile> {
           _CustomText(context, editMode:ProfileEditMode,title: "PanCard Number",content: auth.user!.panCardNumber??"Not set"),
           _CustomText(context, editMode:ProfileEditMode,title: "Kyc Number",content: auth.user!.kycNumber ??"Not set"),
           _CustomText(context, editMode:ProfileEditMode,title: "Kyc Type",content: auth.user!.kycType ?? "Not set"),
-          _CustomText(context, editMode:ProfileEditMode, title: "PinCode",content: auth.user!.zip ?? "Not set"),
-          _CustomText(context, editMode:ProfileEditMode, title: "Area",content: auth.user!.area ?? "Not set"),
+          _CustomText(context, editMode:ProfileEditMode,title: "PinCode",content: auth.user!.zip ?? "Not set"),
+          _CustomText(context, editMode:ProfileEditMode,title: "Area",content: auth.user!.area ?? "Not set"),
           _CustomText(context, editMode:ProfileEditMode,title: "Landmark",content: auth.user!.landmark ?? "Not set"),
           _CustomText(context, editMode:ProfileEditMode,title: "State",content: auth.user!.state??"Not set"),
           _CustomText(context, editMode:ProfileEditMode,title: "City",content: auth.user!.city??"Not set"),
-          _CustomText(context, editMode:ProfileEditMode,title: "Calling Number",content:auth.user!.callingNumber ?? "Not set"),
-          _CustomText(context, editMode:ProfileEditMode,title: "Gst Number",content:auth.user!.gstNumber ?? "Not set"),
           if(ProfileEditMode)
             Container(
               alignment: Alignment.center,
@@ -191,7 +223,13 @@ class _ProfileState extends State<Profile> {
                 style: OutlinedButton.styleFrom(
                     side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
                 ),
-                onPressed: () {  },
+                onPressed: () {
+                  setUserProfileChanges(auth);
+                  auth.editProfile();
+                  setState(() {
+                    ProfileEditMode=false;
+                  });
+                },
                 child: Text("Save"),
               ),
             ),
@@ -214,8 +252,7 @@ class _ProfileState extends State<Profile> {
           _CustomImage(context, imageUrl: auth.user!.panCardUrl??"", title: "Pan Card"),
           _CustomImage(context, imageUrl: auth.user!.kycUrl??"", title: "KYC"),
           _CustomImage(context, imageUrl: auth.user!.gstUrl??"", title: "GST"),
-          _CustomImage(context, imageUrl: auth.user!.dlUrl??"", title: "DL"),
-          _CustomImage(context, imageUrl: auth.user!.vendorUrl??"", title: "Vendor"),
+           _CustomImage(context, imageUrl: auth.user!.vendorUrl??"", title: "Vendor"),
           if(DocumentsEditMode)
             Container(
               alignment: Alignment.center,
@@ -223,13 +260,40 @@ class _ProfileState extends State<Profile> {
                 style: OutlinedButton.styleFrom(
                     side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
                 ),
-                onPressed: () {  },
+                onPressed: () async{
+                      auth.editDocument(panPath: imgPath["Pan Card"],kycPath: imgPath["KYC"],vendorPath: imgPath["Vendor"],gstPath: imgPath["GST"]);
+                      auth.getUser();
+                      setState(() {
+                        DocumentsEditMode = false;
+                      });
+                },
                 child: Text("Save"),
               ),
             ),
         ],
       ),
     );
+  }
+  void setUserProfileChanges(AuthProvider auth){
+    auth.user!.name =textControllers["Name"]!.text;
+    auth.user!.panCardNumber = textControllers["PanCard Number"]!.text;
+    auth.user!.kycNumber = textControllers["Kyc Number"]!.text;
+    auth.user!.kycType = textControllers["Kyc Type"]!.text;
+    auth.user!.zip = textControllers["PinCode"]!.text;
+    auth.user!.area = textControllers["Area"]!.text;
+    auth.user!.landmark = textControllers["Landmark"]!.text;
+    auth.user!.state = textControllers["State"]!.text;
+    auth.user!.city = textControllers["City"]!.text;
+    auth.user!.callingNumber = textControllers["Calling Number"]!.text;
+    auth.user!.gstNumber = textControllers["Gst Number"]!.text;
+  }
+  void setOfficeChanges(AuthProvider auth){
+    auth.user!.officeNumber = textControllers["Office Number"]!.text ;
+    auth.user!.officeZip = textControllers["Office PinCode"]!.text ;
+    auth.user!.officeArea = textControllers["Office Area"]!.text ;
+    auth.user!.officeLandmark = textControllers["Office Landmark"]!.text ;
+    auth.user!.officeState = textControllers["Office State"]!.text ;
+    auth.user!.officeCity=textControllers["Office City"]!.text ;
   }
   Widget _CustomImage(BuildContext context,{required String imageUrl,required String title}){
     return GestureDetector(
@@ -244,13 +308,19 @@ class _ProfileState extends State<Profile> {
             Expanded(child: CircleAvatar(radius: 30,backgroundImage: imageUrl.isEmpty?null:CachedNetworkImageProvider(imageUrl))),
             Expanded(flex: 5,child: Container(margin: EdgeInsets.symmetric(horizontal: 20),alignment: Alignment.centerLeft,child: Text(title)),),
             if(DocumentsEditMode)
-            Expanded(flex: 2,child: Container(height:40,child: TextButton(onPressed: null,child: Text("Choose Image",style: TextStyle(fontSize: 12.sp,color: Colors.black),),style: TextButton.styleFrom(backgroundColor: Colors.grey[200]!),)),)
+            Expanded(flex: 2,child: Container(height:40,child: TextButton(onPressed: ()async{
+              XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+              setState(() {
+                imgPath["title"] = file?.path ;
+              });
+            },child: Text("Choose Image",style: TextStyle(fontSize: 12.sp,color: Colors.black),),style: TextButton.styleFrom(backgroundColor: Colors.grey[200]!),)),)
           ],
         ),
       ),
     );
   }
   Widget _CustomText(BuildContext context,{required String title,required String content,required bool editMode,bool canEdit=true}){
+    textControllers[title]?.text = content ;
     return Container(
       margin:const EdgeInsets.symmetric(horizontal: 20),
       alignment: Alignment.centerLeft,
@@ -260,9 +330,9 @@ class _ProfileState extends State<Profile> {
           Container(margin:const EdgeInsets.symmetric(vertical: 5),child: Text(title,style:const TextStyle(fontWeight: FontWeight.bold),)),
           Container(margin:const EdgeInsets.symmetric(vertical: 5),
               child: TextFormField(
+               controller: textControllers[title],
                 decoration: (editMode&&canEdit)?InputDecoration(border: const OutlineInputBorder()):InputDecoration(border: InputBorder.none),
-                readOnly: !(editMode&&canEdit),
-                initialValue: content,
+                enabled: (editMode&&canEdit),
               )),
         ],
       ),
