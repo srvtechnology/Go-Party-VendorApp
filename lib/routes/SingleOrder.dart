@@ -52,6 +52,7 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    DetailTile("Status", singleOrderState.order!.vendorOrderStatus == VendorOrderStatus.approved?"Approved":"Rejected"),
                     DetailTile("Category", singleOrderState.order!.category!),
                     DetailTile("Service Name", singleOrderState.order!.service_name!),
                     DetailTile("Address", singleOrderState.order!.address!),
