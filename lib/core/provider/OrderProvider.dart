@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:utsavlife/core/models/order.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
+import 'package:utsavlife/core/provider/otpProvider.dart';
 import 'package:utsavlife/core/repo/order.dart';
 
 class UpcomingOrderProvider with ChangeNotifier{
@@ -77,14 +78,14 @@ class SingleOrderProvider with ChangeNotifier{
     _order = await get_orderById(auth, id);
     stopLoading();
   }
-  void change_status(VendorOrderStatus status)async{
+  Future<void> change_status(VendorOrderStatus status)async{
     startLoading();
     try{
       successMessage = await ChangeOrderStatus(auth, status, _order!.id);
       _order?.vendorOrderStatus = status ;
     }
     catch(e){
-
+      logger.e(e.toString());
     }
     stopLoading();
   }

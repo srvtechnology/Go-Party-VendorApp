@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-
+import 'package:utsavlife/core/models/order.dart';
+typedef onSearch = Function(String searchItem) ;
+typedef onStatusSelect = Function(VendorOrderStatus? status);
 class Filter extends StatefulWidget {
-  const Filter({super.key});
+  onSearch onsearch ;
+  onStatusSelect onstatusSelect ;
+  Filter({super.key,required this.onsearch,required this.onstatusSelect});
 
   @override
   State<Filter> createState() => _FilterState();
 }
 
 class _FilterState extends State<Filter> {
+  String selectedStatus="All";
   List statuses = [
     "All",
-    "Upcoming",
     "Rejected",
-    "Completed"
+    "Approved"
   ];
   @override
   Widget build(BuildContext context) {
@@ -25,17 +28,30 @@ class _FilterState extends State<Filter> {
           Expanded(flex: 2,child: _SearchBar(context)),  
           Expanded(child: Container(),),
           Expanded(child: _statusFilter(context),),
-          
         ]),
     );
   }
   Widget _statusFilter(BuildContext context){
     return Container(
+      alignment: Alignment.center,
       width: 20,
       child: DropdownButton(
         isExpanded: true,
-        value: statuses[0],
-        items: statuses.map((e) => DropdownMenuItem(value:e, child: Text(e))).toList(), onChanged: (ob){}),
+        value: selectedStatus,
+        items: statuses.map((e) => DropdownMenuItem(value:e, child: Text(e))).toList(), onChanged: (ob){
+          setState(() {
+            selectedStatus = ob.toString();
+          });
+          if(ob==statuses[0]){
+            widget.onstatusSelect(null);
+          }
+          else if(ob==statuses[1]){
+            widget.onstatusSelect(VendorOrderStatus.rejected);
+          }
+          else{
+            widget.onstatusSelect(VendorOrderStatus.approved);
+          }
+      }),
     );
   }
   Widget _SearchBar(BuildContext context){
@@ -46,6 +62,9 @@ class _FilterState extends State<Filter> {
       ),
       margin:const EdgeInsets.symmetric(horizontal: 5),
     child: TextFormField(
+      onChanged: (text){
+        widget.onsearch(text);
+      },
       decoration:const InputDecoration(
         icon: Icon(Icons.search),
         border: OutlineInputBorder(),

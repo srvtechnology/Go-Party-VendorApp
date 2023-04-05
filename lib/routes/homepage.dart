@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,11 +11,12 @@ import 'package:utsavlife/core/components/listItems.dart';
 import 'package:utsavlife/core/components/nav.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
-import 'package:utsavlife/core/provider/otpProvider.dart';
 import 'package:utsavlife/routes/SingleOrder.dart';
 import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/notifications.dart';
+import 'package:utsavlife/routes/pdfView.dart';
 
+import '../core/models/order.dart';
 import 'mainpage.dart';
 
 class Homepage extends StatefulWidget {
@@ -184,6 +186,7 @@ class _ProfileState extends State<Profile> {
                   setState(() {
                     OfficeEditMode = false ;
                   });
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
                 },
                 child: Text("Save"),
               ),
@@ -229,6 +232,8 @@ class _ProfileState extends State<Profile> {
                   setState(() {
                     ProfileEditMode=false;
                   });
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
+
                 },
                 child: Text("Save"),
               ),
@@ -298,21 +303,35 @@ class _ProfileState extends State<Profile> {
   Widget _CustomImage(BuildContext context,{required String imageUrl,required String title}){
     return GestureDetector(
       onTap: (){
-        Navigator.push(context,MaterialPageRoute(builder: (context)=>ImageViewer(imageUrl: imageUrl)));
+        if(imageUrl.endsWith("pdf")){
+          Navigator.push(context,MaterialPageRoute(builder: (context)=>pdfViewer(pdfUrl: imageUrl)));
+        }
+        else {
+          Navigator.push(context,MaterialPageRoute(builder: (context)=>ImageViewer(imageUrl: imageUrl)));
+        }
       },
       child: Container(
         height: 10.h,
         margin: EdgeInsets.symmetric(horizontal: 20,vertical: 5),
         child: Row(
           children: [
-            Expanded(child: CircleAvatar(radius: 30,backgroundImage: imageUrl.isEmpty?null:CachedNetworkImageProvider(imageUrl))),
+            Expanded(child: CircleAvatar(radius: 30,backgroundImage: imageUrl.isEmpty && imageUrl.endsWith("pdf")==false?null:CachedNetworkImageProvider(imageUrl))),
             Expanded(flex: 5,child: Container(margin: EdgeInsets.symmetric(horizontal: 20),alignment: Alignment.centerLeft,child: Text(title)),),
             if(DocumentsEditMode)
             Expanded(flex: 2,child: Container(height:40,child: TextButton(onPressed: ()async{
-              XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
-              setState(() {
-                imgPath["title"] = file?.path ;
-              });
+              if(imageUrl.endsWith("pdf")){
+                FilePickerResult? file = await FilePicker.platform.pickFiles(type: FileType.custom,allowedExtensions: ["pdf"]);
+                setState(() {
+                  imgPath["title"] = file?.files.single.path ;
+                });
+              }
+              else{
+                XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+                setState(() {
+                  imgPath["title"] = file?.path ;
+                });
+              }
+
             },child: Text("Choose Image",style: TextStyle(fontSize: 12.sp,color: Colors.black),),style: TextButton.styleFrom(backgroundColor: Colors.grey[200]!),)),)
           ],
         ),
@@ -377,8 +396,14 @@ class History extends StatefulWidget {
 }
 
 class _HistoryState extends State<History> {
+  String searchitem = "";
+  VendorOrderStatus? orderStatus;
   void refresh(BuildContext context){
     context.read<HistoryOrderProvider>().load_history_orders();
+    setState(() {
+      searchitem = "";
+      orderStatus==null ;
+    });
   }
   @override
   Widget build(BuildContext context) {
@@ -387,7 +412,15 @@ class _HistoryState extends State<History> {
         width: double.infinity,
         padding:const EdgeInsets.all(10),
         child: Column(children: [
-          Expanded(child: Filter()),
+          Expanded(child: Filter(onsearch: (String searchItem) {
+            setState(() {
+              searchitem = searchItem ;
+            });
+          },onstatusSelect: (VendorOrderStatus? status) {
+            setState(() {
+              orderStatus=status;
+            });
+          },)),
           Expanded(
             child: Container(
               margin:const EdgeInsets.symmetric(vertical: 5,horizontal: 20),
@@ -416,7 +449,11 @@ class _HistoryState extends State<History> {
               }
               return SingleChildScrollView(
                 child: Column(
-                    children: orderState.orders.map((e) => CustomOrderItem(order: e,ontap: (){
+                    children:orderState.orders.where((element) => element.amount.contains(searchitem))
+                        .where((element) {
+                      if(orderStatus==null)return true;
+                      return element.vendorOrderStatus == orderStatus ;
+                    }).map((e) => CustomOrderItem(order: e,ontap: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: true,))).then((value) => refresh(context));
                     },)).toList()),
               );
@@ -436,8 +473,14 @@ class Orders extends StatefulWidget {
 }
 
 class _OrdersState extends State<Orders> {
+  String searchitem = "";
+  VendorOrderStatus? orderStatus;
   void refresh(BuildContext context){
     context.read<UpcomingOrderProvider>().load_upcoming_orders();
+    setState(() {
+    searchitem="";
+    orderStatus=null;
+    });
   }
   @override
   void initState(){
@@ -450,7 +493,15 @@ class _OrdersState extends State<Orders> {
       width: double.infinity,
       padding:const EdgeInsets.all(10),
       child: Column(children: [
-        const Expanded(child: Filter()),
+        Expanded(child: Filter(onsearch: (String searchItem) { 
+          setState(() {
+            searchitem = searchItem;
+          },);
+        }, onstatusSelect: (VendorOrderStatus? status) {
+          setState(() {
+          orderStatus=status;
+          });
+        },)),
         Expanded(
           child: Container(
             margin:const EdgeInsets.symmetric(vertical: 5,horizontal: 20),
@@ -479,7 +530,11 @@ class _OrdersState extends State<Orders> {
             }
             return SingleChildScrollView(
               child: Column(
-                  children: orderState.orders.map((e) => CustomOrderItem(order: e,ontap: (){
+                  children: orderState.orders.where((element) => element.amount.contains(searchitem))
+                      .where((element) {
+                    if(orderStatus==null)return true;
+                    return element.vendorOrderStatus == orderStatus ;
+                  }).map((e) => CustomOrderItem(order: e,ontap: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: false,))).then((value) => refresh(context));
                   },)).toList()),
             );

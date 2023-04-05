@@ -77,8 +77,8 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
           child: Row(
             mainAxisAlignment:MainAxisAlignment.spaceEvenly,
             children: [
-              BottomButton(context:context,onPressed: ()=>context.read<SingleOrderProvider>().change_status(VendorOrderStatus.approved),text: "Approve",primaryColor: Colors.green),
-              BottomButton(context:context,onPressed: () => context.read<SingleOrderProvider>().change_status(VendorOrderStatus.rejected),text: "Reject",primaryColor: Colors.red),
+              BottomButton(context:context,onPressed: ()=>approveOrder(context),text: "Approve",primaryColor: Colors.green),
+              BottomButton(context:context,onPressed: () => rejectOrder(context),text: "Reject",primaryColor: Colors.red),
             ],
           ),
         )
@@ -87,7 +87,26 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
       ),
     );
   }
-
+  void approveOrder(BuildContext context)async{
+    try {
+      await context.read<SingleOrderProvider>().change_status(
+          VendorOrderStatus.approved);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Order Approved")));
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+    
+  }
+  void rejectOrder(BuildContext context){
+  try {
+    context.read<SingleOrderProvider>().change_status(
+        VendorOrderStatus.rejected);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Order Rejected")));
+  }
+  catch(e){
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+  }
+  }
   Widget BottomButton({required BuildContext context,Function()? onPressed,required String text,required Color primaryColor}){
     return  OutlinedButton(
         style: OutlinedButton.styleFrom(side: BorderSide(width: 1,color: primaryColor)),
