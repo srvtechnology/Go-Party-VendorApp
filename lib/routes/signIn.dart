@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/config.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/routes/homepage.dart';
 import 'package:utsavlife/routes/signUp.dart';
+import 'package:utsavlife/routes/webviewPage.dart';
 
 import 'otpPage.dart';
 
@@ -76,7 +78,7 @@ class _SignInState extends State<SignIn> {
                       margin: const EdgeInsets.only(right: 20),
                       alignment: Alignment.bottomRight,
                       child: TextButton(onPressed: () {
-                        Navigator.pushNamed(context, SignUp.routeName);
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>webViewer(url: "${APIConfig.baseUrl}/vandor/registration")));
                       }, child: const Text("New? Sign up",style: TextStyle(color: Colors.red),)),
                     )
                   ],)
