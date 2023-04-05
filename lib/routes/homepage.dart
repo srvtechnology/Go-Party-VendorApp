@@ -322,13 +322,13 @@ class _ProfileState extends State<Profile> {
               if(imageUrl.endsWith("pdf")){
                 FilePickerResult? file = await FilePicker.platform.pickFiles(type: FileType.custom,allowedExtensions: ["pdf"]);
                 setState(() {
-                  imgPath["title"] = file?.files.single.path ;
+                  imgPath[title] = file?.files.single.path ;
                 });
               }
               else{
                 XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
                 setState(() {
-                  imgPath["title"] = file?.path ;
+                  imgPath[title] = file?.path ;
                 });
               }
 

@@ -106,6 +106,7 @@ Future<bool> edit_Document_details(String token,Map<String,dynamic> updateFields
         ),
         data: FormData.fromMap(updateFields)
     );
+    Logger().d(response.data);
     return true;
   }
   catch(e){
