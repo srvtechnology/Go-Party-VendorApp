@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final auth = context.read<AuthProvider>();
     return SplashView(
       duration:const Duration(seconds: 2),
-      logo: Image.asset("assets/images/logo/logo-nav.png"),
+      logo: Image.asset("assets/images/logo/logo.png"),
       done: Done(
         const MainPage()
       ),

@@ -26,15 +26,40 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
     final auth = Provider.of<AuthProvider>(context);
     return ListenableProvider(
       create: (_)=>SingleOrderProvider(id: widget.id,auth: auth),
-
       builder:(context,child)=>Scaffold(
         appBar: AppBar(title: Text("Order details"),),
         body: Container(
           height: double.infinity,
           width: double.infinity,
+          margin: EdgeInsets.all(20),
           padding: EdgeInsets.all(20),
-          child: SingleChildScrollView(
-            child: Consumer<SingleOrderProvider>(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                offset: Offset(-3,3),
+                color: Colors.grey[200]!,
+                blurRadius: 1
+              ),
+              BoxShadow(
+                  offset: Offset(3,-3),
+                  color: Colors.grey[200]!,
+                  blurRadius: 1
+              ),
+              BoxShadow(
+                  offset: Offset(-3,0),
+                  color: Colors.grey[200]!,
+                  blurRadius: 1
+              ),
+              BoxShadow(
+                  offset: Offset(0,-3),
+                  color: Colors.grey[200]!,
+                  blurRadius: 1
+              ),
+            ]
+          ),
+          child: Consumer<SingleOrderProvider>(
               builder: (context,singleOrderState,child){
                 if(singleOrderState.isLoading){
                   return Container(
@@ -49,39 +74,72 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                      child: Text("Error fetching data.Please check logs"),
                    );
                  }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DetailTile("Status", singleOrderState.order!.vendorOrderStatus == VendorOrderStatus.approved?"Approved":"Rejected"),
-                    DetailTile("Category", singleOrderState.order!.category!),
-                    DetailTile("Service Name", singleOrderState.order!.service_name!),
-                    DetailTile("Address", singleOrderState.order!.address!),
-                    DetailTile("Order start date", singleOrderState.order!.date!),
-                    DetailTile("Order end date", singleOrderState.order!.end_date!),
-                    DetailTile("Time", singleOrderState.order!.timing!),
-                    DetailTile("Days", singleOrderState.order!.days),
-                    DetailTile("Amount", singleOrderState.order!.amount),
-                  ],
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 5.h,
+                        padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                        child: Text("₹ ${singleOrderState.order!.amount}",style: Theme.of(context).textTheme.headlineSmall,),
+                      ),
+                      SizedBox(height: 20,),
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 5,horizontal: 20),
+                        child: Text("General Information",style: Theme.of(context).textTheme.bodyMedium,),
+                      ),
+                      Row(
+                        children: [
+                          Expanded(child: DetailTile("Status", singleOrderState.order!.vendorOrderStatus == VendorOrderStatus.approved?"Approved":"Rejected")),
+                          Expanded(child: DetailTile("Category", singleOrderState.order!.category!)),
+                        ],
+                      ),
+                      DetailTile("Service Name", singleOrderState.order!.service_name!),
+                      DetailTile("Address", singleOrderState.order!.address!),
+                      Row(
+                        children: [
+                          Expanded(child:DetailTile("Order start date", singleOrderState.order!.date!)),
+                          Expanded(child:DetailTile("Order end date", singleOrderState.order!.end_date!)),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Expanded(child: DetailTile("Time", singleOrderState.order!.timing!)),
+                          Expanded(child: DetailTile("Days", singleOrderState.order!.days)),
+                        ],
+                      )
+                    ],
+                  ),
                 );
 
               },
             ),
           ),
-        ),
         bottomNavigationBar:
         (!widget.readOnly)
             ?
-          BottomAppBar(
-          elevation: 0.5,
-          color: Theme.of(context).scaffoldBackgroundColor,
-          child: Row(
-            mainAxisAlignment:MainAxisAlignment.spaceEvenly,
-            children: [
-              BottomButton(context:context,onPressed: ()=>approveOrder(context),text: "Approve",primaryColor: Colors.green),
-              BottomButton(context:context,onPressed: () => rejectOrder(context),text: "Reject",primaryColor: Colors.red),
-            ],
-          ),
-        )
+    Consumer<SingleOrderProvider>(
+    builder: (context,singleOrderState,child)
+    {
+      if(singleOrderState.order == null)
+        {
+          return CircularProgressIndicator();
+        }
+      return BottomAppBar(
+            elevation: 0.5,
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: Row(
+              mainAxisAlignment:MainAxisAlignment.spaceEvenly,
+              children: [
+                if(singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.rejected || singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.pending)
+                BottomButton(context:context,onPressed: ()=>approveOrder(context),text: "Approve",primaryColor: Colors.green),
+                if(singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.approved || singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.pending)
+                BottomButton(context:context,onPressed: () => rejectOrder(context),text: "Reject",primaryColor: Colors.red),
+              ],
+            ),
+        );
+    }
+          )
       :
         null,
       ),
@@ -115,18 +173,16 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
 
   }
   Widget DetailTile(String header,String body){
+    if(body=="")body="Not set";
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children:[
-        Container(
-            margin: EdgeInsets.symmetric(vertical: 5),
-            child: Text(header,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15.sp),)),
-        Text(body)
-        ]
-      ),
+      child: TextFormField(
+        decoration: InputDecoration(
+          labelText: header
+        ),
+        initialValue: body,
+        readOnly: true,
+      )
     );
   }
 }

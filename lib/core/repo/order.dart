@@ -31,7 +31,12 @@ Future<List<OrderModel>> get_upcoming_order_list(AuthProvider auth)async{
           return orders;
         }
    catch(e){
-      print(e);
+    if(e is DioError){
+      if (e.response?.statusCode == 401){
+        auth.reLogin();
+      }
+    }
+    print(e);
           return Future.error(e);
         }
 }
@@ -60,7 +65,12 @@ Future<List<OrderModel>> get_history_order_list(AuthProvider auth)async{
           return orders;
         }
    catch(e){
-      print(e);
+     if(e is DioError){
+       if (e.response?.statusCode == 401){
+         auth.reLogin();
+       }
+     }
+     print(e);
           return Future.error(e);
         }
 }
@@ -87,6 +97,11 @@ Future<OrderModel> get_orderById(AuthProvider auth,String id)async{
     return OrderModel.fromJson(response.data["data"]);
   }
   catch(e){
+    if(e is DioError){
+      if (e.response?.statusCode == 401){
+        auth.reLogin();
+      }
+    }
     print(e);
     return Future.error(e);
   }
@@ -120,6 +135,11 @@ Future<String> ChangeOrderStatus(AuthProvider auth,VendorOrderStatus status,Stri
     return "Order Status changed successfully";
   }
   catch(e){
+    if(e is DioError){
+      if (e.response?.statusCode == 401){
+        auth.reLogin();
+      }
+    }
     print(e);
     return Future.error(e);
   }

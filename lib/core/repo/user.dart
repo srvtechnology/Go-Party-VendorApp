@@ -1,14 +1,9 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:logger/logger.dart';
 import 'package:utsavlife/core/models/user.dart';
-
 import '../../config.dart';
-import '../provider/AuthProvider.dart';
-
-final logger = Logger();
 
 Future<UserModel> get_UserData(String token)async{
   Response response;

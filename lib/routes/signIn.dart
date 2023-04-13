@@ -1,14 +1,11 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/config.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
-import 'package:utsavlife/routes/homepage.dart';
 import 'package:utsavlife/routes/signUp.dart';
 import 'package:utsavlife/routes/webviewPage.dart';
-
 import 'otpPage.dart';
 
 class SignIn extends StatefulWidget {
@@ -42,7 +39,7 @@ class _SignInState extends State<SignIn> {
                     Container(
                       height: 20.h,
                       width: 40.w,
-                      child: Image.asset("assets/images/logo/logo-nav.png"),
+                      child: Image.asset("assets/images/logo/logo.png"),
                     ),
                     if(state.authState==AuthState.Error)
                       Text("Incorrect username or password",style: TextStyle(color: Colors.red),),
@@ -78,7 +75,7 @@ class _SignInState extends State<SignIn> {
                       margin: const EdgeInsets.only(right: 20),
                       alignment: Alignment.bottomRight,
                       child: TextButton(onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>webViewer(url: "${APIConfig.baseUrl}/vandor/registration")));
+                        Navigator.pushNamed(context, SignUp.routeName);
                       }, child: const Text("New? Sign up",style: TextStyle(color: Colors.red),)),
                     )
                   ],)

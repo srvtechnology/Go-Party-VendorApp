@@ -47,23 +47,27 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
       onTap: widget.ontap,
       child: Container(
         margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 5),
-        decoration:const BoxDecoration(
+        decoration:BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(5)),
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              offset: Offset(2, 2),
-              color: Colors.grey,
+              offset: Offset(0, 5),
+              color: Colors.grey[300]!,
+              blurRadius: 2
+            ),BoxShadow(
+              offset: Offset(5, 0),
+              color: Colors.grey[300]!,
               blurRadius: 2
             )
           ]
         ),
        width: 100.w,
-       height: 8.h,
+       height: 10.h,
        child: Row(children: [
-          Expanded(flex:4,child: Text(widget.order.amount,textAlign: TextAlign.center,)),
-          Expanded(flex:4,child: Text(widget.order.date,style: TextStyle(fontSize: 12.sp),)),
-          Expanded(flex:4,child: Text(widget.order.address)),
+          Expanded(flex:4,child: Text("₹ ${widget.order.amount}",textAlign: TextAlign.center,)),
+          Expanded(flex:5,child: Text(widget.order.date,style: TextStyle(fontSize: 14.sp),)),
+          Expanded(flex:3,child: Text(widget.order.address.split(",")[0])),
           Expanded(flex:2,child: Text(widget.order.days,textAlign: TextAlign.center,),),
           Expanded(flex:3,child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

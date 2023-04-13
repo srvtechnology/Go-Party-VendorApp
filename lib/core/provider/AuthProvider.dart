@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/repo/auth.dart' as authRepo;
@@ -53,12 +52,29 @@ class AuthProvider with ChangeNotifier {
   void saveTokenToStorage(String tempToken){
       pref.setString("token", tempToken);
   }
+  void saveEmailPasswordToStorage(String email,String password){
+    pref.setString("email", email);
+    pref.setString("password", password);
+  }
   Future<String?> getTokenFromStorage()async{
       String? tempToken = await pref.getString("token");
       return tempToken;
   }
+  Future<String?> getEmailFromStorage()async{
+    String? email = await pref.getString("email");
+    return email;
+  }
+  Future<String?> getPasswordFromStorage()async{
+    String? password = await pref.getString("password");
+    return password;
+  }
   void deleteTokenFromStorage(){
     pref.remove("token");
+  }
+  void reLogin()async{
+    String? email =await getEmailFromStorage();
+    String? password =await getPasswordFromStorage();
+    if(email!=null && password!=null)login(email, password);
   }
   void login(String email,String password)async{
     _authState = AuthState.Waiting;
@@ -66,6 +82,7 @@ class AuthProvider with ChangeNotifier {
     try {
       String tempToken = await authRepo.login(email, password);
       saveTokenToStorage(tempToken);
+      saveEmailPasswordToStorage(email, password);
       _token = tempToken;
       _authState = AuthState.LoggedIn;
       getUser();

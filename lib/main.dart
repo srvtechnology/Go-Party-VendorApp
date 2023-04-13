@@ -10,6 +10,7 @@ import 'package:utsavlife/routes/homepage.dart';
 import 'package:utsavlife/routes/mainpage.dart';
 import 'package:utsavlife/routes/notifications.dart';
 import 'package:utsavlife/routes/otpPage.dart';
+import 'package:utsavlife/routes/servicelist.dart';
 import 'package:utsavlife/routes/signIn.dart';
 import 'package:utsavlife/routes/signUp.dart';
 import 'package:utsavlife/routes/splash.dart';
@@ -28,7 +29,10 @@ void main() {
             ChangeNotifierProvider(create: (_)=>AuthProvider()),
           ],
           child: MaterialApp(
-            theme: ThemeData(primaryColor:const Color(0xff2596be),appBarTheme: const AppBarTheme(color: Color(0xff0264a5))),
+            theme: ThemeData(
+                primaryColor:const Color(0xff2596be),
+                appBarTheme: const AppBarTheme(color: Color(0xff0264a5),
+                ),),
             useInheritedMediaQuery: true,
             initialRoute: SplashScreen.routeName,
             routes: {
@@ -37,8 +41,9 @@ void main() {
                 SignUp.routeName:(context)=>SafeArea(child: const SignUp()),
                 MainPage.routeName:(context)=>const SafeArea(child: MainPage()),
                 NotificationPage.routeName:(context)=>const SafeArea(child: NotificationPage()),
-                Homepage.routeName:(context)=>const SafeArea(child: Homepage()),
+                Homepage.routeName:(context)=> SafeArea(child: Homepage()),
                 OtpPageRoute.routeName:(context)=>const SafeArea(child: OtpPageRoute()),
+                serviceListRoute.routeName:(context)=> const SafeArea(child: serviceListRoute())
             },
           ),
         ),

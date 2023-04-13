@@ -15,26 +15,35 @@ import 'package:utsavlife/routes/SingleOrder.dart';
 import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/notifications.dart';
 import 'package:utsavlife/routes/pdfView.dart';
-
+import 'package:utsavlife/routes/servicelist.dart';
 import '../core/models/order.dart';
 import 'mainpage.dart';
 
 class Homepage extends StatefulWidget {
+  int startingIndex;
   static const routeName = "home";
-  const Homepage({ Key? key }) : super(key: key);
+  Homepage({ Key? key,this.startingIndex=0}) : super(key: key);
 
   @override
-  _HomepageState createState() => _HomepageState();
+  _HomepageState createState() => _HomepageState(startingIndex: startingIndex);
 }
 
 class _HomepageState extends State<Homepage> {
+  int startingIndex;
+  _HomepageState({required this.startingIndex});
   int index=0;
   final _drawerKey = GlobalKey();
   List<Widget> items = [
     const Orders(),
     const History(),
+    const Dashboard(),
     const Profile(),
   ];
+  @override
+  void initState() {
+    super.initState();
+    index=startingIndex;
+  }
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -70,6 +79,107 @@ class _HomepageState extends State<Homepage> {
               },
             ),
         ),
+      ),
+    );
+  }
+}
+
+class Dashboard extends StatefulWidget {
+  
+  const Dashboard({Key? key}) : super(key: key);
+
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+// Utitilty function
+class CardItem
+{
+  String title;
+  IconData icon;
+  Function onTap;
+  CardItem({required this.title,required this.icon,required this.onTap});
+}
+
+class _DashboardState extends State<Dashboard> {
+  List<CardItem> cards = [
+    CardItem(title: "Add services", icon: Icons.cleaning_services, onTap: (){}),
+    CardItem(title: "Services List", icon: Icons.list_alt, onTap: (context){
+      Navigator.pushNamed(context, serviceListRoute.routeName);
+    }),
+    CardItem(title: "Registration", icon: Icons.app_registration, onTap: (){}),
+    CardItem(title: "Notifications", icon: Icons.notifications_active, onTap: (){}),
+    CardItem(title: "Profile", icon: Icons.person, onTap: (context){
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Homepage(startingIndex: 3,)));
+    }),
+    CardItem(title: "Logout", icon: Icons.logout, onTap: (context){
+      Provider.of<AuthProvider>(context,listen: false).logout();
+      Navigator.pushReplacementNamed(context, MainPage.routeName);
+    }),
+  ];
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(
+        builder:(context,state,child){
+          return Container(
+            height: double.infinity,
+            width: double.infinity,
+            padding: EdgeInsets.all(20),
+            child: GridView.builder(
+                itemCount: cards.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 20,
+              childAspectRatio: 0.85,
+            ), itemBuilder:(context,int index){
+              return card(title: cards[index].title, icon: cards[index].icon, onTap:(){
+                cards[index].onTap(context);
+              });
+            }),
+          );
+        }
+    );
+  }
+  Widget card({required String title,required IconData icon,required Function onTap}){
+    return GestureDetector(
+      onTap: (){
+        onTap();
+      },
+      child: Container(
+        height: 15.h,
+        margin: EdgeInsets.all(5),
+        child: Column(
+          children: [
+            Container(
+              height: 10.h,
+              width: 65.w,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                        offset: Offset(0,1),
+                        color: Colors.grey[400]!,
+                        blurRadius: 2
+                    ),
+                    BoxShadow(
+                        offset: Offset(1,0),
+                        color: Colors.grey[400]!,
+                        blurRadius: 2
+                    )
+                  ]
+              ),
+              margin: const EdgeInsets.all(5.0),
+              child: Icon(icon,size: 30.sp,color: Theme.of(context).primaryColorDark,),
+            ),
+            Expanded(
+                child:Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    alignment: Alignment.bottomCenter,
+                    child: Text(title,textAlign: TextAlign.center,)))
+          ],
+        )
       ),
     );
   }
@@ -210,7 +320,7 @@ class _ProfileState extends State<Profile> {
           ),
           _CustomText(context, editMode:ProfileEditMode,title: "Email",content: auth.user!.email,canEdit: false),
           _CustomText(context, editMode:ProfileEditMode,title: "Phone",content: auth.user!.mobileno??"Not set",canEdit: false),
-          _CustomText(context, editMode:ProfileEditMode,title: "Name",content: auth.user!.name),
+          _CustomText(context, editMode:ProfileEditMode,title: "Name",content: auth.user!.name??"Not yet"),
           _CustomText(context, editMode:ProfileEditMode,title: "PanCard Number",content: auth.user!.panCardNumber??"Not set"),
           _CustomText(context, editMode:ProfileEditMode,title: "Kyc Number",content: auth.user!.kycNumber ??"Not set"),
           _CustomText(context, editMode:ProfileEditMode,title: "Kyc Type",content: auth.user!.kycType ?? "Not set"),
@@ -271,6 +381,7 @@ class _ProfileState extends State<Profile> {
                       setState(() {
                         DocumentsEditMode = false;
                       });
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
                 },
                 child: Text("Save"),
               ),
@@ -332,7 +443,7 @@ class _ProfileState extends State<Profile> {
                 });
               }
 
-            },child: Text("Choose Image",style: TextStyle(fontSize: 12.sp,color: Colors.black),),style: TextButton.styleFrom(backgroundColor: Colors.grey[200]!),)),)
+            },child: Text("Choose file",style: TextStyle(fontSize: 12.sp,color: Colors.black),),style: TextButton.styleFrom(backgroundColor: Colors.grey[200]!),)),)
           ],
         ),
       ),
@@ -385,8 +496,6 @@ class _ProfileState extends State<Profile> {
     );
   }
 }
-
-
 
 class History extends StatefulWidget {
   const History({super.key});

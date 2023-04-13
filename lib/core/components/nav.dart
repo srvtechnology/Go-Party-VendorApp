@@ -14,11 +14,13 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
       currentIndex: widget.index,
       onTap: widget.ontap,
       items: const[
         BottomNavigationBarItem(icon: Icon(Icons.arrow_circle_down),label: "Orders"),
         BottomNavigationBarItem(icon: Icon(Icons.arrow_circle_down),label: "History"),
+        BottomNavigationBarItem(icon: Icon(Icons.dashboard),label: "Dashboard"),
         BottomNavigationBarItem(icon: Icon(Icons.person),label: "Profile"),
     ]);
   }

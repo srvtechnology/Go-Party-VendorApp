@@ -1,5 +1,3 @@
-import 'package:utsavlife/core/provider/otpProvider.dart';
-
 class UserModel {
   String id,name,email;
   // personal details

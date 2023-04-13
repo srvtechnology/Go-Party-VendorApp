@@ -14,13 +14,20 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   final TextEditingController _email=TextEditingController();
   final TextEditingController _name=TextEditingController();
-  final TextEditingController _company=TextEditingController();
+  final TextEditingController _mobileNo=TextEditingController();
   final TextEditingController _password=TextEditingController();
+  final TextEditingController _address=TextEditingController();
+  final TextEditingController _area=TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          elevation: 0,
+          iconTheme: IconThemeData(color: Colors.black),
+        ),
         body: Container(
           child: SingleChildScrollView(
               child:Column(children: [
@@ -39,11 +46,12 @@ class _SignUpState extends State<SignUp> {
                   child:const Text("Provide your details below"),
                 ),
                 InputField("Full Name", _name),
-                InputField("Company", _company),
                 InputField("Email", _email),
-                InputField("Password", _password),
+                InputField("Password", _password,hide: true),
+                InputField("Mobile number", _mobileNo),
+                InputField("Address", _address),
+                InputField("Area covered (Km radius)", _area),
                 SignUpButton(context),
-
               ],)
           ),
         ),
@@ -51,20 +59,24 @@ class _SignUpState extends State<SignUp> {
     );
   }
   Widget SignUpButton(BuildContext context){
-    return OutlinedButton(
-      onPressed: (){
-        Navigator.pushNamed(context, Homepage.routeName);
-      },
-      style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+    return Container(
+      margin: EdgeInsets.all(20),
+      child: OutlinedButton(
+        onPressed: (){
+          Navigator.pushNamed(context, Homepage.routeName);
+        },
+        style: OutlinedButton.styleFrom(
+            side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+        ),
+        child: const Text("Create Account"),
       ),
-      child: const Text("Sign Up"),
     );
   }
-  Widget InputField(String title,TextEditingController controller){
+  Widget InputField(String title,TextEditingController controller,{bool hide=false}){
     return Container(
-      margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+      margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 40),
       child: TextFormField(
+        obscureText: hide,
         controller: controller,
         decoration: InputDecoration(labelText: title,border: const OutlineInputBorder()),
       ),
