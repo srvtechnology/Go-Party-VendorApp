@@ -32,4 +32,29 @@ class ServiceListProvider with ChangeNotifier {
       }
       stopLoading();
       }
+
+}
+
+
+class DropDownOptionProvider with ChangeNotifier {
+  ServiceDropDownOptions? options;
+  bool isLoading = false;
+  AuthProvider auth;
+  void startLoading(){
+    isLoading = true;
+    notifyListeners();
+  }
+  void stopLoading(){
+    isLoading = false;
+    notifyListeners();
+  }
+  DropDownOptionProvider({required this.auth}){
+    getOptions();
+  }
+  Future<void> getOptions()async{
+    startLoading();
+    options=await serviceRepo.getServiceOptions(auth);
+    stopLoading();
+  }
+
 }

@@ -76,3 +76,47 @@ class serviceModel {
     }
     }
 }
+
+class ServiceOptionModel{
+  String id,service,description,price,discountPrice;
+  ServiceOptionModel({
+    required this.id,
+    required this.service,
+    required this.description,
+    required this.price,
+    required this.discountPrice
+});
+  factory ServiceOptionModel.fromJson(Map json){
+    return ServiceOptionModel(
+        id: json["id"].toString(),
+        service: json["service"],
+        description: json["description"],
+        price: json["price"].toString(),
+        discountPrice: json["discount_price"]);
+  }
+}
+
+class CategoryOptionModel{
+  String id,name,description;
+  CategoryOptionModel(
+  {
+    required this.id,
+    required this.name,
+    required this.description,
+  }
+  );
+
+  factory CategoryOptionModel.fromJson(Map json){
+    return CategoryOptionModel(id: json["id"].toString(), name: json["category_name"].toString(), description: json["category_description"]);
+  }
+}
+
+class ServiceDropDownOptions{
+  List<CategoryOptionModel> categoryOptions;
+  List<ServiceOptionModel> serviceOptions;
+
+  ServiceDropDownOptions({
+    required this.categoryOptions,
+    required this.serviceOptions
+});
+}

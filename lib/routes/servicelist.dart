@@ -15,6 +15,9 @@ class serviceListRoute extends StatefulWidget {
 }
 
 class _serviceListRouteState extends State<serviceListRoute> {
+  void refresh(ServiceListProvider state){
+    state.getList();
+  }
   @override
   Widget build(BuildContext context) {
     return ListenableProvider(
@@ -22,6 +25,7 @@ class _serviceListRouteState extends State<serviceListRoute> {
         child: Consumer<ServiceListProvider>(builder:(context,state,child){
           if(state.isLoading){
             return Container(
+              color: Colors.white,
               alignment: Alignment.center,
               child: CircularProgressIndicator(),
             );
@@ -48,7 +52,7 @@ class _serviceListRouteState extends State<serviceListRoute> {
                       ),
                     ),
                     Column(
-                      children: state.services!.map((e) => listItem(e)).toList(),
+                      children: state.services!.map((e) => listItem(context,e)).toList(),
                     )
                   ],
                 ),
@@ -57,10 +61,10 @@ class _serviceListRouteState extends State<serviceListRoute> {
           );
         }));
   }
-  Widget listItem(serviceModel service){
+  Widget listItem(BuildContext context,serviceModel service){
     return GestureDetector(
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleService(service: service,)));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleService(service: service,))).then((value) => refresh(context.read<ServiceListProvider>()));
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 10),

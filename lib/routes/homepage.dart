@@ -16,6 +16,7 @@ import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/notifications.dart';
 import 'package:utsavlife/routes/pdfView.dart';
 import 'package:utsavlife/routes/servicelist.dart';
+import 'package:utsavlife/routes/singleServiceAdd.dart';
 import '../core/models/order.dart';
 import 'mainpage.dart';
 
@@ -103,7 +104,9 @@ class CardItem
 
 class _DashboardState extends State<Dashboard> {
   List<CardItem> cards = [
-    CardItem(title: "Add services", icon: Icons.cleaning_services, onTap: (){}),
+    CardItem(title: "Add services", icon: Icons.cleaning_services, onTap: (context){
+      Navigator.pushNamed(context, AddServiceRoute.routeName);
+    }),
     CardItem(title: "Services List", icon: Icons.list_alt, onTap: (context){
       Navigator.pushNamed(context, serviceListRoute.routeName);
     }),
@@ -232,6 +235,7 @@ class _ProfileState extends State<Profile> {
         return Container(
           height: double.infinity,
           width: double.infinity,
+          margin:const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
           padding:const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
           child: DefaultTabController(
               length: 3,
@@ -243,7 +247,25 @@ class _ProfileState extends State<Profile> {
                   Tab(child: Text("Office",style: TextStyle(color: Colors.black),),),
                   Tab(child: Text("Documents",style: TextStyle(color: Colors.black),),),
                 ]),
-                Expanded(child: Container(child: TabBarView(children: [
+                Expanded(child: Container(
+                  margin: EdgeInsets.only(top: 10),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                            offset: Offset(3,3),
+                            color: Colors.grey[300]!,
+                          blurRadius: 2
+                        ),
+                        BoxShadow(
+                            offset: Offset(-3,-3),
+                            color: Colors.grey[300]!,
+                          blurRadius: 2
+                        ),
+                      ],
+                      borderRadius: BorderRadius.circular(15)
+                  ),
+                  child: TabBarView(children: [
                   _PersonalInfo(auth),
                   _OfficeInfo(auth),
                   _DocumentInfo(auth),
@@ -461,7 +483,8 @@ class _ProfileState extends State<Profile> {
           Container(margin:const EdgeInsets.symmetric(vertical: 5),
               child: TextFormField(
                controller: textControllers[title],
-                decoration: (editMode&&canEdit)?InputDecoration(border: const OutlineInputBorder()):InputDecoration(border: InputBorder.none),
+                decoration:InputDecoration(
+                    border: const OutlineInputBorder()),
                 enabled: (editMode&&canEdit),
               )),
         ],
