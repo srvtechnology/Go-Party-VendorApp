@@ -67,6 +67,27 @@ Future<bool> deleteService(AuthProvider auth,String serviceId)async{
   }
 }
 
+Future<bool> updateService(AuthProvider auth,String id,Map data)async{
+  try{
+    Response  response = await Dio().post("${APIConfig.baseUrl}/api/service-update",
+      options: Options(
+          headers: {
+            "Authorization":"Bearer ${auth.token}"
+          }
+      ),
+      data: data
+    );
+    CustomLogger.error(response.data);
+    return true;
+  }
+  catch(e){
+    if(e is DioError){
+      CustomLogger.error(e.response?.data);
+    }
+    return Future.error(e);
+  }
+}
+
 Future<ServiceDropDownOptions> getServiceOptions(AuthProvider auth)async{
   try{
     Response  response = await Dio().get("${APIConfig.baseUrl}/api/service-list-add-view",

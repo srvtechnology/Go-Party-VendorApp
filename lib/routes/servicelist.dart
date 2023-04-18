@@ -4,6 +4,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/models/service.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/ServiceProvider.dart';
+import 'package:utsavlife/routes/errorScreen.dart';
 import 'package:utsavlife/routes/singleService.dart';
 
 class serviceListRoute extends StatefulWidget {
@@ -29,6 +30,9 @@ class _serviceListRouteState extends State<serviceListRoute> {
               alignment: Alignment.center,
               child: CircularProgressIndicator(),
             );
+          }
+          if(state.services == null || state.services!.isEmpty){
+            return errorScreenRoute(icon: Icons.account_balance_wallet_outlined, message:"Looks like you have no services added. \nAdd a service to see the list.");
           }
           return Scaffold(
             appBar: AppBar(),

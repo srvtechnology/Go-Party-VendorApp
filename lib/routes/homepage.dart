@@ -11,6 +11,8 @@ import 'package:utsavlife/core/components/listItems.dart';
 import 'package:utsavlife/core/components/nav.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
+import 'package:utsavlife/core/utils/logger.dart';
+import 'package:utsavlife/routes/CompleteRegistration.dart';
 import 'package:utsavlife/routes/SingleOrder.dart';
 import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/notifications.dart';
@@ -74,7 +76,6 @@ class _HomepageState extends State<Homepage> {
               index: index,
               ontap: (i){
                 setState(() {
-                  if(i==2)Provider.of<AuthProvider>(context,listen: false).getUser();
                   index = i;
                 });
               },
@@ -110,7 +111,9 @@ class _DashboardState extends State<Dashboard> {
     CardItem(title: "Services List", icon: Icons.list_alt, onTap: (context){
       Navigator.pushNamed(context, serviceListRoute.routeName);
     }),
-    CardItem(title: "Registration", icon: Icons.app_registration, onTap: (){}),
+    CardItem(title: "Registration", icon: Icons.app_registration, onTap: (context){
+      Navigator.pushNamed(context, CompleteRegistrationRoute.routeName);
+    }),
     CardItem(title: "Notifications", icon: Icons.notifications_active, onTap: (){}),
     CardItem(title: "Profile", icon: Icons.person, onTap: (context){
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Homepage(startingIndex: 3,)));
@@ -200,6 +203,7 @@ class _ProfileState extends State<Profile> {
   bool ProfileEditMode = false ;
   bool OfficeEditMode = false ;
   bool DocumentsEditMode = false ;
+
   Map<String,TextEditingController> textControllers = {
     "Email":new TextEditingController(),
     "Phone":new TextEditingController(),
@@ -227,6 +231,12 @@ class _ProfileState extends State<Profile> {
     "GST":null,
     "Vendor":null
   };
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<AuthProvider>(context,listen: false).getUser();
+  }
   @override
   Widget build(BuildContext context) {
     final logger = Logger();

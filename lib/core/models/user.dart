@@ -41,14 +41,24 @@ class UserModel {
 });
 
   factory UserModel.fromJson(Map json){
-    return UserModel(
+    if(json["vendor_details"]==null){
+      return UserModel(
         id: json["data"]["id"].toString(),
         name: json["data"]["name"].toString(),
         email: json["data"]["email"].toString(),
         mobileno: json["data"]["mobile"],
         country: json["data"]["country"],
-        state: json["vendor_details"]["state"],
-        city: json["vendor_details"]["city"],
+      );
+
+    }
+    return UserModel(
+      id: json["data"]["id"].toString(),
+      name: json["data"]["name"].toString(),
+      email: json["data"]["email"].toString(),
+      mobileno: json["data"]["mobile"],
+      country: json["data"]["country"],
+      state: json["vendor_details"]["state"]??"Not set",
+      city: json["vendor_details"]["city"],
       area: json["vendor_details"]["area"],
       zip: json["vendor_details"]["pin_code"],
       landmark: json["vendor_details"]["landmark"],
@@ -70,5 +80,6 @@ class UserModel {
       vendorUrl: '${json["vendor_image"]}${json["vendor_details"]["vendor_image"]}',
       dlUrl: '${json["dl_image"]}${json["vendor_details"]["dl_image"]}',
     );
+
   }
 }

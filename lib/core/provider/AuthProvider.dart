@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/repo/auth.dart' as authRepo;
 import 'package:utsavlife/core/repo/user.dart' as userRepo;
+import 'package:utsavlife/core/utils/logger.dart';
 enum AuthState {
   LoggedOut,
   Waiting,
@@ -70,6 +71,8 @@ class AuthProvider with ChangeNotifier {
   }
   void deleteTokenFromStorage(){
     pref.remove("token");
+    pref.remove("email");
+    pref.remove("password");
   }
   void reLogin()async{
     String? email =await getEmailFromStorage();

@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
+import 'package:utsavlife/routes/CompleteRegistration.dart';
+import 'package:utsavlife/routes/errorScreen.dart';
 import 'package:utsavlife/routes/homepage.dart';
 import 'package:utsavlife/routes/mainpage.dart';
 import 'package:utsavlife/routes/notifications.dart';
@@ -15,6 +17,8 @@ import 'package:utsavlife/routes/signIn.dart';
 import 'package:utsavlife/routes/signUp.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
 import 'package:utsavlife/routes/splash.dart';
+
+import 'core/provider/networkProvider.dart';
 
 void main() {
   runApp(
@@ -28,6 +32,7 @@ void main() {
         MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (_)=>AuthProvider()),
+            ChangeNotifierProvider(create: (_)=>NetworkProvider()),
           ],
           child: MaterialApp(
             theme: ThemeData(
@@ -38,14 +43,15 @@ void main() {
             initialRoute: SplashScreen.routeName,
             routes: {
                 SplashScreen.routeName:(context) =>SafeArea(child: const SplashScreen()),
-                SignIn.routeName:(context)=>const SafeArea(child:SignIn()),
+                SignIn.routeName:(context)=>SafeArea(child: SignIn()),
                 SignUp.routeName:(context)=>SafeArea(child: const SignUp()),
                 MainPage.routeName:(context)=>const SafeArea(child: MainPage()),
                 NotificationPage.routeName:(context)=>const SafeArea(child: NotificationPage()),
                 Homepage.routeName:(context)=> SafeArea(child: Homepage()),
                 OtpPageRoute.routeName:(context)=>const SafeArea(child: OtpPageRoute()),
                 serviceListRoute.routeName:(context)=> const SafeArea(child: serviceListRoute()),
-                AddServiceRoute.routeName:(context)=> SafeArea(child: AddServiceRoute())
+                AddServiceRoute.routeName:(context)=> SafeArea(child: AddServiceRoute()),
+                CompleteRegistrationRoute.routeName:(context)=>SafeArea(child: CompleteRegistrationRoute())
             },
           ),
         ),

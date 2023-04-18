@@ -20,7 +20,7 @@ class Driver{
 
 class serviceModel {
   String id;
-  String? categoryId,address,serviceName,serviceDescription,company,priceBasis,price,discountedPrice,categoryName,categoryDescription;
+  String? categoryId,address,serviceName,serviceDescription,materialDescription,company,priceBasis,price,discountedPrice,categoryName,categoryDescription;
   Driver driverDetails;
   List<String>? imageUrls;
 
@@ -31,6 +31,7 @@ class serviceModel {
     this.address,
     this.serviceName,
     this.serviceDescription,
+    this.materialDescription,
     this.company,
     this.priceBasis,
     this.price,
@@ -50,6 +51,7 @@ class serviceModel {
         address: json["address"],
         serviceName:service_details["service"],
         serviceDescription: service_details["description"],
+        materialDescription: json["material_desc"],
         company: json["company_name"],
         price: service_details["price"].toString(),
         priceBasis: service_details["price_basis"],
