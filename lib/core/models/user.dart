@@ -1,3 +1,26 @@
+class BankDetails{
+  String id,accountNumber,bankName,ifscNumber,holderName,branchName,accountType;
+  BankDetails({
+    required this.id,
+    required this.accountNumber,
+    required this.bankName,
+    required this.ifscNumber,
+    required this.holderName,
+    required this.branchName,
+    required this.accountType
+  });
+
+  factory BankDetails.fromJson(Map json){
+    return BankDetails(
+        id: json["id"].toString(),
+        accountNumber: json["acc_no"],
+        bankName: json["bank_name"],
+        ifscNumber: json["ifsc_no"],
+        holderName: json["holder_name"],
+        branchName: json["branch_name"],
+        accountType: json["acc_type"]);
+  }
+}
 class UserModel {
   String id,name,email;
   // personal details
@@ -6,7 +29,7 @@ class UserModel {
   String? officeNumber, officeZip, officeArea, officeLandmark, officeState, officeCity ;
   // Documents
   String? panCardUrl, kycUrl, gstUrl, dlUrl,vendorUrl ;
-
+  BankDetails? bankDetails;
   UserModel({
    required this.id,
    required this.name,
@@ -37,10 +60,12 @@ class UserModel {
     this.kycUrl,
     this.vendorUrl,
     this.dlUrl,
+    this.bankDetails
 
 });
 
   factory UserModel.fromJson(Map json){
+    BankDetails? details;
     if(json["vendor_details"]==null){
       return UserModel(
         id: json["data"]["id"].toString(),
@@ -49,7 +74,9 @@ class UserModel {
         mobileno: json["data"]["mobile"],
         country: json["data"]["country"],
       );
-
+    }
+    if(json["bank_details"]!=null){
+      details = BankDetails.fromJson(json["bank_details"]);
     }
     return UserModel(
       id: json["data"]["id"].toString(),
@@ -79,6 +106,7 @@ class UserModel {
       kycUrl: '${json["kyc_image"]}${json["vendor_details"]["kyc_image"]}',
       vendorUrl: '${json["vendor_image"]}${json["vendor_details"]["vendor_image"]}',
       dlUrl: '${json["dl_image"]}${json["vendor_details"]["dl_image"]}',
+      bankDetails: details
     );
 
   }

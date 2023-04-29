@@ -11,6 +11,7 @@ import 'package:utsavlife/core/components/listItems.dart';
 import 'package:utsavlife/core/components/nav.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
+import 'package:utsavlife/core/repo/auth.dart';
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/CompleteRegistration.dart';
 import 'package:utsavlife/routes/SingleOrder.dart';
@@ -224,6 +225,7 @@ class _ProfileState extends State<Profile> {
   bool ProfileEditMode = false ;
   bool OfficeEditMode = false ;
   bool DocumentsEditMode = false ;
+  bool BankEditMode = false ;
   List<DropDownField> kyctypes = [
     DropDownField(title: "Aadhar Card",value: "AD"),
     DropDownField(title: "Voter Id",value: "VO"),
@@ -231,6 +233,16 @@ class _ProfileState extends State<Profile> {
     DropDownField(title: "Driving License",value: "DL"),
     DropDownField(title: "Other Govt. Id",value: "OT"),
   ];
+  List<DropDownField> AccountTypes = [
+    DropDownField(title: "Current Account",value: "current"),
+    DropDownField(title: "Savings Account",value: "saving"),
+    DropDownField(title: "Salary Account",value: "salary"),
+    DropDownField(title: "Fixed Deposit Account",value: "fixed"),
+    DropDownField(title: "Recurring Deposit Account",value: "recurring"),
+    DropDownField(title: "NRI Account",value: "nri"),
+  ];
+
+  late DropDownField selectedAccountType;
   Map<String,TextEditingController> textControllers = {
     "Email":new TextEditingController(),
     "Phone":new TextEditingController(),
@@ -251,6 +263,12 @@ class _ProfileState extends State<Profile> {
     "Office Landmark":new TextEditingController(),
     "Office State":new TextEditingController(),
     "Office City":new TextEditingController(),
+    "Holder Name":new TextEditingController(),
+    "Bank Name":new TextEditingController(),
+    "Branch Name":new TextEditingController(),
+    "IFSC Code":new TextEditingController(),
+    "Account Number":new TextEditingController(),
+    "Account Type":new TextEditingController(),
   } ;
   Map<String,String?> imgPath = {
     "Pan Card":null,
@@ -265,7 +283,7 @@ class _ProfileState extends State<Profile> {
     super.initState();
     Provider.of<AuthProvider>(context,listen: false).getUser();
     selectedKyc = kyctypes.firstWhere((element) => element.value == Provider.of<AuthProvider>(context,listen: false).user!.kycType);
-
+    selectedAccountType = AccountTypes.firstWhere((element) => element.value == Provider.of<AuthProvider>(context,listen: false).user!.bankDetails?.accountType,orElse: ()=>AccountTypes[0]);
   }
   @override
   Widget build(BuildContext context) {
@@ -277,7 +295,7 @@ class _ProfileState extends State<Profile> {
           margin:const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
           padding:const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
           child: DefaultTabController(
-              length: 3,
+              length: 4,
             child: Column(
               children: [
                 _ProfileHeader(context,auth.user!.name,auth.user!.email,auth.user!.vendorUrl),
@@ -295,9 +313,10 @@ class _ProfileState extends State<Profile> {
                     ]
                   ),
                     tabs: [
-                  Tab(child: Text("Personal",style: TextStyle(color: Colors.black),),),
-                  Tab(child: Text("Office",style: TextStyle(color: Colors.black),),),
-                  Tab(child: Text("Documents",style: TextStyle(color: Colors.black),),),
+                  Tab(child: Text("Personal",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
+                  Tab(child: Text("Office",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
+                  Tab(child: Text("Bank",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
+                  Tab(child: Text("Doc",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
                 ]),
                 SizedBox(height: 30,),
                 Expanded(child: Container(
@@ -321,20 +340,10 @@ class _ProfileState extends State<Profile> {
                   child: TabBarView(children: [
                   _PersonalInfo(auth),
                   _OfficeInfo(auth),
+                  _BankDetailsInfo(auth),
                   _DocumentInfo(auth),
                 ],),))
-                // Container(
-                //   height: 100.h,
-                //   child: SingleChildScrollView(
-                //     child: TabBarView(
-                //       children: [
-                //         _PersonalInfo(auth),
-                //         Text("tba"),
-                //         Text("tba"),
-                //       ],
-                //     ),
-                //   ),
-                // ),
+
               ],
             )
           ),
@@ -380,7 +389,84 @@ class _ProfileState extends State<Profile> {
         ],
       ),
     );
+  }
+  Widget _BankDetailsInfo(AuthProvider auth){
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
+            alignment: Alignment.bottomRight,
+            child: IconButton(onPressed: (){
+              setState(() {
+                BankEditMode = !BankEditMode;
+              });
+            }, icon: Icon(Icons.edit,color: BankEditMode?Theme.of(context).primaryColor:null),),
+           ),
+          _CustomText(context, editMode:BankEditMode,title: "Holder Name",content: auth.user!.bankDetails?.holderName ?? "Not set"),
+          _CustomText(context, editMode:BankEditMode,title: "Account Number",content: auth.user!.bankDetails?.accountNumber ?? "Not set"),
+          if(BankEditMode)
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 25),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text("Account Type",style: TextStyle(fontWeight: FontWeight.bold),),
+                  Container(
+                    width: 30.w,
+                    child: DropdownButton(
+                      value: selectedAccountType,
+                      items: AccountTypes.map((e)=>DropdownMenuItem(child: Text(e.title),value: e,)).toList(),
+                      onChanged: (_){
+                        setState(() {
+                          textControllers["Account Type"]?.text = _!.value ;
+                          selectedAccountType = _! ;
+                        });
+                      },
 
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else _CustomText(context, title: "Account Type", content: AccountTypes.firstWhere((element) => element.value==auth.user!.bankDetails?.accountType).title, editMode: BankEditMode),
+          _CustomText(context, editMode:BankEditMode,title: "Bank Name",content: auth.user!.bankDetails?.bankName ?? "Not set"),
+          _CustomText(context, editMode:BankEditMode,title: "Branch Name",content: auth.user!.bankDetails?.branchName ?? "Not set"),
+          _CustomText(context, editMode:BankEditMode,title: "IFSC Code",content: auth.user!.bankDetails?.ifscNumber ?? "Not set"),
+
+          if(BankEditMode)
+            Container(
+              alignment: Alignment.center,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+                ),
+                onPressed: () {
+                  setBankChanges(auth);
+                  //auth.editOfficeDetails();
+                  setState(() {
+                    BankEditMode = false ;
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
+                },
+                child: Text("Save"),
+              ),
+            ),
+        ],
+      ),
+    );
+
+  }
+  Future<void> setBankChanges(AuthProvider auth)async{
+    Map data ={
+      "bank_name":textControllers["Bank Name"]?.text,
+      "acc_no":textControllers["Account Number"]?.text,
+      "ifsc_no":textControllers["IFSC Code"]?.text,
+      "holder_name":textControllers["Holder Name"]?.text,
+      "branch_name":textControllers["Branch Name"]?.text,
+      "acc_type":textControllers["Account Type"]?.text
+    };
+    await completeRegistration2(auth, data);
+    auth.getUser();
   }
   Widget _PersonalInfo(AuthProvider auth){
      return SingleChildScrollView(
@@ -486,6 +572,7 @@ class _ProfileState extends State<Profile> {
       ),
     );
   }
+
   void setUserProfileChanges(AuthProvider auth){
     auth.user!.name =textControllers["Name"]!.text;
     auth.user!.panCardNumber = textControllers["PanCard Number"]!.text;
@@ -499,6 +586,7 @@ class _ProfileState extends State<Profile> {
     auth.user!.callingNumber = textControllers["Calling Number"]!.text;
     auth.user!.gstNumber = textControllers["Gst Number"]!.text;
   }
+
   void setOfficeChanges(AuthProvider auth){
     auth.user!.officeNumber = textControllers["Office Number"]!.text ;
     auth.user!.officeZip = textControllers["Office PinCode"]!.text ;
@@ -507,6 +595,7 @@ class _ProfileState extends State<Profile> {
     auth.user!.officeState = textControllers["Office State"]!.text ;
     auth.user!.officeCity=textControllers["Office City"]!.text ;
   }
+
   Widget _CustomImage(BuildContext context,{required String imageUrl,required String title}){
     return GestureDetector(
       onTap: (){
@@ -545,6 +634,7 @@ class _ProfileState extends State<Profile> {
       ),
     );
   }
+
   Widget _CustomText(BuildContext context,{required String title,String? controllerKey,required String content,required bool editMode,bool canEdit=true}){
     if(controllerKey==null){
       controllerKey = title;
@@ -568,6 +658,7 @@ class _ProfileState extends State<Profile> {
       ),
       );
   }
+
   Widget _ProfileHeader(BuildContext context,String name,String email,String? profileImage){
     return Container(
       alignment: Alignment.center,
