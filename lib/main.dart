@@ -36,7 +36,7 @@ void main() {
           ],
           child: MaterialApp(
             theme: ThemeData(
-                primaryColor:const Color(0xff2596be),
+                primaryColor:const Color(0xff0264a5),
                 appBarTheme: const AppBarTheme(color: Color(0xff0264a5),
                 ),),
             useInheritedMediaQuery: true,
@@ -51,7 +51,6 @@ void main() {
                 OtpPageRoute.routeName:(context)=>const SafeArea(child: OtpPageRoute()),
                 serviceListRoute.routeName:(context)=> const SafeArea(child: serviceListRoute()),
                 AddServiceRoute.routeName:(context)=> SafeArea(child: AddServiceRoute()),
-                CompleteRegistrationRoute.routeName:(context)=>SafeArea(child: CompleteRegistrationRoute())
             },
           ),
         ),

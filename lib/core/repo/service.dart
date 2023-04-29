@@ -88,7 +88,7 @@ Future<bool> updateService(AuthProvider auth,String id,Map data)async{
   }
 }
 
-Future<ServiceDropDownOptions> getServiceOptions(AuthProvider auth)async{
+Future<ServiceDropDownOptions> getServiceOptions(dynamic auth)async{
   try{
     Response  response = await Dio().get("${APIConfig.baseUrl}/api/service-list-add-view",
       options: Options(

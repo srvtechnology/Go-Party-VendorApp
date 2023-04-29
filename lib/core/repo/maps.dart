@@ -17,6 +17,7 @@ Future<List<String>> autoCompleteLocation(String location)async{
   return locations;
   }
    catch(e){
+    CustomLogger.error(e);
     return Future.error(e);
    }
 }

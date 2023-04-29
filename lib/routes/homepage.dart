@@ -19,6 +19,7 @@ import 'package:utsavlife/routes/notifications.dart';
 import 'package:utsavlife/routes/pdfView.dart';
 import 'package:utsavlife/routes/servicelist.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
+import '../core/models/dropdown.dart';
 import '../core/models/order.dart';
 import 'mainpage.dart';
 
@@ -39,7 +40,6 @@ class _HomepageState extends State<Homepage> {
   List<Widget> items = [
     const Orders(),
     const History(),
-    const Dashboard(),
     const Profile(),
   ];
   @override
@@ -60,6 +60,30 @@ class _HomepageState extends State<Homepage> {
           )),
         ],
         builder:(context,args)=> Scaffold(
+          drawer: Drawer(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(height: 20,),
+                  DrawerHeader(
+                    child: Image.asset("assets/images/logo/logo.png"),
+                  ),
+                  ListTile(title: Text("Add services"), leading:Icon( Icons.cleaning_services), onTap: (){
+                    Navigator.pushNamed(context, AddServiceRoute.routeName);
+                  }),
+                  ListTile(title:Text( "Services List"), leading:Icon( Icons.list_alt), onTap: (){
+                    Navigator.pushNamed(context, serviceListRoute.routeName);
+                  }),
+                  ListTile(title:Text( "Notifications"), leading:Icon( Icons.notifications_active), onTap: (){}),
+                  ListTile(title:Text( "Logout"), leading:Icon( Icons.logout), onTap: (){
+                    Provider.of<AuthProvider>(context,listen: false).logout();
+                    Navigator.pushReplacementNamed(context, MainPage.routeName);
+                  }),
+                ],
+              ),
+            ),
+          ),
           appBar: AppBar(
             actions: [
               IconButton(onPressed: (){
@@ -110,9 +134,6 @@ class _DashboardState extends State<Dashboard> {
     }),
     CardItem(title: "Services List", icon: Icons.list_alt, onTap: (context){
       Navigator.pushNamed(context, serviceListRoute.routeName);
-    }),
-    CardItem(title: "Registration", icon: Icons.app_registration, onTap: (context){
-      Navigator.pushNamed(context, CompleteRegistrationRoute.routeName);
     }),
     CardItem(title: "Notifications", icon: Icons.notifications_active, onTap: (){}),
     CardItem(title: "Profile", icon: Icons.person, onTap: (context){
@@ -203,12 +224,18 @@ class _ProfileState extends State<Profile> {
   bool ProfileEditMode = false ;
   bool OfficeEditMode = false ;
   bool DocumentsEditMode = false ;
-
+  List<DropDownField> kyctypes = [
+    DropDownField(title: "Aadhar Card",value: "AD"),
+    DropDownField(title: "Voter Id",value: "VO"),
+    DropDownField(title: "Passport",value: "PA"),
+    DropDownField(title: "Driving License",value: "DL"),
+    DropDownField(title: "Other Govt. Id",value: "OT"),
+  ];
   Map<String,TextEditingController> textControllers = {
     "Email":new TextEditingController(),
     "Phone":new TextEditingController(),
     "Name":new TextEditingController(),
-    "PanCard Number":new TextEditingController(),
+    "Pan Number / Pan Card Number":new TextEditingController(),
     "Kyc Number":new TextEditingController(),
     "Kyc Type":new TextEditingController(),
     "PinCode":new TextEditingController(),
@@ -231,15 +258,17 @@ class _ProfileState extends State<Profile> {
     "GST":null,
     "Vendor":null
   };
+  late DropDownField selectedKyc;
 
   @override
   void initState() {
     super.initState();
     Provider.of<AuthProvider>(context,listen: false).getUser();
+    selectedKyc = kyctypes.firstWhere((element) => element.value == Provider.of<AuthProvider>(context,listen: false).user!.kycType);
+
   }
   @override
   Widget build(BuildContext context) {
-    final logger = Logger();
     return Consumer<AuthProvider>(
       builder:(context,auth,child){
         return Container(
@@ -251,12 +280,26 @@ class _ProfileState extends State<Profile> {
               length: 3,
             child: Column(
               children: [
-                _ProfileHeader(context,auth.user!.name,auth.user!.email),
-                TabBar(tabs: [
+                _ProfileHeader(context,auth.user!.name,auth.user!.email,auth.user!.vendorUrl),
+                SizedBox(height: 30,),
+                TabBar(
+                  indicator: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Theme.of(context).primaryColorDark,
+                    boxShadow: [
+                      BoxShadow(
+                        offset: Offset(1,1),
+                        color: Colors.grey,
+                        blurRadius: 2
+                      )
+                    ]
+                  ),
+                    tabs: [
                   Tab(child: Text("Personal",style: TextStyle(color: Colors.black),),),
                   Tab(child: Text("Office",style: TextStyle(color: Colors.black),),),
                   Tab(child: Text("Documents",style: TextStyle(color: Colors.black),),),
                 ]),
+                SizedBox(height: 30,),
                 Expanded(child: Container(
                   margin: EdgeInsets.only(top: 10),
                   decoration: BoxDecoration(
@@ -310,11 +353,12 @@ class _ProfileState extends State<Profile> {
               });
             }, icon: Icon(Icons.edit,color: OfficeEditMode?Theme.of(context).primaryColor:null),),
           ),
-          _CustomText(context, editMode:OfficeEditMode,title: "Office PinCode",content: auth.user!.officeZip ?? "Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "Office Area",content: auth.user!.officeArea ?? "Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "Office Landmark",content: auth.user!.officeLandmark ?? "Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "Office State",content: auth.user!.officeState??"Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "Office City",content: auth.user!.officeCity??"Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "Number",controllerKey: "Office Number",content: auth.user!.officeNumber ?? "Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "PinCode",controllerKey: "Office PinCode",content: auth.user!.officeZip ?? "Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "Area",controllerKey: "Office Area",content: auth.user!.officeArea ?? "Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "Landmark",controllerKey: "Office Landmark",content: auth.user!.officeLandmark ?? "Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "State",controllerKey: "Office State",content: auth.user!.officeState??"Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "City",controllerKey: "Office City",content: auth.user!.officeCity??"Not set"),
           if(OfficeEditMode)
             Container(
               alignment: Alignment.center,
@@ -353,9 +397,29 @@ class _ProfileState extends State<Profile> {
           _CustomText(context, editMode:ProfileEditMode,title: "Email",content: auth.user!.email,canEdit: false),
           _CustomText(context, editMode:ProfileEditMode,title: "Phone",content: auth.user!.mobileno??"Not set",canEdit: false),
           _CustomText(context, editMode:ProfileEditMode,title: "Name",content: auth.user!.name??"Not yet"),
-          _CustomText(context, editMode:ProfileEditMode,title: "PanCard Number",content: auth.user!.panCardNumber??"Not set"),
+          _CustomText(context, editMode:ProfileEditMode,title: "Pan Number / Pan Card Number",content: auth.user!.panCardNumber??"Not set"),
           _CustomText(context, editMode:ProfileEditMode,title: "Kyc Number",content: auth.user!.kycNumber ??"Not set"),
-          _CustomText(context, editMode:ProfileEditMode,title: "Kyc Type",content: auth.user!.kycType ?? "Not set"),
+          if(ProfileEditMode)
+            Container(
+            margin: EdgeInsets.symmetric(horizontal: 45),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Kyc Type"),
+                DropdownButton(
+                  value: selectedKyc,
+                  items: kyctypes.map((e)=>DropdownMenuItem(child: Text(e.title),value: e,)).toList(),
+                  onChanged: (_){
+                    setState(() {
+                      textControllers["Kyc Type"]?.text = _!.value ;
+                      selectedKyc = _! ;
+                    });
+                  },
+                ),
+              ],
+            ),
+          )
+          else  _CustomText(context,editMode: ProfileEditMode, title: "Kyc Type", content:kyctypes.firstWhere((element) => element.value == auth.user!.kycType).title??"Not set",canEdit: false),
           _CustomText(context, editMode:ProfileEditMode,title: "PinCode",content: auth.user!.zip ?? "Not set"),
           _CustomText(context, editMode:ProfileEditMode,title: "Area",content: auth.user!.area ?? "Not set"),
           _CustomText(context, editMode:ProfileEditMode,title: "Landmark",content: auth.user!.landmark ?? "Not set"),
@@ -481,8 +545,11 @@ class _ProfileState extends State<Profile> {
       ),
     );
   }
-  Widget _CustomText(BuildContext context,{required String title,required String content,required bool editMode,bool canEdit=true}){
-    textControllers[title]?.text = content ;
+  Widget _CustomText(BuildContext context,{required String title,String? controllerKey,required String content,required bool editMode,bool canEdit=true}){
+    if(controllerKey==null){
+      controllerKey = title;
+    }
+    textControllers[controllerKey]?.text = content ;
     return Container(
       margin:const EdgeInsets.symmetric(horizontal: 20),
       alignment: Alignment.centerLeft,
@@ -492,7 +559,7 @@ class _ProfileState extends State<Profile> {
           Container(margin:const EdgeInsets.symmetric(vertical: 5),child: Text(title,style:const TextStyle(fontWeight: FontWeight.bold),)),
           Container(margin:const EdgeInsets.symmetric(vertical: 5),
               child: TextFormField(
-               controller: textControllers[title],
+               controller: textControllers[controllerKey],
                 decoration:InputDecoration(
                     border: const OutlineInputBorder()),
                 enabled: (editMode&&canEdit),
@@ -501,23 +568,39 @@ class _ProfileState extends State<Profile> {
       ),
       );
   }
-  Widget _ProfileHeader(BuildContext context,String name,String email){
+  Widget _ProfileHeader(BuildContext context,String name,String email,String? profileImage){
     return Container(
+      alignment: Alignment.center,
+      height: 12.h,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey,
+            offset: Offset(0,2),
+            blurRadius: 2
+          ),
+        ]
+      ),
       margin: const EdgeInsets.all(10),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-             const Expanded(
+             Expanded(
                flex: 3,
                child: CircleAvatar(
                 backgroundColor: Colors.grey,
-                radius: 40,
-                child: CircleAvatar(backgroundColor: Colors.black,child: Icon(Icons.person),),
+                radius: 30,
+                child: CircleAvatar(backgroundColor: Colors.black,child: Icon(Icons.person),backgroundImage: profileImage!=null?CachedNetworkImageProvider(profileImage!):null,),
             ),
              ),
             Expanded(flex:6,child: Container(
               margin:const EdgeInsets.only(left: 5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(name,style: Theme.of(context).textTheme.headlineSmall,),
                   Text(email,),
@@ -540,6 +623,7 @@ class History extends StatefulWidget {
 class _HistoryState extends State<History> {
   String searchitem = "";
   VendorOrderStatus? orderStatus;
+
   void refresh(BuildContext context){
     context.read<HistoryOrderProvider>().load_history_orders();
     setState(() {
@@ -554,28 +638,46 @@ class _HistoryState extends State<History> {
         width: double.infinity,
         padding:const EdgeInsets.all(10),
         child: Column(children: [
-          Expanded(child: Filter(onsearch: (String searchItem) {
-            setState(() {
-              searchitem = searchItem ;
-            });
-          },onstatusSelect: (VendorOrderStatus? status) {
-            setState(() {
-              orderStatus=status;
-            });
-          },)),
           Expanded(
+            flex: 4,
             child: Container(
-              margin:const EdgeInsets.symmetric(vertical: 5,horizontal: 20),
-              child: Row(children:const [
-                Expanded(flex:4,child: Text("Amount"),),
-                Expanded(flex:4,child: Text("Date"),),
-                Expanded(flex:4,child: Text("Location"),),
-                Expanded(flex:4,child: Text("Days",textAlign: TextAlign.center,),),
-                Expanded(child: Text(""),),
-                    ],),
-            ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey[400]!,
+                    offset: Offset(0,2),
+                    blurRadius: 6
+                  )
+                ]
+              ),
+              alignment: Alignment.centerLeft,
+              margin:const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child:Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Filter(onsearch: (String searchItem) {
+                    setState(() {
+                      searchitem = searchItem ;
+                      context.read<HistoryOrderProvider>().load_history_orders();
+                    });
+                  },onstatusSelect: (VendorOrderStatus? status) {
+                    setState(() {
+                      orderStatus=status;
+                      context.read<HistoryOrderProvider>().load_history_orders();
+                    });
+                  },),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Text("History Orders",style: TextStyle(fontSize: 16.sp,fontWeight: FontWeight.bold),),
+                  ),
+                ],
+              ))
           ),
-          Expanded(flex: 8,child: Consumer<HistoryOrderProvider>(
+          Expanded(flex: 16,child: Consumer<HistoryOrderProvider>(
             builder: (context,orderState,child){
               if(orderState.isLoading){
                 return Container(
@@ -595,7 +697,7 @@ class _HistoryState extends State<History> {
                         .where((element) {
                       if(orderStatus==null)return true;
                       return element.vendorOrderStatus == orderStatus ;
-                    }).map((e) => CustomOrderItem(order: e,ontap: (){
+                    }).map((e) => CustomOrderItem(showButtons: false,order: e,ontap: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: true,))).then((value) => refresh(context));
                     },)).toList()),
               );
@@ -635,28 +737,47 @@ class _OrdersState extends State<Orders> {
       width: double.infinity,
       padding:const EdgeInsets.all(10),
       child: Column(children: [
-        Expanded(child: Filter(onsearch: (String searchItem) { 
-          setState(() {
-            searchitem = searchItem;
-          },);
-        }, onstatusSelect: (VendorOrderStatus? status) {
-          setState(() {
-          orderStatus=status;
-          });
-        },)),
         Expanded(
-          child: Container(
-            margin:const EdgeInsets.symmetric(vertical: 5,horizontal: 20),
-            child: Row(children:const [
-              Expanded(flex:4,child: Text("Amount"),),
-              Expanded(flex:4,child: Text("Date"),),
-              Expanded(flex:4,child: Text("Location"),),
-              Expanded(flex:2,child: Text("Days",textAlign: TextAlign.center,),),
-              Expanded(flex:3,child: Text(""),),
-            ],),
+            flex: 4,
+            child: Container(
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey[400]!,
+                    offset: Offset(0,2),
+                    blurRadius: 6
+                )
+              ]
           ),
-        ),
-        Expanded(flex: 8,child: Consumer<UpcomingOrderProvider>(
+          alignment: Alignment.centerLeft,
+          margin:const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Filter2(onsearch: (String searchItem) {
+                setState(() {
+                  searchitem = searchItem;
+                  context.read<UpcomingOrderProvider>().load_upcoming_orders();
+                },);
+              }, onstatusSelect: (VendorOrderStatus? status) {
+                setState(() {
+                orderStatus=status;
+                context.read<UpcomingOrderProvider>().load_upcoming_orders();
+                });
+              },),
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 20,),
+                child: Text("Upcoming Orders",style: TextStyle(fontSize: 16.sp,fontWeight: FontWeight.bold),),
+              ),
+            ],
+          ),
+        )),
+
+        Expanded(flex: 16,child: Consumer<UpcomingOrderProvider>(
           builder: (context,orderState,child){
             if(orderState.isLoading){
               return Container(

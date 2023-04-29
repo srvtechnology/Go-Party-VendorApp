@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:utsavlife/core/repo/maps.dart' as mapRepo ;
+import 'package:utsavlife/core/utils/logger.dart';
 class Coordinates{
   String latitude;
   String longitude;
@@ -12,7 +13,12 @@ class MapProvider with ChangeNotifier {
   Coordinates get coordinates=> _coordinates;
 
   void getLocations(String location)async{
-    _locations = await mapRepo.autoCompleteLocation(location);
+    try {
+      _locations = await mapRepo.autoCompleteLocation(location);
+    }
+    catch(e){
+      CustomLogger.error(e);
+    }
     notifyListeners();
   }
   Future<void> getLatLong(String location)async{

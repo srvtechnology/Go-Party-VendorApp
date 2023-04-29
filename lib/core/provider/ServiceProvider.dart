@@ -39,7 +39,7 @@ class ServiceListProvider with ChangeNotifier {
 class DropDownOptionProvider with ChangeNotifier {
   ServiceDropDownOptions? options;
   bool isLoading = false;
-  AuthProvider auth;
+  dynamic auth;
   void startLoading(){
     isLoading = true;
     notifyListeners();

@@ -9,6 +9,8 @@ import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/otpProvider.dart';
 import 'package:utsavlife/core/utils/logger.dart';
 
+import '../provider/RegisterProvider.dart';
+
 Future<String> login(String email,String password)async{
   Response response;
   Dio dio = new Dio();
@@ -81,16 +83,70 @@ Future<String> resetPassword(String userId,String password,String otp)async{
     return Future.error(e);
   }
 }
-Future<bool> completeRegistration(AuthProvider auth,Map data)async{
+Future<bool> completeRegistration(RegisterProvider state,Map data)async{
   try{
   Response response = await Dio().post("${APIConfig.baseUrl}/api/vedor-register-part-registration",
   data: data,
     options: Options(headers: {
-      "Authorization":"Bearer ${auth.token}"
+      "Authorization":"Bearer ${state.token}"
     })
   );
   CustomLogger.debug(response.data);
   return true;
+  }
+  catch(e){
+    if(e is DioError){
+      CustomLogger.error(e.response?.data);
+    }
+    return Future.error(e);
+  }
+}
+Future<bool> completeRegistration2(RegisterProvider state,Map data)async{
+  try{
+    Response response = await Dio().post("${APIConfig.baseUrl}/api/vendor-register-part-three-registration",
+        data: data,
+        options: Options(headers: {
+          "Authorization":"Bearer ${state.token}"
+        })
+    );
+    CustomLogger.debug(response.data);
+    return true;
+  }
+  catch(e){
+    if(e is DioError){
+      CustomLogger.error(e.response?.data);
+    }
+    return Future.error(e);
+  }
+}Future<bool> completeRegistrationIntermediate(RegisterProvider state,Map data)async{
+  try{
+    Response response = await Dio().post("${APIConfig.baseUrl}/api/vendor-register-part-two-registration",
+        data: data,
+        options: Options(headers: {
+          "Authorization":"Bearer ${state.token}"
+        })
+    );
+    CustomLogger.debug(response.data);
+    return true;
+  }
+  catch(e){
+    if(e is DioError){
+      CustomLogger.error(e.response?.data);
+    }
+    return Future.error(e);
+  }
+}
+Future<bool> completeRegistration3(RegisterProvider state,Map<String,dynamic> data)async{
+  try{
+    CustomLogger.debug(data);
+    Response response = await Dio().post("${APIConfig.baseUrl}/api/vendor-register-part-four-registration",
+        data: FormData.fromMap(data),
+        options: Options(headers: {
+          "Authorization":"Bearer ${state.token}"
+        })
+    );
+    CustomLogger.debug(response.data);
+    return true;
   }
   catch(e){
     if(e is DioError){

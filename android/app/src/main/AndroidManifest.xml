@@ -2,7 +2,7 @@
     package="com.utsav.life.utsavlife">
     <uses-permission android:name="android.permission.INTERNET" />
    <application
-        android:label="utsavlife"
+        android:label="Utsavlife"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

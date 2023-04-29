@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/config.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
+import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/signUp.dart';
 import 'package:utsavlife/routes/webviewPage.dart';
 import 'otpPage.dart';
@@ -59,8 +60,8 @@ class _SignInState extends State<SignIn> {
                         key: _formKey,
                         child: Column(
                           children: [
-                            InputField("Email", _email),
-                            InputField("Password", _password,obscureText: true),
+                            InputField(title:"Email", controller:_email),
+                            InputField(title: "Password", controller:_password,obscureText: true,isPassword: true),
                           ],
                         )),
                     SignInButton(context),
@@ -99,19 +100,48 @@ class _SignInState extends State<SignIn> {
       child: const Text("Sign In"),
     );
   }
-  Widget InputField(String title,TextEditingController controller,{bool obscureText=false}){
+}
+
+class InputField extends StatefulWidget {
+  TextEditingController controller;
+  String title;
+  bool obscureText=false,isPassword=false;
+  InputField({Key? key,
+    required this.controller,
+    required this.title,
+    this.obscureText=false,
+    this.isPassword = false}) : super(key: key);
+
+  @override
+  State<InputField> createState() => _InputFieldState();
+}
+
+class _InputFieldState extends State<InputField> {
+  @override
+  Widget build(BuildContext context) {
     return Container(
-    margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
-    child: TextFormField(
-    obscureText: obscureText,
-    controller: controller,
-    decoration: InputDecoration(labelText: title,border: const OutlineInputBorder()),
-          validator: (value){
-            if(value==null || value.isEmpty){
-              return "Please enter ${title.toLowerCase()}";
-            }
-          },
-        ),
-      );
+      margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+      child: TextFormField(
+        obscureText: widget.obscureText,
+        controller: widget.controller,
+        decoration: InputDecoration(
+            labelText: widget.title,border: const OutlineInputBorder(),
+            suffixIcon: widget.isPassword?
+            IconButton(
+              onPressed: (){
+                setState(() {
+                  widget.obscureText=!widget.obscureText;
+                });
+              },icon: Icon(Icons.remove_red_eye_outlined),
+            )
+                :
+            null),
+        validator: (value){
+          if(value==null || value.isEmpty){
+            return "Please enter ${widget.title.toLowerCase()}";
+          }
+        },
+      ),
+    );
   }
 }

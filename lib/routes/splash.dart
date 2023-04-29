@@ -17,10 +17,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.read<AuthProvider>();
     return SplashView(
       duration:const Duration(seconds: 2),
-      logo: Image.asset("assets/images/logo/logo.png"),
+      logo: Container(
+          padding: EdgeInsets.all(20),
+          child: Image.asset("assets/images/logo/logo.png")),
       done: Done(
         const MainPage()
       ),

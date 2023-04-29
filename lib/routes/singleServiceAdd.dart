@@ -9,6 +9,7 @@ import 'package:utsavlife/core/repo/service.dart' as serviceRepo ;
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/errorScreen.dart';
 
+import '../core/models/dropdown.dart';
 import 'CompleteRegistration.dart';
 
 class AddServiceRoute extends StatefulWidget {
@@ -22,8 +23,10 @@ class AddServiceRoute extends StatefulWidget {
 class _AddServiceRouteState extends State<AddServiceRoute> {
   String categoryOption = "Select Category",categoryId="";
   String serviceOption = "Select Service",serviceId="";
+
   final _formKey = GlobalKey<FormState>();
   bool showLocationList = false;
+  bool isLoading = false;
   TextEditingController _companyName = TextEditingController();
   TextEditingController _companyAddress = TextEditingController();
   TextEditingController _serviceDescription = TextEditingController();
@@ -40,7 +43,9 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
   TextEditingController _driverLandmark = TextEditingController();
   TextEditingController _driverCity = TextEditingController();
   TextEditingController _driverState = TextEditingController();
+
   late DropDownField selectedKyc;
+
   List<DropDownField> kyctypes = [
     DropDownField(title: "Aadhar Card",value: "AD"),
     DropDownField(title: "Voter Id",value: "VO"),
@@ -121,40 +126,49 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                         InputField("Service Description", _serviceDescription),
                         InputField("Material Description", _materialDescription),
                         InputField("Price", _price),
-                        Container(
-                          margin: EdgeInsets.symmetric(vertical: 20,horizontal: 10),
-                          child: Text("Driver details",style: TextStyle(fontWeight: FontWeight.w500),),
-                        ),
-                        InputField("Name", _driverName),
-                        InputField("Mobile Number", _driverMob),
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 45),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Kyc Type"),
-                              DropdownButton(
-                                value: selectedKyc,
-                                items: kyctypes.map((e)=>DropdownMenuItem(child: Text(e.title),value: e,)).toList(),
-                                onChanged: (_){
-                                  setState(() {
-                                    _driverKycType.text = _!.value ;
-                                    selectedKyc = _ ;
-                                  });
-                                },
-
+                        if(serviceOption.toLowerCase().contains("car"))
+                        Column(
+                          children: [
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              margin: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
+                              child: Text("Driver details",style: TextStyle(fontWeight: FontWeight.w500),),
+                            ),
+                            InputField("Name", _driverName),
+                            InputField("Mobile Number", _driverMob),
+                            Container(
+                              margin: EdgeInsets.symmetric(horizontal: 45),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Kyc Type"),
+                                  DropdownButton(
+                                    value: selectedKyc,
+                                    items: kyctypes.map((e)=>DropdownMenuItem(child: Text(e.title),value: e,)).toList(),
+                                    onChanged: (_){
+                                      setState(() {
+                                        _driverKycType.text = _!.value ;
+                                        selectedKyc = _ ;
+                                      });
+                                    },
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            InputField("KYC Number", _driverKycNo),
+                            InputField("License", _driverLicense),
+                            InputField("PinCode", _driverpinCode),
+                            InputField("House Number", _driverhouseNo),
+                            InputField("Area", _driverArea),
+                            InputField("Landmark", _driverLandmark),
+                            InputField("City", _driverCity),
+                            InputField("State", _driverState),
+                          ],
                         ),
-                        InputField("KYC Number", _driverKycNo),
-                        InputField("License", _driverLicense),
-                        InputField("PinCode", _driverpinCode),
-                        InputField("House Number", _driverhouseNo),
-                        InputField("Area", _driverArea),
-                        InputField("Landmark", _driverLandmark),
-                        InputField("City", _driverCity),
-                        InputField("State", _driverState),
+                        if(isLoading)
+                          Container(alignment: Alignment.center,child: CircularProgressIndicator(),)
+                        else
+                          CreateButton(context, state.auth),
                       ]
                     ),
                   ),
@@ -171,7 +185,13 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       margin: EdgeInsets.all(20),
       child: OutlinedButton(
         onPressed: (){
+          setState(() {
+            isLoading = true;
+          });
           createService(auth);
+          setState(() {
+            isLoading = false;
+          });
         },
         style: OutlinedButton.styleFrom(
             side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
@@ -227,9 +247,9 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       };
       CustomLogger.debug(serviceData);
       try{
-        // serviceRepo.createService(auth, serviceData);
-        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Service created successfully")));
-        // Navigator.pop(context);
+        serviceRepo.createService(auth, serviceData);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Service created successfully")));
+        Navigator.pop(context);
       }
       catch(e){
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));

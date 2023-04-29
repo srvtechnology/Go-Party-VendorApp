@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
+import 'package:utsavlife/core/provider/RegisterProvider.dart';
 import 'package:utsavlife/core/provider/networkProvider.dart';
 import 'package:utsavlife/routes/homepage.dart';
 import 'package:utsavlife/routes/signIn.dart';
+import 'package:utsavlife/routes/signUp.dart';
 
 import 'errorScreen.dart';
 
@@ -14,14 +16,16 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<NetworkProvider>(
+    return ListenableProvider(
+        create: (_)=>RegisterProvider(),
+    child:Consumer<NetworkProvider>(
       builder: (context,state,child){
               if(state.isOnline){
                 return child!;
               }
               return errorScreenRoute(icon: Icons.wifi,message: "Seems like you are offline.Please connect to a network",hasAppbar: false,);
       },
-      child: Consumer<AuthProvider>(builder: (context,auth,child){
+      child: Consumer2<AuthProvider,RegisterProvider>(builder: (context,auth,registerState,child){
         if(auth.authState==AuthState.LoggedIn){
           return Homepage();
         }
@@ -33,9 +37,16 @@ class MainPage extends StatelessWidget {
           );
         }
         else{
+          if(registerState.registerProgress == RegisterProgress.one){
+            return SignIn();
+          }
+          else if(registerState.registerProgress != RegisterProgress.completed){
+            return SignUp();
+          }
           return SignIn();
         }
       }),
+    )
     );
   }
 }

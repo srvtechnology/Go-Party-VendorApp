@@ -8,10 +8,12 @@ typedef Ontap=Function();
 class CustomOrderItem extends StatefulWidget {
   Ontap? ontap;
   OrderModel order;
+  bool showButtons;
   CustomOrderItem({
   Key? key,
            this.ontap,
   required this.order,
+    this.showButtons=true
   }) : super(key: key);
 
   @override
@@ -21,6 +23,8 @@ class CustomOrderItem extends StatefulWidget {
 class _CustomOrderItemState extends State<CustomOrderItem> {
   late Color _statusColor;
   late String _statusText;
+  late Color _statusTextColor;
+
   @override
   void initState(){
     super.initState();
@@ -29,16 +33,21 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
   void choose_status(){
     switch(widget.order.vendorOrderStatus){
       case VendorOrderStatus.rejected:
-        _statusColor = Colors.red;
+        _statusColor = Colors.red[700]!;
         _statusText="Rejected";
+        _statusTextColor=Colors.red[100]!;
         break;
       case VendorOrderStatus.approved:
-        _statusColor = Colors.green;
+        _statusColor = Colors.greenAccent;
         _statusText="Approved";
+        _statusTextColor=Colors.green[900]!;
+
         break;
       default:
-        _statusColor = Colors.yellow;
+        _statusColor = Colors.yellowAccent;
         _statusText="Pending";
+        _statusTextColor=Colors.yellow[900]!;
+
     }
   }
   @override
@@ -48,35 +57,73 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
       child: Container(
         margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 5),
         decoration:BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(5)),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              offset: Offset(0, 5),
-              color: Colors.grey[300]!,
-              blurRadius: 2
-            ),BoxShadow(
-              offset: Offset(5, 0),
-              color: Colors.grey[300]!,
-              blurRadius: 2
+              offset: Offset(0, 3),
+              color: Colors.grey[400]!,
+              blurRadius: 4
             )
           ]
         ),
        width: 100.w,
-       height: 10.h,
-       child: Row(children: [
-          Expanded(flex:4,child: Text("₹ ${widget.order.amount}",textAlign: TextAlign.center,)),
-          Expanded(flex:5,child: Text(widget.order.date,style: TextStyle(fontSize: 14.sp),)),
-          Expanded(flex:3,child: Text(widget.order.address.split(",")[0])),
-          Expanded(flex:2,child: Text(widget.order.days,textAlign: TextAlign.center,),),
-          Expanded(flex:3,child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(_statusText),
-              Container(margin: EdgeInsets.only(left: 10,top: 10,right: 10),height: 10,decoration: BoxDecoration(color: _statusColor),),
-            ],
-          ))
-       ]),
+       height: 30.h,
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           Expanded(child: Container(
+             decoration: BoxDecoration(
+               color: _statusColor,
+               borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20))
+             ),
+             padding: EdgeInsets.symmetric(horizontal: 20),
+             child: Row(
+             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+             children: [
+               Container(child: Text(""),),
+               Container(child: Text(_statusText,style: TextStyle(color: _statusTextColor),)),
+             ],
+           ),)),
+           Expanded(flex: 4,child: Container(
+             child: Row(
+               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+               children: [
+                 Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                   children: [
+                     Text("Amount:"),
+                     Text("Date: "),
+                     Text("Location: "),
+                     Text("Days"),
+                   ],
+                 ),
+                 Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                   children: [
+                     Text(widget.order.amount),
+                     Text(widget.order.date),
+                     Text(widget.order.address.isEmpty?"Not set":widget.order.address.substring(0,15)),
+                     Text(widget.order.days),
+                   ],
+                 ),
+               ],
+             ),
+           )),
+           Expanded(child: Container(
+             padding: EdgeInsets.only(bottom: 10),
+             child: widget.showButtons?Row(
+               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+               children: [
+                 if(widget.order.vendorOrderStatus == VendorOrderStatus.rejected || widget.order.vendorOrderStatus == VendorOrderStatus.pending)OutlinedButton(onPressed: (){}, child: Text("Approve",style: TextStyle(color: Colors.green),)),
+                 if(widget.order.vendorOrderStatus == VendorOrderStatus.approved || widget.order.vendorOrderStatus == VendorOrderStatus.pending)OutlinedButton(onPressed: (){}, child: Text("Reject",style: TextStyle(color: Colors.red))),
+               ],
+             ):Container(),
+           ))
+         ],
+       )
       ),
     );
   }

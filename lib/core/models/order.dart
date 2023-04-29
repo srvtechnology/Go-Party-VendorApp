@@ -1,4 +1,6 @@
 
+import 'package:utsavlife/core/utils/logger.dart';
+
 class Category{
 
 }
@@ -55,11 +57,6 @@ class OrderModel {
         case "RJ":tempStatus = VendorOrderStatus.rejected ;
       }
     }catch(e){}
-    try{
-      tempServiceName=json["service_details"]["service"];
-    }catch(e){
-
-    }
     try{
       tempCategoryName=json["category_details"]["category_name"];
     }catch(e){
