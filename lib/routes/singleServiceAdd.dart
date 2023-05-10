@@ -1,16 +1,18 @@
 import 'dart:math';
-
+import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/ServiceProvider.dart';
 import 'package:utsavlife/core/provider/mapProvider.dart';
 import 'package:utsavlife/core/repo/service.dart' as serviceRepo ;
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/errorScreen.dart';
-
 import '../core/models/dropdown.dart';
-import 'CompleteRegistration.dart';
 
 class AddServiceRoute extends StatefulWidget {
   static const routeName = "/addservice";
@@ -27,6 +29,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
   final _formKey = GlobalKey<FormState>();
   bool showLocationList = false;
   bool isLoading = false;
+  String? videoPath;
   TextEditingController _companyName = TextEditingController();
   TextEditingController _companyAddress = TextEditingController();
   TextEditingController _serviceDescription = TextEditingController();
@@ -43,7 +46,8 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
   TextEditingController _driverLandmark = TextEditingController();
   TextEditingController _driverCity = TextEditingController();
   TextEditingController _driverState = TextEditingController();
-
+  String? driverImage,drivingLicenseImage;
+  List<AddProductPhoto> productImages = [];
   late DropDownField selectedKyc;
 
   List<DropDownField> kyctypes = [
@@ -126,6 +130,63 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                         InputField("Service Description", _serviceDescription),
                         InputField("Material Description", _materialDescription),
                         InputField("Price", _price),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Product photos. Max 5",style: TextStyle(fontWeight: FontWeight.bold),),
+                              OutlinedButton(onPressed: ()async{
+                                if(productImages.length>=5){
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Maximum 5 photos allowed")));
+                                  return;
+                                }
+                                List<XFile?> images = await ImagePicker().pickMultiImage();
+                                setState(() {
+                                  if(images.length>5){
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Maximum 5 photos allowed")));
+                                  }
+                                  images.forEach((element) {
+                                    if(productImages.length==5)return;
+                                    productImages.add(AddProductPhoto(
+                                      filePath: element?.path,
+                                        id: productImages.length, onDelete: (id){
+                                      setState(() {
+                                        productImages.removeWhere((element) => element.id == id);
+                                      });
+                                    }));
+                                  });
+                                });
+                              }, child:const Text("Add"))
+                            ],
+                          ),
+                        ),
+                        ...productImages,
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          margin: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+                          child: Text("Add a video",style: TextStyle(fontWeight: FontWeight.bold),),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 25),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                alignment: Alignment.center,
+                                width: 80,
+                                height: 60,
+                                child: videoPath!=null?Container(child: Text("Video Selected"),):Container(color: Colors.grey,),),
+                              Container(child: TextButton(child:const Text("Choose"),onPressed: ()async{
+                                XFile? video = await ImagePicker().pickVideo(source: ImageSource.gallery);
+                                setState(() {
+                                  videoPath = video?.path;
+                                });
+                              },),)
+                            ],
+                          ),
+                        ),
                         if(serviceOption.toLowerCase().contains("car"))
                         Column(
                           children: [
@@ -155,7 +216,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                                 ],
                               ),
                             ),
-                            InputField("KYC Number", _driverKycNo),
+                            InputField("${selectedKyc.title} Number", _driverKycNo),
                             InputField("License", _driverLicense),
                             InputField("PinCode", _driverpinCode),
                             InputField("House Number", _driverhouseNo),
@@ -163,6 +224,53 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                             InputField("Landmark", _driverLandmark),
                             InputField("City", _driverCity),
                             InputField("State", _driverState),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              margin: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+                              child: Text("Choose Driver Image",style: TextStyle(fontWeight: FontWeight.bold),),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 25),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    width: 80,
+                                    height: 60,
+                                    child: driverImage!=null?Image.file(File(driverImage!)):Container(color: Colors.grey,),),
+                                  Container(child: TextButton(child:const Text("Choose"),onPressed: ()async{
+                                    XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+                                    setState(() {
+                                      driverImage = image?.path;
+                                    });
+                                  },),)
+                                ],
+                              ),
+                            ),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              margin: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+                              child: Text("Choose Driving License Image",style: TextStyle(fontWeight: FontWeight.bold),),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 25),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    alignment: Alignment.center,
+                                    width: 80,
+                                    height: 60,
+                                    child: drivingLicenseImage!=null?Image.file(File(drivingLicenseImage!)):Container(color: Colors.grey,),),
+                                  Container(child: TextButton(child:const Text("Choose"),onPressed: ()async{
+                                    XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+                                    setState(() {
+                                      drivingLicenseImage = image?.path;
+                                    });
+                                  },),)
+                                ],
+                              ),
+                            )
                           ],
                         ),
                         if(isLoading)
@@ -180,6 +288,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       ),
     );
   }
+
   Widget CreateButton(BuildContext context,AuthProvider auth){
     return Container(
       margin: EdgeInsets.all(20),
@@ -189,9 +298,6 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
             isLoading = true;
           });
           createService(auth);
-          setState(() {
-            isLoading = false;
-          });
         },
         style: OutlinedButton.styleFrom(
             side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
@@ -223,9 +329,9 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       ),
     );
   }
-  void createService(AuthProvider auth){
+  void createService(AuthProvider auth)async{
     if(_formKey.currentState!.validate()){
-      Map serviceData = {
+      Map<String,dynamic> serviceData = {
         "category_id":categoryId,
         "service_id":serviceId,
         "company_name":_companyName.text,
@@ -244,7 +350,13 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
         "driver_landmark":_driverLandmark.text,
         "driver_city":_driverCity.text,
         "driver_state":_driverState.text,
+       "img6":driverImage==null?null:await MultipartFile.fromFile(driverImage!),
+       "img5":drivingLicenseImage==null?null:await MultipartFile.fromFile(drivingLicenseImage!),
+        "video":videoPath==null?null:await MultipartFile.fromFile(videoPath!)
       };
+      for(int i = 0;i<productImages.length;i++){
+        serviceData['pmg${i+1}']=productImages[i].filePath==null?null:await MultipartFile.fromFile(productImages[i].filePath!);
+      }
       CustomLogger.debug(serviceData);
       try{
         serviceRepo.createService(auth, serviceData);
@@ -258,3 +370,47 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
   }
 
 }
+
+class AddProductPhoto extends StatefulWidget {
+  int id;
+  Function(int) onDelete;
+  String? filePath;
+  bool network;
+  AddProductPhoto({Key? key,required this.id,required this.onDelete,this.filePath,this.network = false}) : super(key: key);
+
+  @override
+  State<AddProductPhoto> createState() => _AddProductPhotoState();
+}
+
+class _AddProductPhotoState extends State<AddProductPhoto> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20,vertical: 5),
+      height: 10.h,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(width: 80,height: 60,child: widget.filePath==null?Text("Select Image"):widget.network?CachedNetworkImage(imageUrl:widget.filePath!):Image.file(File(widget.filePath!)),),
+          Container(child: TextButton(onPressed: ()async{
+            XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+            int? length = await file?.length();
+            if((length!/1024) > 2048){
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Image size should be less than 2mb")));
+              return;
+            }
+            setState(() {
+              widget.network = false;
+              widget.filePath = file?.path;
+            });
+          },child: Text("Change Image"),),),
+          Container(child: IconButton(onPressed: (){
+            widget.onDelete(widget.id);
+          },icon: Icon(Icons.delete),),)
+        ],
+      ),
+    );
+  }
+}
+

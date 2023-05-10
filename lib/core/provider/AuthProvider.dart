@@ -39,13 +39,14 @@ class AuthProvider with ChangeNotifier {
      }
      else{
        _token = tempToken;
-       _authState = AuthState.LoggedIn ;
        print("Logged in");
-       getUser();
+       await getUser();
+       _authState = AuthState.LoggedIn ;
+
      }
      notifyListeners();
   }
-  void getUser()async{
+  Future<void> getUser()async{
     print("Getting user data");
     _user = await userRepo.get_UserData(_token!); // from repo
     notifyListeners();
@@ -95,10 +96,14 @@ class AuthProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+  void deleteAllFromStorage(){
+    pref.clear();
+  }
   void logout(){
       _token = null;
       _authState = AuthState.LoggedOut;
       deleteTokenFromStorage();
+      deleteAllFromStorage();
       notifyListeners();
   }
 
@@ -156,6 +161,19 @@ class AuthProvider with ChangeNotifier {
     if (gstPath != null){
       data["img4"]=await MultipartFile.fromFile(gstPath);
     }
+    bool status = await userRepo.edit_Document_details(_token!, data);
+    if(status == true){
+      getUser();
+      notifyListeners();
+    }
+    else {
+
+    }
+  }
+  void editProfileImage({required String profilePath})async{
+    Map<String,dynamic> data={
+      "img3":await MultipartFile.fromFile(profilePath)
+    };
     bool status = await userRepo.edit_Document_details(_token!, data);
     if(status == true){
       getUser();

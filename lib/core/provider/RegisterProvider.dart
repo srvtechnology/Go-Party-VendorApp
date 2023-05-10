@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/repo/auth.dart' as authRepo;
 import 'package:utsavlife/core/utils/logger.dart';
 import '../models/user.dart';
@@ -14,13 +15,25 @@ enum RegisterProgress {
 }
 
 class RegisterProvider with ChangeNotifier {
+  AuthProvider? auth;
   RegisterProgress _registerProgress=RegisterProgress.one;
   String? _token;
   late String _email,_password;
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
   String? get token => _token;
   RegisterProgress get registerProgress=>_registerProgress;
-  RegisterProvider(){
+  RegisterProvider({this.auth}){
     getRegisterProgressFromStorage();
+    getAuthToken();
+  }
+  void startloading(){
+    _isLoading = true;
+    notifyListeners();
+  }
+  void stoploading(){
+    _isLoading = false;
+    notifyListeners();
   }
   void getRegisterProgressFromStorage()async{
     final SharedPreferences instance = await SharedPreferences.getInstance();
@@ -52,10 +65,21 @@ class RegisterProvider with ChangeNotifier {
     notifyListeners();
   }
   Future<void> getAuthToken()async{
-    String? email = await getEmail();
-    String? password = await getPassword();
-    _token = await authRepo.login(email!, password!);
-    notifyListeners();
+    startloading();
+    try{
+      if(auth!=null && auth?.token!=null){
+        _token=auth?.token;
+      }
+      else{
+        String? email = await getEmail();
+        String? password = await getPassword();
+        _token = await authRepo.login(email!, password!);
+      }
+      stoploading();
+    }catch(e){
+      CustomLogger.error(e);
+      stoploading();
+    }
   }
   void setEmailPassword({required String email,required String password})async{
     final SharedPreferences instance = await SharedPreferences.getInstance();
@@ -76,6 +100,7 @@ class RegisterProvider with ChangeNotifier {
     _registerProgress = progress;
     switch(progress){
       case RegisterProgress.one:
+
           value = 1;
           break;
       case RegisterProgress.two:

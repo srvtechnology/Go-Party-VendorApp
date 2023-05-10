@@ -68,7 +68,11 @@ class _HomepageState extends State<Homepage> {
                 children: [
                   SizedBox(height: 20,),
                   DrawerHeader(
-                    child: Image.asset("assets/images/logo/logo.png"),
+                    child: SizedBox(
+                      height: 20.h,
+                      width: 40.w,
+                      child: Image.asset("assets/images/logo/logo.png"),
+                    ),
                   ),
                   ListTile(title: Text("Add services"), leading:Icon( Icons.cleaning_services), onTap: (){
                     Navigator.pushNamed(context, AddServiceRoute.routeName);
@@ -247,7 +251,7 @@ class _ProfileState extends State<Profile> {
     "Email":new TextEditingController(),
     "Phone":new TextEditingController(),
     "Name":new TextEditingController(),
-    "Pan Number / Pan Card Number":new TextEditingController(),
+    "PanCard Number":new TextEditingController(),
     "Kyc Number":new TextEditingController(),
     "Kyc Type":new TextEditingController(),
     "PinCode":new TextEditingController(),
@@ -282,7 +286,7 @@ class _ProfileState extends State<Profile> {
   void initState() {
     super.initState();
     Provider.of<AuthProvider>(context,listen: false).getUser();
-    selectedKyc = kyctypes.firstWhere((element) => element.value == Provider.of<AuthProvider>(context,listen: false).user!.kycType);
+    selectedKyc = kyctypes.firstWhere((element) => element.value == Provider.of<AuthProvider>(context,listen: false).user!.kycType,orElse: ()=>kyctypes[0]);
     selectedAccountType = AccountTypes.firstWhere((element) => element.value == Provider.of<AuthProvider>(context,listen: false).user!.bankDetails?.accountType,orElse: ()=>AccountTypes[0]);
   }
   @override
@@ -298,7 +302,7 @@ class _ProfileState extends State<Profile> {
               length: 4,
             child: Column(
               children: [
-                _ProfileHeader(context,auth.user!.name,auth.user!.email,auth.user!.vendorUrl),
+                _ProfileHeader(context,auth,auth.user!.name,auth.user!.email,auth.user!.vendorUrl),
                 SizedBox(height: 30,),
                 TabBar(
                   indicator: BoxDecoration(
@@ -313,7 +317,7 @@ class _ProfileState extends State<Profile> {
                     ]
                   ),
                     tabs: [
-                  Tab(child: Text("Personal",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
+                  Tab(child: Text("Personal",style: TextStyle(color: Colors.black,fontSize: 14.sp),),),
                   Tab(child: Text("Office",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
                   Tab(child: Text("Bank",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
                   Tab(child: Text("Doc",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
@@ -362,12 +366,12 @@ class _ProfileState extends State<Profile> {
               });
             }, icon: Icon(Icons.edit,color: OfficeEditMode?Theme.of(context).primaryColor:null),),
           ),
-          _CustomText(context, editMode:OfficeEditMode,title: "Number",controllerKey: "Office Number",content: auth.user!.officeNumber ?? "Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "PinCode",controllerKey: "Office PinCode",content: auth.user!.officeZip ?? "Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "Area",controllerKey: "Office Area",content: auth.user!.officeArea ?? "Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "Landmark",controllerKey: "Office Landmark",content: auth.user!.officeLandmark ?? "Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "State",controllerKey: "Office State",content: auth.user!.officeState??"Not set"),
-          _CustomText(context, editMode:OfficeEditMode,title: "City",controllerKey: "Office City",content: auth.user!.officeCity??"Not set"),
+          _CustomText(context, editMode:OfficeEditMode,title: "Number",controllerKey: "Office Number",content: auth.user!.officeNumber ?? ""),
+          _CustomText(context, editMode:OfficeEditMode,title: "PinCode",controllerKey: "Office PinCode",content: auth.user!.officeZip ?? ""),
+          _CustomText(context, editMode:OfficeEditMode,title: "Area",controllerKey: "Office Area",content: auth.user!.officeArea ?? ""),
+          _CustomText(context, editMode:OfficeEditMode,title: "Landmark",controllerKey: "Office Landmark",content: auth.user!.officeLandmark ?? ""),
+          _CustomText(context, editMode:OfficeEditMode,title: "State",controllerKey: "Office State",content: auth.user!.officeState??""),
+          _CustomText(context, editMode:OfficeEditMode,title: "City",controllerKey: "Office City",content: auth.user!.officeCity??""),
           if(OfficeEditMode)
             Container(
               alignment: Alignment.center,
@@ -402,8 +406,8 @@ class _ProfileState extends State<Profile> {
               });
             }, icon: Icon(Icons.edit,color: BankEditMode?Theme.of(context).primaryColor:null),),
            ),
-          _CustomText(context, editMode:BankEditMode,title: "Holder Name",content: auth.user!.bankDetails?.holderName ?? "Not set"),
-          _CustomText(context, editMode:BankEditMode,title: "Account Number",content: auth.user!.bankDetails?.accountNumber ?? "Not set"),
+          _CustomText(context, editMode:BankEditMode,title: "Holder Name",content: auth.user!.bankDetails?.holderName ?? ""),
+          _CustomText(context, editMode:BankEditMode,title: "Account Number",content: auth.user!.bankDetails?.accountNumber ?? ""),
           if(BankEditMode)
             Container(
               margin: EdgeInsets.symmetric(horizontal: 25),
@@ -411,27 +415,30 @@ class _ProfileState extends State<Profile> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text("Account Type",style: TextStyle(fontWeight: FontWeight.bold),),
-                  Container(
-                    width: 30.w,
-                    child: DropdownButton(
-                      value: selectedAccountType,
-                      items: AccountTypes.map((e)=>DropdownMenuItem(child: Text(e.title),value: e,)).toList(),
-                      onChanged: (_){
-                        setState(() {
-                          textControllers["Account Type"]?.text = _!.value ;
-                          selectedAccountType = _! ;
-                        });
-                      },
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: DropdownButton(
+                        isExpanded: true,
+                        value: selectedAccountType,
+                        items: AccountTypes.map((e)=>DropdownMenuItem(child: Text(e.title,style: TextStyle(fontSize: 15.sp),),value: e,)).toList(),
+                        onChanged: (_){
+                          setState(() {
+                            textControllers["Account Type"]?.text = _!.value ;
+                            selectedAccountType = _! ;
+                          });
+                        },
 
+                      ),
                     ),
                   ),
                 ],
               ),
             )
-          else _CustomText(context, title: "Account Type", content: AccountTypes.firstWhere((element) => element.value==auth.user!.bankDetails?.accountType).title, editMode: BankEditMode),
-          _CustomText(context, editMode:BankEditMode,title: "Bank Name",content: auth.user!.bankDetails?.bankName ?? "Not set"),
-          _CustomText(context, editMode:BankEditMode,title: "Branch Name",content: auth.user!.bankDetails?.branchName ?? "Not set"),
-          _CustomText(context, editMode:BankEditMode,title: "IFSC Code",content: auth.user!.bankDetails?.ifscNumber ?? "Not set"),
+          else _CustomText(context, title: "Account Type", content: AccountTypes.firstWhere((element) => element.value==auth.user!.bankDetails?.accountType,orElse:()=> AccountTypes[0]).title, editMode: BankEditMode),
+          _CustomText(context, editMode:BankEditMode,title: "Bank Name",content: auth.user!.bankDetails?.bankName ?? ""),
+          _CustomText(context, editMode:BankEditMode,title: "Branch Name",content: auth.user!.bankDetails?.branchName ?? ""),
+          _CustomText(context, editMode:BankEditMode,title: "IFSC Code",content: auth.user!.bankDetails?.ifscNumber ?? ""),
 
           if(BankEditMode)
             Container(
@@ -480,11 +487,10 @@ class _ProfileState extends State<Profile> {
               });
             }, icon: Icon(Icons.edit,color: ProfileEditMode?Theme.of(context).primaryColor:null),),
           ),
-          _CustomText(context, editMode:ProfileEditMode,title: "Email",content: auth.user!.email,canEdit: false),
-          _CustomText(context, editMode:ProfileEditMode,title: "Phone",content: auth.user!.mobileno??"Not set",canEdit: false),
           _CustomText(context, editMode:ProfileEditMode,title: "Name",content: auth.user!.name??"Not yet"),
-          _CustomText(context, editMode:ProfileEditMode,title: "Pan Number / Pan Card Number",content: auth.user!.panCardNumber??"Not set"),
-          _CustomText(context, editMode:ProfileEditMode,title: "Kyc Number",content: auth.user!.kycNumber ??"Not set"),
+          _CustomText(context, editMode:ProfileEditMode,title: "Phone",content: auth.user!.mobileno??"",canEdit: false),
+          _CustomText(context, editMode:ProfileEditMode,title: "Email",content: auth.user!.email,canEdit: false),
+          _CustomText(context, editMode:ProfileEditMode,controllerKey: "PanCard Number",title: "Pan Number / Pan Card Number",content: auth.user!.panCardNumber??""),
           if(ProfileEditMode)
             Container(
             margin: EdgeInsets.symmetric(horizontal: 45),
@@ -505,12 +511,13 @@ class _ProfileState extends State<Profile> {
               ],
             ),
           )
-          else  _CustomText(context,editMode: ProfileEditMode, title: "Kyc Type", content:kyctypes.firstWhere((element) => element.value == auth.user!.kycType).title??"Not set",canEdit: false),
-          _CustomText(context, editMode:ProfileEditMode,title: "PinCode",content: auth.user!.zip ?? "Not set"),
-          _CustomText(context, editMode:ProfileEditMode,title: "Area",content: auth.user!.area ?? "Not set"),
-          _CustomText(context, editMode:ProfileEditMode,title: "Landmark",content: auth.user!.landmark ?? "Not set"),
-          _CustomText(context, editMode:ProfileEditMode,title: "State",content: auth.user!.state??"Not set"),
-          _CustomText(context, editMode:ProfileEditMode,title: "City",content: auth.user!.city??"Not set"),
+          else  _CustomText(context,editMode: ProfileEditMode, title: "Kyc Type", content:kyctypes.firstWhere((element) => element.value == auth.user!.kycType,orElse: ()=>kyctypes[0]).title??"",canEdit: false),
+          _CustomText(context, editMode:ProfileEditMode,controllerKey: "Kyc Number",title: "${selectedKyc.title} Number",content: auth.user!.kycNumber ??""),
+          _CustomText(context, editMode:ProfileEditMode,controllerKey: "Area",title: "Street/Sector/Village/Area",content: auth.user!.area ?? ""),
+          _CustomText(context, editMode:ProfileEditMode,title: "Landmark",content: auth.user!.landmark ?? ""),
+          _CustomText(context, editMode:ProfileEditMode,title: "City",content: auth.user!.city??""),
+          _CustomText(context, editMode:ProfileEditMode,title: "PinCode",content: auth.user!.zip ?? ""),
+          _CustomText(context, editMode:ProfileEditMode,title: "State",content: auth.user!.state??""),
           if(ProfileEditMode)
             Container(
               alignment: Alignment.center,
@@ -646,12 +653,13 @@ class _ProfileState extends State<Profile> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(margin:const EdgeInsets.symmetric(vertical: 5),child: Text(title,style:const TextStyle(fontWeight: FontWeight.bold),)),
+          Container(margin:const EdgeInsets.only(top: 15),child: Text(title,style:const TextStyle(fontWeight: FontWeight.bold),)),
           Container(margin:const EdgeInsets.symmetric(vertical: 5),
               child: TextFormField(
                controller: textControllers[controllerKey],
-                decoration:InputDecoration(
-                    border: const OutlineInputBorder()),
+                decoration:editMode?InputDecoration(
+                    hintText: "Not set",
+                    border: const OutlineInputBorder()):InputDecoration(hintText: "Not set",border: InputBorder.none),
                 enabled: (editMode&&canEdit),
               )),
         ],
@@ -659,47 +667,66 @@ class _ProfileState extends State<Profile> {
       );
   }
 
-  Widget _ProfileHeader(BuildContext context,String name,String email,String? profileImage){
-    return Container(
-      alignment: Alignment.center,
-      height: 12.h,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey,
-            offset: Offset(0,2),
-            blurRadius: 2
-          ),
-        ]
-      ),
-      margin: const EdgeInsets.all(10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+  Widget _ProfileHeader(BuildContext context,AuthProvider auth,String name,String email,String? profileImage){
+    return GestureDetector(
+      onTap: (){
+        showDialog(context: context, builder: (context)=>SimpleDialog(
           children: [
-             Expanded(
-               flex: 3,
-               child: CircleAvatar(
-                backgroundColor: Colors.grey,
-                radius: 30,
-                child: CircleAvatar(backgroundColor: Colors.black,child: Icon(Icons.person),backgroundImage: profileImage!=null?CachedNetworkImageProvider(profileImage!):null,),
+            Container(
+              height: 30.h,
+              child: CircleAvatar(backgroundColor: Colors.black,child: Icon(Icons.person),backgroundImage: profileImage!=null?CachedNetworkImageProvider(profileImage):null,),
             ),
-             ),
-            Expanded(flex:6,child: Container(
-              margin:const EdgeInsets.only(left: 5),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(name,style: Theme.of(context).textTheme.headlineSmall,),
-                  Text(email,),
-                ],
-              ),
-            ))
+            OutlinedButton(onPressed: ()async{
+              XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+              if(file!=null){
+                auth.editProfileImage(profilePath: file.path);
+                Navigator.pop(context);
+              }
+            }, child: Text("Upload New Image"))
           ],
+        ));
+      },
+      child: Container(
+        alignment: Alignment.center,
+        height: 12.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey,
+              offset: Offset(0,2),
+              blurRadius: 2
+            ),
+          ]
         ),
+        margin: const EdgeInsets.all(10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+               Expanded(
+                 flex: 3,
+                 child: CircleAvatar(
+                  backgroundColor: Colors.grey,
+                  radius: 30,
+                  child: CircleAvatar(backgroundColor: Colors.black,child: Icon(Icons.person),backgroundImage: profileImage!=null?CachedNetworkImageProvider(profileImage!):null,),
+              ),
+               ),
+              Expanded(flex:6,child: Container(
+                margin:const EdgeInsets.only(left: 5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(name,style: Theme.of(context).textTheme.headlineSmall,),
+                    Text(email,),
+                  ],
+                ),
+              ))
+            ],
+          ),
+      ),
     );
   }
 }

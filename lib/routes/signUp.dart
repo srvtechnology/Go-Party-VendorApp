@@ -7,17 +7,22 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/core/components/loading.dart';
+import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/RegisterProvider.dart';
 import 'package:utsavlife/core/provider/mapProvider.dart';
 import 'package:utsavlife/core/repo/auth.dart';
 import 'package:utsavlife/core/utils/logger.dart';
+import 'package:utsavlife/core/utils/textformatters.dart';
 import 'package:utsavlife/routes/mainpage.dart';
 
+import '../core/components/inputFields.dart';
 import '../core/models/dropdown.dart';
 import '../core/provider/ServiceProvider.dart';
 class SignUp extends StatefulWidget {
+  bool dialogShow = false;
   static const routeName = "signup";
-  const SignUp({Key? key}) : super(key: key);
+  SignUp({Key? key,this.dialogShow=false}) : super(key: key);
 
   @override
   State<SignUp> createState() => _SignUpState();
@@ -25,12 +30,27 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   @override
+  void initState() {
+    super.initState();
+    if(widget.dialogShow){
+      Future.delayed(Duration(milliseconds: 200),(){
+        showDialog(context: context, builder: (context){
+          return AlertDialog(
+            content: Text("Please complete your registration to proceed"),
+          );
+        });
+      });
+    }
+  }
+  @override
   Widget build(context){
     return  ListenableProvider(
-        create: (_)=>RegisterProvider(),
+        create: (_)=>RegisterProvider(auth: Provider.of<AuthProvider>(context)),
         child:Consumer<RegisterProvider>(
-          builder:
-          (context,state,child){
+          builder:(context,state,child){
+            if(state.isLoading){
+              return LoadingWidget();
+            }
             if(state.registerProgress == RegisterProgress.two){
               return SignUp2();
             }
@@ -102,8 +122,8 @@ class _SignUp1State extends State<SignUp1> {
                   child: SingleChildScrollView(
                       child:Column(children: [
                         SizedBox(
-                          height: 20.h,
-                          width: 40.w,
+                          height: 10.h,
+                          width: 20.w,
                           child: Image.asset("assets/images/logo/logo-nav.png"),
                         ),
                         Container(
@@ -115,11 +135,13 @@ class _SignUp1State extends State<SignUp1> {
                           margin:const EdgeInsets.symmetric(vertical: 10),
                           child:const Text("Provide your details below"),
                         ),
-                        InputField("Full Name", _name),
-                        InputField("Email", _email),
-                        InputField("Password", _password,hide: true,),
-                        InputField("Mobile number", _mobileNo,),
-                        InputField("Address", _address,autocomplete:true,state: mapState),
+                        CustomInputField("Full Name", _name),
+                        CustomInputField("Email", _email),
+                        Container(
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            child: InputField(title:"Password",controller: _password,isPassword:true,obscureText: true,leading: Icon(Icons.person),)),
+                        CustomInputField("Mobile number", _mobileNo,validatePhone:true),
+                        CustomInputField("Address", _address,autocomplete:true,state: mapState),
                         if(showLocationList&&mapState.locations.isNotEmpty)
                           ListView.builder(
                               physics: ClampingScrollPhysics(),
@@ -212,7 +234,7 @@ class _SignUp1State extends State<SignUp1> {
       ),
     );
   }
-  Widget InputField(String title,TextEditingController controller,{bool hide=false,bool autocomplete=true,MapProvider? state}){
+  Widget CustomInputField(String title,TextEditingController controller,{bool hide=false,bool autocomplete=true,MapProvider? state,validatePhone=false}){
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 40),
       child: TextFormField(
@@ -220,6 +242,11 @@ class _SignUp1State extends State<SignUp1> {
         controller: controller,
         validator: (text){
           if(text?.length==0) return "Required field";
+          if(validatePhone){
+            if(text!=null && (text.length<10 || text.length>12)){
+              return "Please enter a valid phone number";
+            }
+          }
         },
         onChanged: (text){
           if(state!=null){
@@ -300,15 +327,15 @@ class _SignUp2State extends State<SignUp2> {
         return Consumer<RegisterProvider>(
             builder:(context,state,child){
               return Scaffold(
-                appBar: AppBar(),
+                appBar: AppBar(automaticallyImplyLeading: false,),
                 body: Form(
                   key: _formKey,
                   child: Container(
                     child: SingleChildScrollView(
                         child:Column(children: [
                           SizedBox(
-                            height: 20.h,
-                            width: 40.w,
+                            height: 10.h,
+                            width: 20.w,
                             child: Image.asset("assets/images/logo/logo-nav.png"),
                           ),
                           Container(
@@ -316,7 +343,7 @@ class _SignUp2State extends State<SignUp2> {
                             margin:const EdgeInsets.symmetric(vertical: 10),
                             child:const Text("Provide your details below"),
                           ),
-                          InputField("Pan Card", _pancard),
+                          InputField("Pan Card", _pancard,uppercase: true),
                           Container(
                             margin: EdgeInsets.symmetric(horizontal: 45),
                             child: Row(
@@ -337,7 +364,7 @@ class _SignUp2State extends State<SignUp2> {
                               ],
                             ),
                           ),
-                          InputField("KYC Number", _kycNo),
+                          InputField("${selectedKyc.title} Number", _kycNo),
                           InputField("Pin code", _pinCode),
                           InputField("House number", _houseNo),
                           InputField("Area", _area),
@@ -390,17 +417,16 @@ class _SignUp2State extends State<SignUp2> {
     return Container(
       margin: EdgeInsets.all(20),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           OutlinedButton(
             onPressed: ()async{
               state.setRegisterProgress(RegisterProgress.one);
-            },
+              },
             style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
             ),
-            child: const Text("Previous",style:TextStyle(color:Colors.red)),
+            child: const Text("Discard"),
           ),
           OutlinedButton(
             onPressed: ()async{
@@ -427,10 +453,14 @@ class _SignUp2State extends State<SignUp2> {
     );
   }
 
-  Widget InputField(String title,TextEditingController controller,{bool hide=false,bool autocomplete=true}){
+  Widget InputField(String title,TextEditingController controller,{bool hide=false,bool autocomplete=true,bool uppercase = false}){
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 40),
       child: TextFormField(
+        textCapitalization: uppercase?TextCapitalization.characters:TextCapitalization.none,
+        inputFormatters: uppercase?[
+          UpperCaseTextFormatter()
+        ]:null,
         obscureText: hide,
         controller: controller,
         validator: (text){
@@ -464,6 +494,7 @@ class _SignUp3State extends State<SignUp3> {
   TextEditingController _bankName = TextEditingController();
   TextEditingController _AccountType = TextEditingController();
   TextEditingController _AccountNo = TextEditingController();
+  TextEditingController _AccountNoConfirm = TextEditingController();
   TextEditingController _IFSCNo = TextEditingController();
   TextEditingController _HolderName = TextEditingController();
   TextEditingController _BranchName = TextEditingController();
@@ -505,7 +536,7 @@ class _SignUp3State extends State<SignUp3> {
             future: _getCacheData,
             builder: (context, snapshot) {
               return Scaffold(
-                appBar: AppBar(),
+                appBar: AppBar(automaticallyImplyLeading: false,),
                 body: Form(
                   key: _formKey,
                   child: Container(
@@ -515,8 +546,8 @@ class _SignUp3State extends State<SignUp3> {
                             state.setRegisterProgress(RegisterProgress.one);
                           }, child: Text("Reset")),
                           SizedBox(
-                            height: 20.h,
-                            width: 40.w,
+                            height: 10.h,
+                            width: 20.w,
                             child: Image.asset("assets/images/logo/logo-nav.png"),
                           ),
                           Container(
@@ -531,21 +562,26 @@ class _SignUp3State extends State<SignUp3> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text("Account Type"),
-                                DropdownButton(
-                                  value: selectedAccount,
-                                  items: AccountTypes.map((e)=>DropdownMenuItem(child: Text(e.title),value: e,)).toList(),
-                                  onChanged: (_){
-                                    setState(() {
-                                      _AccountType.text = _!.value ;
-                                      selectedAccount = _ ;
-                                    });
-                                  },
+                                SizedBox(width: 20,),
+                                Expanded(
+                                  child: DropdownButton(
+                                    isExpanded: true,
+                                    value: selectedAccount,
+                                    items: AccountTypes.map((e)=>DropdownMenuItem(child: Text(e.title),value: e,)).toList(),
+                                    onChanged: (_){
+                                      setState(() {
+                                        _AccountType.text = _!.value ;
+                                        selectedAccount = _ ;
+                                      });
+                                    },
 
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           InputField("Account Number", _AccountNo),
+                          InputField("Account Number (Again)", _AccountNoConfirm,accountConfirm:true),
                           InputField("IFSC Code", _IFSCNo),
                           InputField("Holder Name", _HolderName),
                           InputField("Branch Name", _BranchName),
@@ -634,7 +670,7 @@ class _SignUp3State extends State<SignUp3> {
     );
   }
 
-  Widget InputField(String title,TextEditingController controller,{bool hide=false,bool autocomplete=true}){
+  Widget InputField(String title,TextEditingController controller,{bool hide=false,bool autocomplete=true,bool accountConfirm=false}){
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 40),
       child: TextFormField(
@@ -642,6 +678,9 @@ class _SignUp3State extends State<SignUp3> {
         controller: controller,
         validator: (text){
           if(text?.length==0) return "Required field";
+          if(accountConfirm){
+            if(_AccountNo.text!=controller.text)return "Account Numbers do not match";
+          }
         },
         decoration: InputDecoration(
             prefixIcon: Icon(Icons.person),
@@ -677,15 +716,15 @@ class _SignUp4State extends State<SignUp4> {
     return Consumer<RegisterProvider>(
         builder:(context,state,child){
           return Scaffold(
-            appBar: AppBar(),
+            appBar: AppBar(automaticallyImplyLeading: false,),
             body: Form(
               key: _formKey,
               child: Container(
                 child: SingleChildScrollView(
                     child:Column(children: [
                       SizedBox(
-                        height: 20.h,
-                        width: 40.w,
+                        height: 10.h,
+                        width: 20.w,
                         child: Image.asset("assets/images/logo/logo-nav.png"),
                       ),
                       Container(
@@ -838,7 +877,7 @@ class _SignUp4State extends State<SignUp4> {
       }else{
         Navigator.pushReplacementNamed(context, MainPage.routeName);
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Your account has been successfully created. Please login to continue.")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Congratulations!You have successfully complted your registration process, Please wait for 24-48 working hours for the verification process.")));
         setState(() {
         isLoading=false;
       });
@@ -971,19 +1010,16 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
       ],
       child: Consumer2<DropDownOptionProvider,RegisterProvider>(
           builder:(context,state,regState,child){
-            if(state.isLoading){
-              return Container(
-                color: Colors.white,
-                alignment: Alignment.center,
-                child: CircularProgressIndicator(),
-              );
+            if(regState.isLoading || state.isLoading){
+              return LoadingWidget();
             }
+
             return FutureBuilder(
               future: _getCacheData,
               builder: (context, snapshot) {
                 return Consumer<MapProvider>(
                   builder:(context,mapState,child)=>Scaffold(
-                    appBar: AppBar(),
+                    appBar: AppBar(automaticallyImplyLeading: false,),
                     body: Form(
                       key: _formKey,
                       child: Container(
@@ -994,8 +1030,8 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                           child: Column(
                               children:<Widget>[
                                 SizedBox(
-                                  height: 20.h,
-                                  width: 40.w,
+                                  height: 10.h,
+                                  width: 20.w,
                                   child: Image.asset("assets/images/logo/logo-nav.png"),
                                 ),
                                 Container(
@@ -1052,7 +1088,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                         child: Text("Driver details",style: TextStyle(fontWeight: FontWeight.w500),),
                                       ),
                                       InputField("Name", _driverName),
-                                      InputField("Mobile Number", _driverMob),
+                                      InputField("Mobile Number", _driverMob,),
                                       Container(
                                         margin: EdgeInsets.symmetric(horizontal: 45),
                                         child: Row(

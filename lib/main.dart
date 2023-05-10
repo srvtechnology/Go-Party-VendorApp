@@ -44,7 +44,7 @@ void main() {
             routes: {
                 SplashScreen.routeName:(context) =>SafeArea(child: const SplashScreen()),
                 SignIn.routeName:(context)=>SafeArea(child: SignIn()),
-                SignUp.routeName:(context)=>SafeArea(child: const SignUp()),
+                SignUp.routeName:(context)=>SafeArea(child: SignUp()),
                 MainPage.routeName:(context)=>const SafeArea(child: MainPage()),
                 NotificationPage.routeName:(context)=>const SafeArea(child: NotificationPage()),
                 Homepage.routeName:(context)=> SafeArea(child: Homepage()),

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/repo/service.dart' as serviceRepo;
+import 'package:utsavlife/core/utils/logger.dart';
 import '../models/service.dart';
 
 class ServiceListProvider with ChangeNotifier {
@@ -52,9 +53,17 @@ class DropDownOptionProvider with ChangeNotifier {
     getOptions();
   }
   Future<void> getOptions()async{
-    startLoading();
-    options=await serviceRepo.getServiceOptions(auth);
-    stopLoading();
+    if(auth.isLoading==false){
+      startLoading();
+      try{
+        options=await serviceRepo.getServiceOptions(auth);
+      }catch(e){
+        CustomLogger.error(e);
+        stopLoading();
+        throw ArgumentError("Invalid token");
+      }
+      stopLoading();
+    }
   }
 
 }

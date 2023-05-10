@@ -1,3 +1,5 @@
+import 'package:utsavlife/core/utils/logger.dart';
+
 class BankDetails{
   String id,accountNumber,bankName,ifscNumber,holderName,branchName,accountType;
   BankDetails({
@@ -21,6 +23,10 @@ class BankDetails{
         accountType: json["acc_type"]);
   }
 }
+enum UserApprovalStatus{
+  verified,
+  unverified
+}
 class UserModel {
   String id,name,email;
   // personal details
@@ -30,10 +36,12 @@ class UserModel {
   // Documents
   String? panCardUrl, kycUrl, gstUrl, dlUrl,vendorUrl ;
   BankDetails? bankDetails;
+  UserApprovalStatus userStatus;
   UserModel({
    required this.id,
    required this.name,
    required this.email,
+    required this.userStatus,
    this.mobileno,
    this.country,
     this.state,
@@ -68,6 +76,7 @@ class UserModel {
     BankDetails? details;
     if(json["vendor_details"]==null){
       return UserModel(
+        userStatus: json["data"]["status"]=="A"?UserApprovalStatus.verified:UserApprovalStatus.unverified,
         id: json["data"]["id"].toString(),
         name: json["data"]["name"].toString(),
         email: json["data"]["email"].toString(),
@@ -79,7 +88,8 @@ class UserModel {
       details = BankDetails.fromJson(json["bank_details"]);
     }
     return UserModel(
-      id: json["data"]["id"].toString(),
+        userStatus: json["data"]["status"]=="A"?UserApprovalStatus.verified:UserApprovalStatus.unverified,
+        id: json["data"]["id"].toString(),
       name: json["data"]["name"].toString(),
       email: json["data"]["email"].toString(),
       mobileno: json["data"]["mobile"],

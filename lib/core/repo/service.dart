@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:utsavlife/config.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/utils/logger.dart';
@@ -27,7 +28,7 @@ Future<List<serviceModel>> getServiceList(AuthProvider auth)async{
     }
 }
 
-Future createService(AuthProvider auth,Map serviceData)async{
+Future createService(AuthProvider auth,Map<String,dynamic> serviceData)async{
   try{
     Response  response = await Dio().post("${APIConfig.baseUrl}/api/service-insert",
       options: Options(
@@ -35,7 +36,7 @@ Future createService(AuthProvider auth,Map serviceData)async{
             "Authorization":"Bearer ${auth.token}"
           }
       ),
-        data: serviceData,
+        data: FormData.fromMap(serviceData),
   );
     CustomLogger.debug(response.data);
     return Future.value(true);
@@ -44,7 +45,7 @@ Future createService(AuthProvider auth,Map serviceData)async{
     if(e is DioError){
       CustomLogger.error(e.response?.data);
     }
-    return Future.error(e);
+    throw e;
   }
 }
 
@@ -110,8 +111,10 @@ Future<ServiceDropDownOptions> getServiceOptions(dynamic auth)async{
   catch(e){
     if(e is DioError){
       CustomLogger.error(e.response?.data);
+      auth.getAuthToken();
     }
     return Future.error(e);
   }
 }
+
 

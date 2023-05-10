@@ -20,14 +20,16 @@ class Driver{
 
 class serviceModel {
   String id;
-  String? categoryId,address,serviceName,serviceDescription,materialDescription,company,priceBasis,price,discountedPrice,categoryName,categoryDescription;
+  String? categoryId,serviceId,address,serviceName,serviceDescription,materialDescription,company,priceBasis,price,discountedPrice,categoryName,categoryDescription,videoUrl;
   Driver driverDetails;
-  List<String>? imageUrls;
+  List<String?> imageUrls;
 
   serviceModel({
     required this.id,
     required this.driverDetails,
+    required this.imageUrls,
     this.categoryId,
+    this.serviceId,
     this.address,
     this.serviceName,
     this.serviceDescription,
@@ -38,7 +40,7 @@ class serviceModel {
     this.discountedPrice,
     this.categoryName,
     this.categoryDescription,
-    this.imageUrls
+    this.videoUrl
 });
 
   factory serviceModel.fromJson(Map json){
@@ -48,12 +50,13 @@ class serviceModel {
       return serviceModel(
         id: json["id"].toString(),
         categoryId: json["category"],
+        serviceId: json["service_id"].toString(),
         address: json["address"],
         serviceName:service_details["service"],
-        serviceDescription: service_details["description"],
+        serviceDescription: json["service_desc"],
         materialDescription: json["material_desc"],
         company: json["company_name"],
-        price: service_details["price"].toString(),
+        price: json["price"].toString(),
         priceBasis: service_details["price_basis"],
         discountedPrice: service_details["discount_price"],
         categoryName: category_details["category_name"],
@@ -70,7 +73,11 @@ class serviceModel {
           landmark: json["driver_landmark"],
           city: json["driver_city"],
           state: json["driver_state"],
-        )
+          image: json["driver_image"],
+          dlImage: json["dl_image"],
+        ),
+        imageUrls: [json["image"]??null,json["image2"]??null,json["image3"]??null,json["image4"]??null,json["image5"]??null],
+        videoUrl: json["video"]
       );
     }
     catch(e){

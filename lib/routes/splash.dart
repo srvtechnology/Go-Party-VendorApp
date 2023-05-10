@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:splash_view/source/source.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/routes/mainpage.dart';
@@ -19,9 +20,11 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return SplashView(
       duration:const Duration(seconds: 2),
-      logo: Container(
-          padding: EdgeInsets.all(20),
-          child: Image.asset("assets/images/logo/logo.png")),
+      logo: SizedBox(
+        height: 20.h,
+        width: 40.w,
+        child: Image.asset("assets/images/logo/logo.png"),
+      ),
       done: Done(
         const MainPage()
       ),

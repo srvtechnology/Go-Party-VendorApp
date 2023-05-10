@@ -40,7 +40,9 @@ Future<bool> signUpMain(Map data)async{
       }
       return Future.error(e);
     }
-}Future<String> GetOtp(String email)async{
+}
+
+Future<String> GetOtp(String email)async{
   Response response;
   Dio dio = new Dio();
   (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =

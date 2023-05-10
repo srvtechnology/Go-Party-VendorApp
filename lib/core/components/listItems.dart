@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/core/provider/AuthProvider.dart';
+import 'package:utsavlife/core/provider/OrderProvider.dart';
+import 'package:utsavlife/core/repo/order.dart';
 
 import '../models/order.dart';
 typedef Ontap=Function();
@@ -24,7 +28,8 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
   late Color _statusColor;
   late String _statusText;
   late Color _statusTextColor;
-
+  bool showReason = false , ShowReasonField = false;
+  String selectedReason = "";
   @override
   void initState(){
     super.initState();
@@ -81,7 +86,7 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
              child: Row(
              mainAxisAlignment: MainAxisAlignment.spaceBetween,
              children: [
-               Container(child: Text(""),),
+               Container(child: Text(widget.order.service_name??"",style: TextStyle(color: _statusTextColor),),),
                Container(child: Text(_statusText,style: TextStyle(color: _statusTextColor),)),
              ],
            ),)),
@@ -112,19 +117,126 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
                ],
              ),
            )),
-           Expanded(child: Container(
-             padding: EdgeInsets.only(bottom: 10),
-             child: widget.showButtons?Row(
-               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-               children: [
-                 if(widget.order.vendorOrderStatus == VendorOrderStatus.rejected || widget.order.vendorOrderStatus == VendorOrderStatus.pending)OutlinedButton(onPressed: (){}, child: Text("Approve",style: TextStyle(color: Colors.green),)),
-                 if(widget.order.vendorOrderStatus == VendorOrderStatus.approved || widget.order.vendorOrderStatus == VendorOrderStatus.pending)OutlinedButton(onPressed: (){}, child: Text("Reject",style: TextStyle(color: Colors.red))),
-               ],
-             ):Container(),
-           ))
+           Expanded(
+               child:
+           ListenableProvider(
+             create: (_)=>ReasonProvider(auth: Provider.of<AuthProvider>(context)),
+             child: Consumer<ReasonProvider>(
+               builder: (context,state,child) {
+                 if (showReason==true){
+                   return ReasonDialog(context, state.reasons??[]);
+                 }
+                 return Container(
+                   padding: EdgeInsets.only(bottom: 10),
+                   child: widget.showButtons?Row(
+                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                     children: [
+                       if(widget.order.vendorOrderStatus == VendorOrderStatus.rejected || widget.order.vendorOrderStatus == VendorOrderStatus.pending)OutlinedButton(onPressed: (){
+                          approveOrder(context, widget.order.id);
+                       }, child: Text("Approve",style: TextStyle(color: Colors.green),)),
+                       if(widget.order.vendorOrderStatus == VendorOrderStatus.approved || widget.order.vendorOrderStatus == VendorOrderStatus.pending)OutlinedButton(onPressed: (){
+                          rejectOrder(context);
+                       }, child: Text("Reject",style: TextStyle(color: Colors.red))),
+                     ],
+                   ):Container(),
+                 );
+               }
+             ),
+           )
+           )
          ],
        )
       ),
     );
   }
+  void approveOrder(BuildContext context,String id)async{
+    try {
+      ChangeOrderStatus(Provider.of<AuthProvider>(context), VendorOrderStatus.approved, id, "");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Order Approved")));
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+
+  }
+  void rejectOrder(BuildContext context)async{
+     setState(() {
+      showReason = true;
+    });
+  }
+  Widget ReasonDialog(BuildContext context,List<String> rejectReasons){
+    return Container(
+      height: 40.h,
+      child: SingleChildScrollView(
+        child: Column(
+            children: [
+              ...rejectReasons.map((e) => ListTile(
+                leading:
+                Radio(
+                    value: e,
+                    groupValue: selectedReason,
+                    onChanged: (value){
+                      setState(() {
+                        selectedReason = value! ;
+                        ShowReasonField = false;
+                      });
+                    }
+                ),
+                title: Text(e),
+              )
+              ),
+              ListTile(
+                title: Text("Other"),
+                leading: Radio(
+                  autofocus: true,
+                  onChanged: (val){
+                    setState(() {
+                      selectedReason ="";
+                      ShowReasonField = true;
+                    });
+                  },
+                  value: "Other",
+                  groupValue: selectedReason,
+                ),
+              ),
+              if(ShowReasonField)
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 40),
+                  child: TextField(
+                    onChanged: (text){
+                      setState(() {
+                        selectedReason = text ;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+
+                    ),
+                  ),
+                ),
+              SizedBox(height: 0,),
+              OutlinedButton(onPressed: (){
+                try {
+                  if(selectedReason==""){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please select a Reason")));
+                  }
+                  else{context.read<SingleOrderProvider>().change_status(
+                      VendorOrderStatus.rejected, selectedReason);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Order Rejected")));
+                  setState(() {
+                    showReason=false;
+                  });
+                  }
+                }catch(e){
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                }
+              }, child: Text("Submit"))
+            ]
+        ),
+      ),
+    );
+  }
+
+
 }

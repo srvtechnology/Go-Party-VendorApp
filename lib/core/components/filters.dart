@@ -26,9 +26,9 @@ class _FilterState extends State<Filter> {
       padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
       height: 8.h,
         child: Row(children: [
-          Expanded(flex: 2,child: _SearchBar(context)),  
+          Expanded(flex: 3,child: _SearchBar(context)),
           Expanded(child: Container(),),
-          Expanded(child: _statusFilter(context),),
+          Expanded(flex:2,child: _statusFilter(context),),
         ]),
     );
   }
@@ -36,11 +36,11 @@ class _FilterState extends State<Filter> {
     return Container(
 
       alignment: Alignment.center,
-      width: 20,
+      width: 40.w,
       child: DropdownButton(
         isExpanded: true,
         value: selectedStatus,
-        items: statuses.map((e) => DropdownMenuItem(value:e, child: Text(e))).toList(), onChanged: (ob){
+        items: statuses.map((e) => DropdownMenuItem(value:e, child: Text(e,style: TextStyle(fontSize: 15.sp),))).toList(), onChanged: (ob){
           setState(() {
             selectedStatus = ob.toString();
           });
@@ -100,20 +100,20 @@ class _Filter2State extends State<Filter2> {
       padding: EdgeInsets.symmetric(horizontal: 10),
       height: 8.h,
       child: Row(children: [
-        Expanded(flex: 2,child: _SearchBar(context)),
+        Expanded(flex: 3,child: _SearchBar(context)),
         Expanded(child: Container(),),
-        Expanded(child: _statusFilter(context),),
+        Expanded(flex:2,child: _statusFilter(context),),
       ]),
     );
   }
   Widget _statusFilter(BuildContext context){
     return Container(
       alignment: Alignment.center,
-      width: 20,
+      width: 40.w,
       child: DropdownButton(
           isExpanded: true,
           value: selectedStatus,
-          items: statuses.map((e) => DropdownMenuItem(value:e, child: Text(e))).toList(), onChanged: (ob){
+          items: statuses.map((e) => DropdownMenuItem(value:e, child: Text(e,style: TextStyle(fontSize: 15.sp)))).toList(), onChanged: (ob){
         setState(() {
           selectedStatus = ob.toString();
         });

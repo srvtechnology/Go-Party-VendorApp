@@ -78,15 +78,28 @@ class SingleOrderProvider with ChangeNotifier{
     _order = await get_orderById(auth, id);
     stopLoading();
   }
-  Future<void> change_status(VendorOrderStatus status)async{
+  Future<void> change_status(VendorOrderStatus status,String reason)async{
     startLoading();
     try{
-      successMessage = await ChangeOrderStatus(auth, status, _order!.id);
+      successMessage = await ChangeOrderStatus(auth, status, _order!.id,reason);
       _order?.vendorOrderStatus = status ;
     }
     catch(e){
       logger.e(e.toString());
     }
     stopLoading();
+  }
+}
+
+class ReasonProvider with ChangeNotifier {
+  late List<String>? _reasons;
+  AuthProvider auth;
+  List<String>? get reasons => _reasons;
+  ReasonProvider({required this.auth}){
+    getReason();
+  }
+  void getReason()async{
+    _reasons = await getRejectReasons(auth);
+    notifyListeners();
   }
 }

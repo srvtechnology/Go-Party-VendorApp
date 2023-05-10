@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:utsavlife/core/components/loading.dart';
+import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/RegisterProvider.dart';
 import 'package:utsavlife/core/provider/networkProvider.dart';
+import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/homepage.dart';
 import 'package:utsavlife/routes/signIn.dart';
 import 'package:utsavlife/routes/signUp.dart';
@@ -25,27 +28,25 @@ class MainPage extends StatelessWidget {
               }
               return errorScreenRoute(icon: Icons.wifi,message: "Seems like you are offline.Please connect to a network",hasAppbar: false,);
       },
-      child: Consumer2<AuthProvider,RegisterProvider>(builder: (context,auth,registerState,child){
-        if(auth.authState==AuthState.LoggedIn){
+      child: Consumer2<AuthProvider,RegisterProvider>(builder: (context,auth,registerState,child) {
+        CustomLogger.debug(registerState.registerProgress);
+        if (auth.authState == AuthState.LoggedIn) {
+          if (auth.user?.userStatus == UserApprovalStatus.unverified) {
+            if (registerState.registerProgress != RegisterProgress.completed && registerState.registerProgress != RegisterProgress.one) {
+              return SignUp(dialogShow: true,);
+            }
+            return errorScreenRoute(
+                icon: Icons.account_box,
+                message: "Thank you for registering. Your account has not yet been verified by the admin. Check again later");
+          }
           return Homepage();
         }
-        else if(auth.authState == AuthState.Waiting){
-          return Container(
-            color: Colors.white,
-            alignment: Alignment.center,
-            child: CircularProgressIndicator(),
-          );
+        else if (auth.authState == AuthState.Waiting) {
+          return LoadingWidget(willRedirect: true,);
         }
-        else{
-          if(registerState.registerProgress == RegisterProgress.one){
-            return SignIn();
-          }
-          else if(registerState.registerProgress != RegisterProgress.completed){
-            return SignUp();
-          }
-          return SignIn();
-        }
-      }),
+        return SignIn();
+      }
+    )
     )
     );
   }

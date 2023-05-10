@@ -7,6 +7,8 @@ import 'package:utsavlife/config.dart';
 import 'package:utsavlife/core/models/order.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 
+import '../utils/logger.dart';
+
 Future<List<OrderModel>> get_upcoming_order_list(AuthProvider auth)async{
   Response response;
   Dio dio = new Dio();
@@ -107,40 +109,68 @@ Future<OrderModel> get_orderById(AuthProvider auth,String id)async{
   }
 }
 
-Future<String> ChangeOrderStatus(AuthProvider auth,VendorOrderStatus status,String OrderId) async
+Future<String> ChangeOrderStatus(AuthProvider auth,VendorOrderStatus status,String OrderId,String reason) async
 {
-  Dio dio = new Dio();
-  (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
-      (HttpClient client) {
-    client.badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
-    return client;
-  };
   try{
     String url;
     if(status == VendorOrderStatus.approved){
       url = "https://utsavlife.com/api/vendor-approve-order/${OrderId}" ;
+      Response response = await Dio().get(url,
+          options: Options(
+              headers: {
+                "Authorization":"Bearer ${auth.token}"
+              }
+          ),
+      );
     }
     else {
-      url = "https://utsavlife.com/api/vendor-reject-order/${OrderId}" ;
+      url = "https://utsavlife.com/api/vendor-reject-order" ;
+      Response response = await Dio().post(url,
+          options: Options(
+              headers: {
+                "Authorization":"Bearer ${auth.token}"
+              }
+          ),
+          data: {
+            "id":OrderId,
+            "reason":reason
+          }
+      );
     }
-    Response response = await dio.get(url,
-    options: Options(
-        headers: {
-        "Authorization":"Bearer ${auth.token}"
-        }
-    )
-    );
-    print(response.data);
+
     return "Order Status changed successfully";
   }
   catch(e){
     if(e is DioError){
+      CustomLogger.error(e.response?.data);
       if (e.response?.statusCode == 401){
         auth.reLogin();
       }
     }
     print(e);
+    return Future.error(e);
+  }
+}
+
+Future<List<String>> getRejectReasons(AuthProvider auth)async{
+  try{
+    Response  response = await Dio().get("${APIConfig.baseUrl}/api/get-resons",
+      options: Options(
+          headers: {
+            "Authorization":"Bearer ${auth.token}"
+          }
+      ),
+    );
+    List<String> reasons = [];
+    for(var i in response.data["data"]) {
+      reasons.add(i["reason"]);
+    }
+    return reasons;
+  }
+  catch(e){
+    if(e is DioError){
+      CustomLogger.error(e.response?.data);
+    }
     return Future.error(e);
   }
 }

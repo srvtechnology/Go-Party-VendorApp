@@ -6,6 +6,7 @@ import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/ServiceProvider.dart';
 import 'package:utsavlife/routes/errorScreen.dart';
 import 'package:utsavlife/routes/singleService.dart';
+import 'dart:io';
 
 class serviceListRoute extends StatefulWidget {
   static const routeName = "/servicelist";
@@ -31,7 +32,7 @@ class _serviceListRouteState extends State<serviceListRoute> {
               child: CircularProgressIndicator(),
             );
           }
-          if(state.services == null || state.services!.isEmpty){
+          if(state.services == null || state.services?.isEmpty==null){
             return errorScreenRoute(icon: Icons.account_balance_wallet_outlined, message:"Looks like you have no services added. \nAdd a service to see the list.");
           }
           return Scaffold(
@@ -56,7 +57,7 @@ class _serviceListRouteState extends State<serviceListRoute> {
                       ),
                     ),
                     Column(
-                      children: state.services!.map((e) => listItem(context,e)).toList(),
+                      children: state.services!.map((e) => listItem(context,e,state)).toList(),
                     )
                   ],
                 ),
@@ -65,10 +66,10 @@ class _serviceListRouteState extends State<serviceListRoute> {
           );
         }));
   }
-  Widget listItem(BuildContext context,serviceModel service){
+  Widget listItem(BuildContext context,serviceModel service,ServiceListProvider state){
     return GestureDetector(
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleService(service: service,))).then((value) => refresh(context.read<ServiceListProvider>()));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleService(service: service,))).then((value) => state.getList());
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 10),
@@ -87,12 +88,14 @@ class _serviceListRouteState extends State<serviceListRoute> {
         child: Row(
           children: [
             Expanded(child: Text(service.serviceName!,textAlign: TextAlign.center,softWrap: true,)),
-            Expanded(child: Text(service.address!,textAlign: TextAlign.center,)),
-            Expanded(child: Text(service.categoryName!)),
-            Expanded(child: Text(service.price!)),
+            Expanded(child: Text(service.address??"Not set",textAlign: TextAlign.center,)),
+            Expanded(child: Text(service.categoryName??"Not set")),
+            Expanded(child: Text(service.price??"Not Set")),
           ],
         ),
       ),
     );
   }
 }
+
+
