@@ -2,11 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/core/models/service.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
+import 'package:utsavlife/core/provider/ServiceProvider.dart';
 import 'package:utsavlife/core/repo/order.dart';
-
+import '../../routes/singleService.dart';
 import '../models/order.dart';
+
 typedef Ontap=Function();
 
 class CustomOrderItem extends StatefulWidget {
@@ -44,7 +47,7 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
         break;
       case VendorOrderStatus.approved:
         _statusColor = Colors.greenAccent;
-        _statusText="Approved";
+        _statusText="Accepted";
         _statusTextColor=Colors.green[900]!;
 
         break;
@@ -52,7 +55,6 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
         _statusColor = Colors.yellowAccent;
         _statusText="Pending";
         _statusTextColor=Colors.yellow[900]!;
-
     }
   }
   @override
@@ -239,4 +241,90 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
   }
 
 
+}
+
+class CustomServiceItem extends StatelessWidget {
+  int index;
+  serviceModel service;
+  ServiceListProvider state;
+  CustomServiceItem({Key? key,required this.index,required this.service,required this.state}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap:(){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleService(service: service,))).then((value) => state.getList());
+      },
+      child: Container(
+          margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 5),
+          decoration:BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                    offset: Offset(0, 3),
+                    color: Colors.grey[400]!,
+                    blurRadius: 4
+                )
+              ]
+          ),
+          width: 100.w,
+          height: 30.h,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: Container(
+                decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20))
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Container(),
+                    Text("#${(index+1)}",style: TextStyle(color: Colors.white),),
+                  ],
+                ),
+                )),
+              Expanded(flex: 4,child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(width: 20.w,child: Text("Name:")),
+                        SizedBox(width: 20.w,),
+                        SizedBox(width: 20.w,child:Text(service.serviceName??"Not Set")),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(width: 20.w,child:Text("Address: ")),
+                        SizedBox(width: 20.w,),
+                        SizedBox(width: 20.w,child:Text(service.address??"Not Set")),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(width: 20.w,child:Text("Category: ")),
+                        SizedBox(width: 20.w,),
+                        SizedBox(width: 20.w,child:Text(service.categoryName??"Not Set")),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(width: 20.w,child:Text("Price:")),
+                        SizedBox(width: 20.w,),
+                        SizedBox(width: 20.w,child:Text(service.price??"Not Set")),
+                      ],
+                    ),
+                  ],
+                ),
+              )),
+            ],
+          )
+      ),
+    );
+  }
 }

@@ -1,7 +1,7 @@
 import 'package:utsavlife/core/utils/logger.dart';
 
 class BankDetails{
-  String id,accountNumber,bankName,ifscNumber,holderName,branchName,accountType;
+  String id,accountNumber,bankName,ifscNumber,holderName,branchName,accountType,checkbook;
   BankDetails({
     required this.id,
     required this.accountNumber,
@@ -9,7 +9,8 @@ class BankDetails{
     required this.ifscNumber,
     required this.holderName,
     required this.branchName,
-    required this.accountType
+    required this.accountType,
+    required this.checkbook,
   });
 
   factory BankDetails.fromJson(Map json){
@@ -20,7 +21,9 @@ class BankDetails{
         ifscNumber: json["ifsc_no"],
         holderName: json["holder_name"],
         branchName: json["branch_name"],
-        accountType: json["acc_type"]);
+        accountType: json["acc_type"],
+        checkbook: ""
+    );
   }
 }
 enum UserApprovalStatus{
@@ -32,7 +35,7 @@ class UserModel {
   // personal details
   String? mobileno,country,landmark,state,city,zip,area,panCardNumber,callingNumber,kycNumber,gstNumber,kycType,houseNumber;
   // office details
-  String? officeNumber, officeZip, officeArea, officeLandmark, officeState, officeCity ;
+  String? officeNumber, officeZip, officeArea, officeLandmark, officeState, officeCity, officeCountry ;
   // Documents
   String? panCardUrl, kycUrl, gstUrl, dlUrl,vendorUrl ;
   BankDetails? bankDetails;
@@ -62,6 +65,7 @@ class UserModel {
     this.officeNumber,
     this.officeState,
     this.officeZip,
+    this.officeCountry,
   //Document details
     this.panCardUrl,
     this.gstUrl,
@@ -111,6 +115,7 @@ class UserModel {
       officeLandmark: json["vendor_details"]["office_landmark"],
       officeCity: json["vendor_details"]["office_city"],
       officeState: json["vendor_details"]["office_state"],
+      officeCountry:json["vendor_details"]["office_country"],
       panCardUrl: '${json["pan_image_link"]}${json["vendor_details"]["pan_image"]}',
       gstUrl: '${json["gst_image"]}${json["vendor_details"]["gst_image"]}',
       kycUrl: '${json["kyc_image"]}${json["vendor_details"]["kyc_image"]}',

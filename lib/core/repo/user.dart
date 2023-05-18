@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:logger/logger.dart';
 import 'package:utsavlife/core/models/user.dart';
+import 'package:utsavlife/core/utils/logger.dart';
 import '../../config.dart';
 
 Future<UserModel> get_UserData(String token)async{
@@ -65,7 +66,10 @@ Future<bool> edit_office_details(String token,Map updateFields)async{
     return true;
   }
   catch(e){
-    print(e);
+    if(e is DioError){
+      CustomLogger.error(e.response?.data);
+    }
+    CustomLogger.error(e);
     return false;
   }
 }

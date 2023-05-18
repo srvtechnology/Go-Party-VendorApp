@@ -1,19 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/components/filters.dart';
 import 'package:utsavlife/core/components/listItems.dart';
 import 'package:utsavlife/core/components/nav.dart';
+import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/core/repo/auth.dart';
-import 'package:utsavlife/core/utils/logger.dart';
-import 'package:utsavlife/routes/CompleteRegistration.dart';
 import 'package:utsavlife/routes/SingleOrder.dart';
 import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/notifications.dart';
@@ -23,7 +22,7 @@ import 'package:utsavlife/routes/singleServiceAdd.dart';
 import '../core/models/dropdown.dart';
 import '../core/models/order.dart';
 import 'mainpage.dart';
-
+import 'dart:io';
 class Homepage extends StatefulWidget {
   int startingIndex;
   static const routeName = "home";
@@ -230,8 +229,12 @@ class _ProfileState extends State<Profile> {
   bool OfficeEditMode = false ;
   bool DocumentsEditMode = false ;
   bool BankEditMode = false ;
+
+  String? passbookPath;
+  String passbookUrl = "storage/app/public/vandor/checkbookOrPassbookImage";
+  final _formKey = GlobalKey<FormState>();
   List<DropDownField> kyctypes = [
-    DropDownField(title: "Aadhar Card",value: "AD"),
+    DropDownField(title: "Aadhar",value: "AD"),
     DropDownField(title: "Voter Id",value: "VO"),
     DropDownField(title: "Passport",value: "PA"),
     DropDownField(title: "Driving License",value: "DL"),
@@ -255,18 +258,20 @@ class _ProfileState extends State<Profile> {
     "Kyc Number":new TextEditingController(),
     "Kyc Type":new TextEditingController(),
     "PinCode":new TextEditingController(),
+    "Address":new TextEditingController(),
     "Area":new TextEditingController(),
     "Landmark":new TextEditingController(),
     "State":new TextEditingController(),
     "City":new TextEditingController(),
     "Calling Number":new TextEditingController(),
-    "Gst Number":new TextEditingController(),
+    "GST Number":new TextEditingController(),
     "Office Number":new TextEditingController(),
     "Office PinCode":new TextEditingController(),
     "Office Area":new TextEditingController(),
     "Office Landmark":new TextEditingController(),
     "Office State":new TextEditingController(),
     "Office City":new TextEditingController(),
+    "Office Country":new TextEditingController(),
     "Holder Name":new TextEditingController(),
     "Bank Name":new TextEditingController(),
     "Branch Name":new TextEditingController(),
@@ -344,7 +349,7 @@ class _ProfileState extends State<Profile> {
                   child: TabBarView(children: [
                   _PersonalInfo(auth),
                   _OfficeInfo(auth),
-                  _BankDetailsInfo(auth),
+                  SingleChildScrollView(child: _BankDetailsInfo(auth)),
                   _DocumentInfo(auth),
                 ],),))
 
@@ -355,227 +360,307 @@ class _ProfileState extends State<Profile> {
     );
   }
   Widget _OfficeInfo(AuthProvider auth){
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Container(
-            alignment: Alignment.bottomRight,
-            child: IconButton(onPressed: (){
-              setState(() {
-                OfficeEditMode = !OfficeEditMode;
-              });
-            }, icon: Icon(Icons.edit,color: OfficeEditMode?Theme.of(context).primaryColor:null),),
-          ),
-          _CustomText(context, editMode:OfficeEditMode,title: "Number",controllerKey: "Office Number",content: auth.user!.officeNumber ?? ""),
-          _CustomText(context, editMode:OfficeEditMode,title: "PinCode",controllerKey: "Office PinCode",content: auth.user!.officeZip ?? ""),
-          _CustomText(context, editMode:OfficeEditMode,title: "Area",controllerKey: "Office Area",content: auth.user!.officeArea ?? ""),
-          _CustomText(context, editMode:OfficeEditMode,title: "Landmark",controllerKey: "Office Landmark",content: auth.user!.officeLandmark ?? ""),
-          _CustomText(context, editMode:OfficeEditMode,title: "State",controllerKey: "Office State",content: auth.user!.officeState??""),
-          _CustomText(context, editMode:OfficeEditMode,title: "City",controllerKey: "Office City",content: auth.user!.officeCity??""),
-          if(OfficeEditMode)
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
             Container(
-              alignment: Alignment.center,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
-                ),
-                onPressed: () {
-                  setOfficeChanges(auth);
-                  auth.editOfficeDetails();
-                  setState(() {
-                    OfficeEditMode = false ;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
-                },
-                child: Text("Save"),
-              ),
+              alignment: Alignment.bottomRight,
+              child: IconButton(onPressed: (){
+                setState(() {
+                  OfficeEditMode = !OfficeEditMode;
+                });
+              }, icon: Icon(Icons.edit,color: OfficeEditMode?Theme.of(context).primaryColor:null),),
             ),
-        ],
+            _CustomText(context, editMode:OfficeEditMode,title: "Office Phone Number",controllerKey: "Office Number",content: auth.user!.officeNumber ?? "",validatePhone:true),
+            _CustomText(context, editMode:OfficeEditMode,title: "GST Number",controllerKey: "GST Number",content: auth.user!.gstNumber ?? "",validatePhone:true),
+            if(OfficeEditMode)
+              Column(
+                children: [
+                  _CustomText(context, editMode:OfficeEditMode,title: "Street/Sector/Village/Area",controllerKey: "Office Area",content: auth.user!.officeArea ?? ""),
+                  _CustomText(context, editMode:OfficeEditMode,title: "Landmark",controllerKey: "Office Landmark",content: auth.user!.officeLandmark ?? ""),
+                  _CustomText(context, editMode:OfficeEditMode,title: "State",controllerKey: "Office State",content: auth.user!.officeState??""),
+                  _CustomText(context, editMode:OfficeEditMode,title: "City",controllerKey: "Office City",content: auth.user!.officeCity??""),
+                  _CustomText(context, editMode:OfficeEditMode,title: "Country",controllerKey: "Office Country",content: auth.user!.officeCountry??""),
+                  _CustomText(context, editMode:OfficeEditMode,title: "PinCode",controllerKey: "Office PinCode",content: auth.user!.officeZip ?? ""),
+                ],
+              )
+              else
+                _CustomText(context, title: "Address", content: "${auth.user!.officeLandmark}, ${auth.user!.officeArea}, ${auth.user!.officeCity}, ${auth.user!.officeState}, ${auth.user!.officeZip}", editMode: OfficeEditMode),
+              if(OfficeEditMode)
+              Container(
+                alignment: Alignment.center,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+                  ),
+                  onPressed: () {
+                    if(_formKey.currentState!.validate()){
+                      setOfficeChanges(auth);
+                      auth.editOfficeDetails();
+                      setState(() {
+                        OfficeEditMode = false ;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
+                    }
+                    },
+                  child: Text("Save"),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
   Widget _BankDetailsInfo(AuthProvider auth){
-    return SingleChildScrollView(
+    return  (auth.user!.bankDetails == null && BankEditMode==false)?
+    Container(
+      padding: EdgeInsets.all(40),
       child: Column(
         children: [
-          Container(
-            alignment: Alignment.bottomRight,
-            child: IconButton(onPressed: (){
-              setState(() {
-                BankEditMode = !BankEditMode;
-              });
-            }, icon: Icon(Icons.edit,color: BankEditMode?Theme.of(context).primaryColor:null),),
-           ),
-          _CustomText(context, editMode:BankEditMode,title: "Holder Name",content: auth.user!.bankDetails?.holderName ?? ""),
-          _CustomText(context, editMode:BankEditMode,title: "Account Number",content: auth.user!.bankDetails?.accountNumber ?? ""),
-          if(BankEditMode)
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 25),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text("Account Type",style: TextStyle(fontWeight: FontWeight.bold),),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: DropdownButton(
-                        isExpanded: true,
-                        value: selectedAccountType,
-                        items: AccountTypes.map((e)=>DropdownMenuItem(child: Text(e.title,style: TextStyle(fontSize: 15.sp),),value: e,)).toList(),
-                        onChanged: (_){
-                          setState(() {
-                            textControllers["Account Type"]?.text = _!.value ;
-                            selectedAccountType = _! ;
-                          });
-                        },
-
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          else _CustomText(context, title: "Account Type", content: AccountTypes.firstWhere((element) => element.value==auth.user!.bankDetails?.accountType,orElse:()=> AccountTypes[0]).title, editMode: BankEditMode),
-          _CustomText(context, editMode:BankEditMode,title: "Bank Name",content: auth.user!.bankDetails?.bankName ?? ""),
-          _CustomText(context, editMode:BankEditMode,title: "Branch Name",content: auth.user!.bankDetails?.branchName ?? ""),
-          _CustomText(context, editMode:BankEditMode,title: "IFSC Code",content: auth.user!.bankDetails?.ifscNumber ?? ""),
-
-          if(BankEditMode)
-            Container(
-              alignment: Alignment.center,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
-                ),
-                onPressed: () {
-                  setBankChanges(auth);
-                  //auth.editOfficeDetails();
-                  setState(() {
-                    BankEditMode = false ;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
-                },
-                child: Text("Save"),
-              ),
-            ),
+          Text("Looks like you have not uploaded your bank details.",style: TextStyle(fontSize: 18.sp),),
+          Divider(height: 40,),
+          OutlinedButton(onPressed: (){
+            setState(() {
+              BankEditMode = true;
+            });
+          }, child: Text("Upload"))
         ],
       ),
-    );
+    )
+    :
+      Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Container(
+              alignment: Alignment.bottomRight,
+              child: IconButton(onPressed: (){
+                setState(() {
+                  BankEditMode = !BankEditMode;
+                });
+              }, icon: Icon(Icons.edit,color: BankEditMode?Theme.of(context).primaryColor:null),),
+             ),
+            _CustomText(context, editMode:BankEditMode,title: "Holder Name",content: auth.user!.bankDetails?.holderName ?? ""),
+            _CustomText(context, editMode:BankEditMode,title: "Account Number",content: auth.user!.bankDetails?.accountNumber ?? "",accountConfirm: true),
+            if(BankEditMode)
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 25),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text("Account Type",style: TextStyle(fontWeight: FontWeight.bold),),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: DropdownButton(
+                          isExpanded: true,
+                          value: selectedAccountType,
+                          items: AccountTypes.map((e)=>DropdownMenuItem(child: Text(e.title,style: TextStyle(fontSize: 15.sp),),value: e,)).toList(),
+                          onChanged: (_){
+                            setState(() {
+                              textControllers["Account Type"]?.text = _!.value ;
+                              selectedAccountType = _! ;
+                            });
+                          },
+
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else _CustomText(context, title: "Account Type", content: AccountTypes.firstWhere((element) => element.value==auth.user!.bankDetails?.accountType,orElse:()=> AccountTypes[0]).title, editMode: BankEditMode),
+            _CustomText(context, editMode:BankEditMode,title: "Bank Name",content: auth.user!.bankDetails?.bankName ?? ""),
+            _CustomText(context, editMode:BankEditMode,title: "Branch Name",content: auth.user!.bankDetails?.branchName ?? ""),
+            _CustomText(context, editMode:BankEditMode,title: "IFSC Code",content: auth.user!.bankDetails?.ifscNumber ?? ""),
+            if(BankEditMode)
+              Container(
+              padding: EdgeInsets.symmetric(horizontal: 40,vertical: 10),
+              child: Row(
+                children: [
+                  Expanded(child: passbookPath==null?Text("Cancelled Checkbook / Passbook Front page"):Container(alignment: Alignment.centerLeft,height: 80,width: 80,child:Image.file(File(passbookPath!)))),
+                  SizedBox(width: 40,),
+                  OutlinedButton(onPressed: ()async{
+                    XFile? file =  await ImagePicker().pickImage(source: ImageSource.gallery);
+                    if(file!=null){
+                      setState(() {
+                        passbookPath = file.path;
+                      });
+                    }
+                  }, child: Text(passbookPath==null?"Choose":"Change"))
+                ],
+              ),
+            ),
+            if(BankEditMode)
+              Container(
+                alignment: Alignment.center,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+                  ),
+                  onPressed: () {
+                    if(_formKey.currentState!.validate()){
+                      setBankChanges(auth);
+                      setState(() {
+                        BankEditMode = false ;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
+                    }
+                   },
+                  child: Text("Save"),
+                ),
+              ),
+          ],
+    ),
+      );
 
   }
   Future<void> setBankChanges(AuthProvider auth)async{
-    Map data ={
+    Map<String,dynamic> data ={
       "bank_name":textControllers["Bank Name"]?.text,
       "acc_no":textControllers["Account Number"]?.text,
       "ifsc_no":textControllers["IFSC Code"]?.text,
       "holder_name":textControllers["Holder Name"]?.text,
       "branch_name":textControllers["Branch Name"]?.text,
-      "acc_type":textControllers["Account Type"]?.text
+      "acc_type":selectedAccountType.value,
     };
+    if(passbookPath!=null){
+      data["img1"]=await MultipartFile.fromFile(passbookPath!);
+    }
+    auth.user?.bankDetails = BankDetails(id: "",
+
+        accountNumber:textControllers["Account Number"]?.text??"",
+        bankName: textControllers["Bank Name"]?.text??"",
+        ifscNumber: textControllers["IFSC Code"]?.text??"",
+        holderName: textControllers["Holder Name"]?.text??"",
+        branchName: textControllers["Branch Name"]?.text??"",
+        accountType: selectedAccountType.value, checkbook: ''
+    );
     await completeRegistration2(auth, data);
     auth.getUser();
   }
   Widget _PersonalInfo(AuthProvider auth){
      return SingleChildScrollView(
-      child: Column(
-        children: [
-          Container(
-            alignment: Alignment.bottomRight,
-            child: IconButton(onPressed: (){
-              setState(() {
-                ProfileEditMode = !ProfileEditMode;
-              });
-            }, icon: Icon(Icons.edit,color: ProfileEditMode?Theme.of(context).primaryColor:null),),
-          ),
-          _CustomText(context, editMode:ProfileEditMode,title: "Name",content: auth.user!.name??"Not yet"),
-          _CustomText(context, editMode:ProfileEditMode,title: "Phone",content: auth.user!.mobileno??"",canEdit: false),
-          _CustomText(context, editMode:ProfileEditMode,title: "Email",content: auth.user!.email,canEdit: false),
-          _CustomText(context, editMode:ProfileEditMode,controllerKey: "PanCard Number",title: "Pan Number / Pan Card Number",content: auth.user!.panCardNumber??""),
-          if(ProfileEditMode)
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
             Container(
-            margin: EdgeInsets.symmetric(horizontal: 45),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("Kyc Type"),
-                DropdownButton(
-                  value: selectedKyc,
-                  items: kyctypes.map((e)=>DropdownMenuItem(child: Text(e.title),value: e,)).toList(),
-                  onChanged: (_){
-                    setState(() {
-                      textControllers["Kyc Type"]?.text = _!.value ;
-                      selectedKyc = _! ;
-                    });
-                  },
-                ),
-              ],
+              alignment: Alignment.bottomRight,
+              child: IconButton(onPressed: (){
+                setState(() {
+                  ProfileEditMode = !ProfileEditMode;
+                });
+              }, icon: Icon(Icons.edit,color: ProfileEditMode?Theme.of(context).primaryColor:null),),
             ),
-          )
-          else  _CustomText(context,editMode: ProfileEditMode, title: "Kyc Type", content:kyctypes.firstWhere((element) => element.value == auth.user!.kycType,orElse: ()=>kyctypes[0]).title??"",canEdit: false),
-          _CustomText(context, editMode:ProfileEditMode,controllerKey: "Kyc Number",title: "${selectedKyc.title} Number",content: auth.user!.kycNumber ??""),
-          _CustomText(context, editMode:ProfileEditMode,controllerKey: "Area",title: "Street/Sector/Village/Area",content: auth.user!.area ?? ""),
-          _CustomText(context, editMode:ProfileEditMode,title: "Landmark",content: auth.user!.landmark ?? ""),
-          _CustomText(context, editMode:ProfileEditMode,title: "City",content: auth.user!.city??""),
-          _CustomText(context, editMode:ProfileEditMode,title: "PinCode",content: auth.user!.zip ?? ""),
-          _CustomText(context, editMode:ProfileEditMode,title: "State",content: auth.user!.state??""),
-          if(ProfileEditMode)
-            Container(
-              alignment: Alignment.center,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
-                ),
-                onPressed: () {
-                  setUserProfileChanges(auth);
-                  auth.editProfile();
-                  setState(() {
-                    ProfileEditMode=false;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
-
-                },
-                child: Text("Save"),
+            _CustomText(context, editMode:ProfileEditMode,title: "Name",content: auth.user!.name??"Not yet"),
+            _CustomText(context, editMode:ProfileEditMode,title: "Phone",content: auth.user!.mobileno??"",canEdit: false),
+            _CustomText(context, editMode:ProfileEditMode,title: "Email",content: auth.user!.email,canEdit: false),
+            _CustomText(context, editMode:ProfileEditMode,controllerKey: "PanCard Number",title: "Pan Number",content: auth.user!.panCardNumber??"",capitals:true),
+            if(ProfileEditMode)
+              Container(
+              margin: EdgeInsets.symmetric(horizontal: 45),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Kyc Type"),
+                  DropdownButton(
+                    value: selectedKyc,
+                    items: kyctypes.map((e)=>DropdownMenuItem(child: Text(e.title),value: e,)).toList(),
+                    onChanged: (_){
+                      setState(() {
+                        textControllers["Kyc Type"]?.text = _!.value ;
+                        selectedKyc = _! ;
+                      });
+                    },
+                  ),
+                ],
               ),
-            ),
-        ],
+            )
+            else  _CustomText(context,editMode: ProfileEditMode, title: "Kyc Type", content:kyctypes.firstWhere((element) => element.value == auth.user!.kycType,orElse: ()=>kyctypes[0]).title??"",canEdit: false),
+            _CustomText(context, editMode:ProfileEditMode,controllerKey: "Kyc Number",title: "${selectedKyc.title} Number",content: auth.user!.kycNumber ??""),
+            if(ProfileEditMode)
+              Column(
+                children: [
+                  _CustomText(context, editMode:ProfileEditMode,controllerKey: "Area",title: "Street/Sector/Village/Area",content: auth.user!.area ?? ""),
+                  _CustomText(context, editMode:ProfileEditMode,title: "Landmark",content: auth.user!.landmark ?? ""),
+                  _CustomText(context, editMode:ProfileEditMode,title: "City",content: auth.user!.city??""),
+                  _CustomText(context, editMode:ProfileEditMode,title: "PinCode",content: auth.user!.zip ?? ""),
+                  _CustomText(context, editMode:ProfileEditMode,title: "State",content: auth.user!.state??""),
+                ],
+              )
+            else
+              _CustomText(context, title: "Address", content: "${auth.user!.landmark??"hu"}, ${auth.user!.area??""}, ${auth.user!.city??""}, ${auth.user!.state??""},${auth.user!.zip ?? ""}", editMode: ProfileEditMode),
+            if(ProfileEditMode)
+              Container(
+                alignment: Alignment.center,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+                  ),
+                  onPressed: () {
+                    setUserProfileChanges(auth);
+                    auth.editProfile();
+                    setState(() {
+                      ProfileEditMode=false;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
+
+                  },
+                  child: Text("Save"),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
   Widget _DocumentInfo(AuthProvider auth){
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          Container(
-            alignment: Alignment.bottomRight,
-            child: IconButton(onPressed: (){
-              setState(() {
-                DocumentsEditMode = !DocumentsEditMode;
-              });
-            }, icon: Icon(Icons.edit,color: DocumentsEditMode?Theme.of(context).primaryColor:null),),
-          ),
-          _CustomImage(context, imageUrl: auth.user!.panCardUrl??"", title: "Pan Card"),
-          _CustomImage(context, imageUrl: auth.user!.kycUrl??"", title: "KYC"),
-          _CustomImage(context, imageUrl: auth.user!.gstUrl??"", title: "GST"),
-           _CustomImage(context, imageUrl: auth.user!.vendorUrl??"", title: "Vendor"),
-          if(DocumentsEditMode)
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
             Container(
-              alignment: Alignment.center,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
-                ),
-                onPressed: () async{
-                      auth.editDocument(panPath: imgPath["Pan Card"],kycPath: imgPath["KYC"],vendorPath: imgPath["Vendor"],gstPath: imgPath["GST"]);
-                      auth.getUser();
-                      setState(() {
-                        DocumentsEditMode = false;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
-                },
-                child: Text("Save"),
-              ),
+              alignment: Alignment.bottomRight,
+              child: IconButton(onPressed: (){
+                setState(() {
+                  DocumentsEditMode = !DocumentsEditMode;
+                });
+              }, icon: Icon(Icons.edit,color: DocumentsEditMode?Theme.of(context).primaryColor:null),),
             ),
-        ],
+            _CustomImage(context, imageUrl: auth.user!.panCardUrl??"", title: "Pan Card"),
+            _CustomImage(context, imageUrl: auth.user!.kycUrl??"", title: "KYC"),
+            _CustomImage(context, imageUrl: auth.user!.gstUrl??"", title: "GST"),
+             _CustomImage(context, imageUrl: auth.user!.vendorUrl??"", title: "Vendor"),
+            if(DocumentsEditMode)
+              Container(
+                alignment: Alignment.center,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+                  ),
+                  onPressed: () async{
+                        if(_formKey.currentState!.validate()) {
+                          auth.editDocument(panPath: imgPath["Pan Card"],
+                              kycPath: imgPath["KYC"],
+                              vendorPath: imgPath["Vendor"],
+                              gstPath: imgPath["GST"]);
+                          auth.getUser();
+                          setState(() {
+                            DocumentsEditMode = false;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Successfully updated")));
+                        }
+                  },
+                  child: Text("Save"),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -601,6 +686,8 @@ class _ProfileState extends State<Profile> {
     auth.user!.officeLandmark = textControllers["Office Landmark"]!.text ;
     auth.user!.officeState = textControllers["Office State"]!.text ;
     auth.user!.officeCity=textControllers["Office City"]!.text ;
+    auth.user!.officeCountry=textControllers["Office Country"]!.text ;
+    auth.user!.gstNumber = textControllers["GST Number"]!.text;
   }
 
   Widget _CustomImage(BuildContext context,{required String imageUrl,required String title}){
@@ -642,9 +729,14 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _CustomText(BuildContext context,{required String title,String? controllerKey,required String content,required bool editMode,bool canEdit=true}){
+  Widget _CustomText(BuildContext context,{required String title,String? controllerKey,required String content,required bool editMode,bool canEdit=true,bool capitals = false,bool accountConfirm=false,validatePhone=false}){
     if(controllerKey==null){
       controllerKey = title;
+    }
+    if(validatePhone){
+      if(!textControllers[controllerKey]!.text.contains("+91")){
+        textControllers[controllerKey]?.text = "+91"+ textControllers[controllerKey]!.text;
+      }
     }
     textControllers[controllerKey]?.text = content ;
     return Container(
@@ -653,14 +745,32 @@ class _ProfileState extends State<Profile> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(margin:const EdgeInsets.only(top: 15),child: Text(title,style:const TextStyle(fontWeight: FontWeight.bold),)),
-          Container(margin:const EdgeInsets.symmetric(vertical: 5),
-              child: TextFormField(
+          Container(margin:const EdgeInsets.symmetric(vertical: 10),
+              child: editMode?TextFormField(
+                keyboardType: validatePhone||accountConfirm?TextInputType.phone:TextInputType.text,
+                validator: (text){
+                  if(text==null || text.isEmpty) return "Required";
+                  if(accountConfirm){
+                    if(text.length<12 ||text.length>20)return "Enter Valid Account Number";
+                  }
+                  if(validatePhone){
+                    if(text.length<10)return "Enter valid Number";
+                  }
+                },
+                textCapitalization: capitals?TextCapitalization.characters:TextCapitalization.none,
                controller: textControllers[controllerKey],
-                decoration:editMode?InputDecoration(
+                decoration:InputDecoration(
+                    labelText: title, labelStyle:TextStyle(color: Colors.black,fontSize: 16.sp),
                     hintText: "Not set",
-                    border: const OutlineInputBorder()):InputDecoration(hintText: "Not set",border: InputBorder.none),
-                enabled: (editMode&&canEdit),
+                    border: const OutlineInputBorder()), enabled: (editMode&&canEdit),
+              ):Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,style: TextStyle(color: Colors.black,fontSize: 16.sp,fontWeight: FontWeight.bold),),
+                  SizedBox(height: 10,),
+                  Text(content,style: TextStyle(color: Colors.black,fontSize: 16.sp),),
+                ],
               )),
         ],
       ),
@@ -674,15 +784,18 @@ class _ProfileState extends State<Profile> {
           children: [
             Container(
               height: 30.h,
-              child: CircleAvatar(backgroundColor: Colors.black,child: Icon(Icons.person),backgroundImage: profileImage!=null?CachedNetworkImageProvider(profileImage):null,),
+              child: CircleAvatar(backgroundColor: Colors.black,backgroundImage: profileImage!=null?CachedNetworkImageProvider(profileImage):null,),
             ),
-            OutlinedButton(onPressed: ()async{
-              XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
-              if(file!=null){
-                auth.editProfileImage(profilePath: file.path);
-                Navigator.pop(context);
-              }
-            }, child: Text("Upload New Image"))
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: OutlinedButton(onPressed: ()async{
+                XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+                if(file!=null){
+                  auth.editProfileImage(profilePath: file.path);
+                  Navigator.pop(context);
+                }
+              }, child: Text("Upload New Image")),
+            )
           ],
         ));
       },
@@ -708,10 +821,17 @@ class _ProfileState extends State<Profile> {
                Expanded(
                  flex: 3,
                  child: CircleAvatar(
-                  backgroundColor: Colors.grey,
-                  radius: 30,
-                  child: CircleAvatar(backgroundColor: Colors.black,child: Icon(Icons.person),backgroundImage: profileImage!=null?CachedNetworkImageProvider(profileImage!):null,),
-              ),
+                   radius: 30,
+                   backgroundColor: Colors.black,
+                     child: Stack(
+                       children: [
+                         Positioned.fill(
+                             bottom: 5.h,
+                             left: 5.h,
+                             child: CircleAvatar(
+                                 backgroundColor: Theme.of(context).primaryColor,child: Icon(Icons.edit_rounded,color: Colors.white,size: 10,))),
+                       ],
+                     ),backgroundImage: profileImage!=null?CachedNetworkImageProvider(profileImage!):null,),
                ),
               Expanded(flex:6,child: Container(
                 margin:const EdgeInsets.only(left: 5),
@@ -723,6 +843,11 @@ class _ProfileState extends State<Profile> {
                     Text(email,),
                   ],
                 ),
+              )),
+              Expanded(
+                flex: 2,
+                  child: Container(
+                child: Icon(Icons.verified,color: Colors.green,),
               ))
             ],
           ),

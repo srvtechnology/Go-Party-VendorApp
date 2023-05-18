@@ -14,11 +14,21 @@ enum AuthState {
 class AuthProvider with ChangeNotifier {
   AuthState _authState = AuthState.Waiting;
   String? _token=null;
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
   UserModel? _user;
   late final SharedPreferences pref;
   String? get token => _token ;
   AuthState get authState => _authState;
   UserModel? get user => _user ;
+  void startLoading(){
+    _isLoading = true;
+    notifyListeners();
+  }
+  void stopLoading(){
+    _isLoading = false;
+    notifyListeners();
+  }
   void isLoggedIn(){
     if (_token==null){
       _authState = AuthState.LoggedOut ;
@@ -32,6 +42,7 @@ class AuthProvider with ChangeNotifier {
     init();
   }
   void init()async{
+    startLoading();
     pref = await SharedPreferences.getInstance();
     String? tempToken =await getTokenFromStorage();
      if(tempToken==null){
@@ -44,12 +55,11 @@ class AuthProvider with ChangeNotifier {
        _authState = AuthState.LoggedIn ;
 
      }
-     notifyListeners();
+     stopLoading();
   }
   Future<void> getUser()async{
     print("Getting user data");
     _user = await userRepo.get_UserData(_token!); // from repo
-    notifyListeners();
   }
   void saveTokenToStorage(String tempToken){
       pref.setString("token", tempToken);
@@ -89,7 +99,7 @@ class AuthProvider with ChangeNotifier {
       saveEmailPasswordToStorage(email, password);
       _token = tempToken;
       _authState = AuthState.LoggedIn;
-      getUser();
+      await getUser();
     }
     catch(e){
       _authState = AuthState.Error;
@@ -130,14 +140,17 @@ class AuthProvider with ChangeNotifier {
   }
 
   void editOfficeDetails()async{
-    bool status = await userRepo.edit_office_details(_token!, {
-    "office_pincode":_user!.officeZip,
-    "office_house_no":_user!.houseNumber,
-    "office_area" :_user!.officeArea,
-    "office_landmark" :_user!.officeLandmark,
-    "office_city" :_user!.officeCity,
-    "office_state":_user!.officeState,
-    });
+    Map<String,dynamic> data = {
+        "office_pincode":_user!.officeZip,
+        "office_house_no":_user!.houseNumber,
+        "office_area" :_user!.officeArea,
+        "office_landmark" :_user!.officeLandmark,
+        "office_city" :_user!.officeCity,
+        "office_state":_user!.officeState,
+        "gst_no":_user!.gstNumber,
+        "office_country":_user!.officeCountry
+      };
+    bool status = await userRepo.edit_office_details(_token!, data);
     if(status == true){
       getUser();
       notifyListeners();

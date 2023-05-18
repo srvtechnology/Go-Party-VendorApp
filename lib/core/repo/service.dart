@@ -18,7 +18,9 @@ Future<List<serviceModel>> getServiceList(AuthProvider auth)async{
       List<serviceModel> services=[];
     try{
       for (var service in response.data["data"]){
-        services.add(serviceModel.fromJson(service));
+        try{
+          services.add(serviceModel.fromJson(service));
+        }catch(e){}
       }
       return services;
     }
@@ -78,7 +80,7 @@ Future<bool> updateService(AuthProvider auth,String id,Map data)async{
       ),
       data: data
     );
-    CustomLogger.error(response.data);
+    CustomLogger.debug(response.data);
     return true;
   }
   catch(e){

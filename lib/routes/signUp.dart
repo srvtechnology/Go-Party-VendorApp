@@ -122,9 +122,9 @@ class _SignUp1State extends State<SignUp1> {
                   child: SingleChildScrollView(
                       child:Column(children: [
                         SizedBox(
-                          height: 10.h,
-                          width: 20.w,
-                          child: Image.asset("assets/images/logo/logo-nav.png"),
+                          height: 20.h,
+                          width: 40.w,
+                          child: Image.asset("assets/images/logo/logo.png"),
                         ),
                         Container(
                           alignment: Alignment.center,
@@ -198,6 +198,7 @@ class _SignUp1State extends State<SignUp1> {
           OutlinedButton(
             onPressed: ()async{
               registerState.setRegisterProgress(RegisterProgress.completed);
+              registerState.clear();
               if(Navigator.canPop(context)){
                 Navigator.pop(context);
               }
@@ -235,9 +236,14 @@ class _SignUp1State extends State<SignUp1> {
     );
   }
   Widget CustomInputField(String title,TextEditingController controller,{bool hide=false,bool autocomplete=true,MapProvider? state,validatePhone=false}){
+    if(validatePhone){
+      if(!controller.text.startsWith("+91"))
+        controller.text="+91"+controller.text;
+    }
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 40),
       child: TextFormField(
+        keyboardType: validatePhone?TextInputType.phone:TextInputType.text,
         obscureText: hide,
         controller: controller,
         validator: (text){
@@ -276,7 +282,7 @@ class SignUp2 extends StatefulWidget {
 class _SignUp2State extends State<SignUp2> {
   final _formKey = GlobalKey<FormState>();
   List<DropDownField> kyctypes = [
-    DropDownField(title: "Aadhar Card",value: "AD"),
+    DropDownField(title: "Aadhar",value: "AD"),
     DropDownField(title: "Voter Id",value: "VO"),
     DropDownField(title: "Passport",value: "PA"),
     DropDownField(title: "Driving License",value: "DL"),
@@ -291,12 +297,13 @@ class _SignUp2State extends State<SignUp2> {
   TextEditingController _landmark = TextEditingController();
   TextEditingController _city = TextEditingController();
   TextEditingController _state = TextEditingController();
+  TextEditingController _country = TextEditingController();
   late RegisterCache cache;
   late DropDownField selectedKyc=kyctypes[0];
   bool isLoading = false;
   late Future _getCacheData ;
   List<String> dataKeys = [
-    "pan_card","kyc_type","kyc_no","pin_code","house_no","area","landmark","city","state"
+    "pan_card","kyc_type","kyc_no","pin_code","house_no","area","landmark","city","state","country"
   ];
 
   @override
@@ -317,7 +324,7 @@ class _SignUp2State extends State<SignUp2> {
     _landmark.text=cache.data["landmark"]??"";
     _city.text=cache.data["city"]??"";
     _state.text=cache.data["state"]??"";
-
+    _country.text=cache.data["country"]??"";
   }
   @override
   Widget build(BuildContext context) {
@@ -364,13 +371,16 @@ class _SignUp2State extends State<SignUp2> {
                               ],
                             ),
                           ),
-                          InputField("${selectedKyc.title} Number", _kycNo),
+                          InputField("${selectedKyc.title} Number", _kycNo,validator: (text){
+                            if(text==null || text.length<10) return "Please enter a valid number";
+                          }),
                           InputField("Pin code", _pinCode),
-                          InputField("House number", _houseNo),
+                          InputField("Flat / House / Building Number", _houseNo,validator: null),
                           InputField("Area", _area),
                           InputField("Landmark", _landmark),
                           InputField("City", _city),
                           InputField("State", _state),
+                          InputField("Country", _country),
                           if(isLoading)Container(alignment: Alignment.center,child: CircularProgressIndicator(),)
                           else SignUpButton(context,state),
                         ],)
@@ -395,7 +405,8 @@ class _SignUp2State extends State<SignUp2> {
         "area":_area.text,
         "landmark":_landmark.text,
         "city":_city.text,
-        "state":_state.text
+        "state":_state.text,
+        "country":_country.text
       } ;
       setState(() {
         isLoading=false;
@@ -407,8 +418,7 @@ class _SignUp2State extends State<SignUp2> {
     }
     else{
       setState(() {
-        getDataFromCache();
-        isLoading=false;
+         isLoading=false;
       });
     }
   }
@@ -453,7 +463,7 @@ class _SignUp2State extends State<SignUp2> {
     );
   }
 
-  Widget InputField(String title,TextEditingController controller,{bool hide=false,bool autocomplete=true,bool uppercase = false}){
+  Widget InputField(String title,TextEditingController controller,{bool hide=false,bool autocomplete=true,bool uppercase = false,String? Function(String? text)? validator}){
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 40),
       child: TextFormField(
@@ -463,7 +473,7 @@ class _SignUp2State extends State<SignUp2> {
         ]:null,
         obscureText: hide,
         controller: controller,
-        validator: (text){
+        validator:validator != null?validator:(text){
           if(text?.length==0) return "Required field";
         },
         decoration: InputDecoration(
@@ -499,6 +509,7 @@ class _SignUp3State extends State<SignUp3> {
   TextEditingController _HolderName = TextEditingController();
   TextEditingController _BranchName = TextEditingController();
   late DropDownField selectedAccount=AccountTypes[0];
+  String? passbookPath;
   bool isLoading = false;
   late RegisterCache cache;
   late Future _getCacheData;
@@ -580,13 +591,31 @@ class _SignUp3State extends State<SignUp3> {
                               ],
                             ),
                           ),
-                          InputField("Account Number", _AccountNo),
+                          InputField("Account Number", _AccountNo,accountConfirm: true),
                           InputField("Account Number (Again)", _AccountNoConfirm,accountConfirm:true),
                           InputField("IFSC Code", _IFSCNo),
                           InputField("Holder Name", _HolderName),
                           InputField("Branch Name", _BranchName),
+                           Container(
+                             padding: EdgeInsets.symmetric(horizontal: 40,vertical: 10),
+                             child: Row(
+                               children: [
+                                 Expanded(child: passbookPath==null?Text("Cancelled Checkbook / Passbook Front page"):Container(alignment: Alignment.centerLeft,height: 80,width: 80,child:Image.file(File(passbookPath!)))),
+                                 SizedBox(width: 40,),
+                                 OutlinedButton(onPressed: ()async{
+                                     XFile? file =  await ImagePicker().pickImage(source: ImageSource.gallery);
+                                     if(file!=null){
+                                       setState(() {
+                                         passbookPath = file.path;
+                                       });
+                                   }
+                                 }, child: Text(passbookPath==null?"Choose":"Change"))
+                               ],
+                             ),
+                           ),
                            if(isLoading)Container(alignment: Alignment.center,child: CircularProgressIndicator(),)
-                          else SignUpButton(context,state),
+                          else
+                            SignUpButton(context,state),
                         ],)
                     ),
                   ),
@@ -600,13 +629,18 @@ class _SignUp3State extends State<SignUp3> {
 
   Future<void> submit(RegisterProvider state)async{
     if(_formKey.currentState!.validate()){
-      Map data = {
+      if(passbookPath==null){
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please Upload a cancelled Check or a passbook front page.")));
+        return;
+      }
+      Map<String,dynamic> data = {
         "bank_name":_bankName.text,
         "acc_no":_AccountNo.text,
         "ifsc_no":_IFSCNo.text,
         "holder_name":_HolderName.text,
         "branch_name":_BranchName.text,
         "acc_type":_AccountType.text,
+        "img1": await MultipartFile.fromFile(passbookPath!)
       } ;
       setState(() {
         isLoading=false;
@@ -679,7 +713,8 @@ class _SignUp3State extends State<SignUp3> {
         validator: (text){
           if(text?.length==0) return "Required field";
           if(accountConfirm){
-            if(_AccountNo.text!=controller.text)return "Account Numbers do not match";
+            if(_AccountNo.text.length<12 || _AccountNo.text.length>20)return "Enter Valid Account Number";
+            if(_AccountNo.text!=_AccountNoConfirm.text)return "Account Numbers do not match";
           }
         },
         decoration: InputDecoration(
@@ -875,9 +910,8 @@ class _SignUp4State extends State<SignUp4> {
       if(Navigator.canPop(context)){
         Navigator.pop(context);
       }else{
-        Navigator.pushReplacementNamed(context, MainPage.routeName);
+        Navigator.pushReplacementNamed(context, MainPage.routeName,arguments: true);
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Congratulations!You have successfully complted your registration process, Please wait for 24-48 working hours for the verification process.")));
         setState(() {
         isLoading=false;
       });
@@ -945,6 +979,8 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
   TextEditingController _officeLandmark = TextEditingController();
   TextEditingController _officeCity = TextEditingController();
   TextEditingController _officeState = TextEditingController();
+  TextEditingController _officeCountry = TextEditingController();
+  TextEditingController _GST = TextEditingController();
   TextEditingController _price = TextEditingController();
   TextEditingController _driverName = TextEditingController();
   TextEditingController _driverMob = TextEditingController();
@@ -960,9 +996,9 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
   late DropDownField selectedKyc;
   late RegisterCache cache;
   late Future _getCacheData;
-  List<String> dataKeys = ["category_id","service_id","service_desc","office_pincode","office_house_no","office_area","office_landmark","office_city","office_state","price","driver_name","driver_mobile_no","driver_kyc_type","dricer_kyc_no","driver_licence_no","driver_pincode","driver_house_no","driver_area","driver_landmark","driver_city","driver_state"];
+  List<String> dataKeys = ["category_id","service_id","service_desc","office_pincode","office_house_no","office_area","office_country","office_landmark","office_city","office_state","price","driver_name","driver_mobile_no","driver_kyc_type","dricer_kyc_no","driver_licence_no","driver_pincode","driver_house_no","driver_area","driver_landmark","driver_city","driver_state","gst_no"];
   List<DropDownField> kyctypes = [
-    DropDownField(title: "Aadhar Card",value: "AD"),
+    DropDownField(title: "Aadhar",value: "AD"),
     DropDownField(title: "Voter Id",value: "VO"),
     DropDownField(title: "Passport",value: "PA"),
     DropDownField(title: "Driving License",value: "DL"),
@@ -982,6 +1018,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
     _officeLandmark.text =  cache.data["office_landmark"]??"";
     _officeCity.text =  cache.data["office_city"]??"";
     _officeState.text =  cache.data["office_state"]??"";
+    _officeCountry.text = cache.data["office_country"]??"";
     _price.text =  cache.data["price"]??"";
     _driverName.text =  cache.data["driver_name"]??"";
     _driverMob.text =  cache.data["driver_mobile_no"]??"";
@@ -993,7 +1030,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
     _driverLandmark.text =  cache.data["driver_landmark"]??"";
     _driverCity.text =  cache.data["driver_city"]??"";
     _driverState.text =  cache.data["driver_state"]??"";
-
+    _GST.text = cache.data["gst_no"]??"";
   }
   @override
   void initState() {
@@ -1044,12 +1081,14 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                   margin: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
                                   child: Text("Office details",style: TextStyle(fontWeight: FontWeight.w500),),
                                 ),
-                                InputField("Office Number", _officeNo),
+                                InputField("Office Number", _officeNo,validatePhone: true),
+                                InputField("GST Number", _GST,isCapital: true),
                                 InputField("Area", _officeArea),
                                 InputField("Landmark", _officeLandmark),
                                 InputField("City", _officeCity),
                                 InputField("PinCode", _officePinCode),
                                 InputField("State", _officeState),
+                                InputField("Country", _officeCountry),
                                 Container(
                                   alignment: Alignment.centerLeft,
                                   margin: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
@@ -1088,7 +1127,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                         child: Text("Driver details",style: TextStyle(fontWeight: FontWeight.w500),),
                                       ),
                                       InputField("Name", _driverName),
-                                      InputField("Mobile Number", _driverMob,),
+                                      InputField("Mobile Number", _driverMob,validatePhone: true),
                                       Container(
                                         margin: EdgeInsets.symmetric(horizontal: 45),
                                         child: Row(
@@ -1108,7 +1147,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                           ],
                                         ),
                                       ),
-                                      InputField("KYC Number", _driverKycNo),
+                                      InputField("${selectedKyc.title} Number", _driverKycNo),
                                       InputField("License", _driverLicense),
                                       InputField("PinCode", _driverpinCode),
                                       InputField("House Number", _driverhouseNo),
@@ -1168,10 +1207,16 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
       ),
     );
   }
-  Widget InputField(String title,TextEditingController controller,{MapProvider? state,bool hide=false,bool autoComplete = false}){
+  Widget InputField(String title,TextEditingController controller,{MapProvider? state,bool hide=false,bool autoComplete = false,bool validatePhone=false,bool isCapital= false}){
+    if(validatePhone){
+      if(!controller.text.startsWith("+91"))
+        controller.text="+91"+controller.text;
+    }
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 20),
       child: TextFormField(
+        keyboardType: validatePhone?TextInputType.phone:TextInputType.text,
+        textCapitalization: isCapital?TextCapitalization.characters:TextCapitalization.none,
         obscureText: hide,
         controller: controller,
         onChanged: autoComplete?(text){
@@ -1186,6 +1231,11 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
         validator: (text){
           if(text?.length==0){
             return "Required field";
+          }
+          if(validatePhone){
+            if(text!=null && (text.length<11 || text.length>13)){
+              return "Please enter a valid phone number";
+            }
           }
         },
       ),
@@ -1202,7 +1252,9 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
         "office_area":_officeArea.text,
         "office_landmark":_officeLandmark.text,
         "office_city":_officeCity.text,
-        "office_state":_officeState,
+        "office_state":_officeState.text,
+        "office_country":_officeCountry.text,
+        "gst_no":_GST.text,
         "price":_price.text,//
         "driver_name":_driverName.text,
         "driver_mobile_no":_driverMob.text,

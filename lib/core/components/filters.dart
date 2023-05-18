@@ -18,7 +18,7 @@ class _FilterState extends State<Filter> {
   List statuses = [
     "All",
     "Rejected",
-    "Approved"
+    "Accepted"
   ];
   @override
   Widget build(BuildContext context) {
@@ -78,6 +78,8 @@ class _FilterState extends State<Filter> {
 
 
 
+
+
 class Filter2 extends StatefulWidget {
   onSearch onsearch ;
   onStatusSelect onstatusSelect ;
@@ -91,7 +93,7 @@ class _Filter2State extends State<Filter2> {
   String selectedStatus="All";
   List statuses = [
     "All",
-    "Approved",
+    "Accepted",
     "Pending"
   ];
   @override
@@ -142,6 +144,48 @@ class _Filter2State extends State<Filter2> {
         },
         decoration:const InputDecoration(
           icon: Icon(Icons.search),
+          border: OutlineInputBorder(),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+class ServiceFilter extends StatefulWidget {
+  onSearch onsearch ;
+  ServiceFilter({super.key,required this.onsearch});
+
+  @override
+  State<ServiceFilter> createState() => _ServiceFilterState();
+}
+
+class _ServiceFilterState extends State<ServiceFilter> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      height: 10.h,
+      child: Row(children: [
+        Expanded(flex: 3,child: _SearchBar(context)),
+      ]),
+    );
+  }
+  Widget _SearchBar(BuildContext context){
+    return Container(
+      height: 8.h,
+      decoration:const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(5))
+      ),
+      margin:const EdgeInsets.symmetric(horizontal: 5),
+      child: TextFormField(
+        onChanged: (text){
+          widget.onsearch(text);
+        },
+        decoration:const InputDecoration(
+          suffixIcon: Icon(Icons.search),
           border: OutlineInputBorder(),
         ),
       ),

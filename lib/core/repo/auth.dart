@@ -103,10 +103,10 @@ Future<bool> completeRegistration(RegisterProvider state,Map data)async{
     return Future.error(e);
   }
 }
-Future<bool> completeRegistration2(dynamic state,Map data)async{
+Future<bool> completeRegistration2(dynamic state,Map<String,dynamic> data)async{
   try{
     Response response = await Dio().post("${APIConfig.baseUrl}/api/vendor-register-part-three-registration",
-        data: data,
+        data:FormData.fromMap(data),
         options: Options(headers: {
           "Authorization":"Bearer ${state.token}"
         })

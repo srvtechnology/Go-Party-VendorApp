@@ -20,7 +20,7 @@ class _LoadingWidgetState extends State<LoadingWidget> {
   void initState() {
     super.initState();
     if(widget.willRedirect){
-      t = Timer(Duration(seconds: 15), () {
+      t = Timer(Duration(seconds: 10), () {
         Provider.of<AuthProvider>(context,listen: false).logout();
         Navigator.pushReplacementNamed(context, MainPage.routeName);
       });

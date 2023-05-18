@@ -9,7 +9,8 @@ import 'otpPage.dart';
 
 class SignIn extends StatefulWidget {
   static const routeName ="signin";
-  const SignIn({ Key? key }) : super(key: key);
+  bool showPopup;
+  SignIn({ Key? key ,this.showPopup=false}) : super(key: key);
 
   @override
   _SignInState createState() => _SignInState();

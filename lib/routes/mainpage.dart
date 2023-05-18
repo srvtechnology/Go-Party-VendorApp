@@ -19,6 +19,7 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)!.settings.arguments;
     return ListenableProvider(
         create: (_)=>RegisterProvider(),
     child:Consumer<NetworkProvider>(
@@ -29,7 +30,9 @@ class MainPage extends StatelessWidget {
               return errorScreenRoute(icon: Icons.wifi,message: "Seems like you are offline.Please connect to a network",hasAppbar: false,);
       },
       child: Consumer2<AuthProvider,RegisterProvider>(builder: (context,auth,registerState,child) {
-        CustomLogger.debug(registerState.registerProgress);
+         if (auth.authState == AuthState.Waiting){
+          return LoadingWidget(willRedirect: true,);
+        }
         if (auth.authState == AuthState.LoggedIn) {
           if (auth.user?.userStatus == UserApprovalStatus.unverified) {
             if (registerState.registerProgress != RegisterProgress.completed && registerState.registerProgress != RegisterProgress.one) {
@@ -37,14 +40,15 @@ class MainPage extends StatelessWidget {
             }
             return errorScreenRoute(
                 icon: Icons.account_box,
-                message: "Thank you for registering. Your account has not yet been verified by the admin. Check again later");
+                message: "Your account is under verification process, please wait for 24-48 working hours.");
           }
           return Homepage();
         }
         else if (auth.authState == AuthState.Waiting) {
           return LoadingWidget(willRedirect: true,);
         }
-        return SignIn();
+        bool arg = args!=null?args as bool:false;
+        return SignIn(showPopup: arg,);
       }
     )
     )

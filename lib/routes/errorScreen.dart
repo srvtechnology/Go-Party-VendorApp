@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
-import 'package:utsavlife/core/utils/logger.dart';
 
 class errorScreenRoute extends StatelessWidget {
   IconData icon;
@@ -22,6 +21,7 @@ class errorScreenRoute extends StatelessWidget {
         ],
       ):AppBar(automaticallyImplyLeading: false,),
       body:Container(
+        padding: EdgeInsets.all(20),
         height: double.infinity,
         width: double.infinity,
         child: Column(
@@ -29,7 +29,7 @@ class errorScreenRoute extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              alignment: Alignment.center,
+              alignment: Alignment.topCenter,
               child: Icon(icon,size: 100,color: Theme.of(context).primaryColorDark,),
             ),
             Divider(height: 5.h,color: Colors.transparent,),

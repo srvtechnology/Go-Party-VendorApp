@@ -94,7 +94,7 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                           ),
                           Row(
                             children: [
-                              Expanded(child: DetailTile("Status", singleOrderState.order!.vendorOrderStatus == VendorOrderStatus.approved?"Approved":singleOrderState.order!.vendorOrderStatus == VendorOrderStatus.pending?"Pending":"Rejected")),
+                              Expanded(child: DetailTile("Status", singleOrderState.order!.vendorOrderStatus == VendorOrderStatus.approved?"Accepted":singleOrderState.order!.vendorOrderStatus == VendorOrderStatus.pending?"Pending":"Rejected")),
                               Expanded(child: DetailTile("Category", singleOrderState.order!.category!)),
                             ],
                           ),
@@ -144,7 +144,7 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                 mainAxisAlignment:MainAxisAlignment.spaceEvenly,
                 children: [
                   if(singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.rejected || singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.pending)
-                  BottomButton(context:context,onPressed: ()=>approveOrder(context),text: "Approve",primaryColor: Colors.green),
+                  BottomButton(context:context,onPressed: ()=>approveOrder(context),text: "Accept",primaryColor: Colors.green),
                   if(singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.approved || singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.pending)
                   BottomButton(context:context,onPressed: () => rejectOrder(context,reasonState.reasons??[]),text: "Reject",primaryColor: Colors.red),
                 ],
@@ -162,7 +162,7 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
     try {
       await context.read<SingleOrderProvider>().change_status(
           VendorOrderStatus.approved,"");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Order Approved")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Order Accepted")));
     }catch(e){
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }

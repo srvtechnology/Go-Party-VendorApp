@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/core/components/loading.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/ServiceProvider.dart';
 import 'package:utsavlife/core/provider/mapProvider.dart';
@@ -75,12 +76,8 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
           if(state.auth.user?.kycType==null){
             return errorScreenRoute(icon: Icons.error_outline, message: "Please complete your registration first.");
           }
-         if(state.isLoading){
-           return Container(
-             color: Colors.white,
-             alignment: Alignment.center,
-             child: CircularProgressIndicator(),
-           );
+         if(state.isLoading && state.options==null) {
+           return LoadingWidget(willRedirect:true,);
          }
           return Consumer<MapProvider>(
             builder:(context,mapState,child)=>Scaffold(
@@ -129,7 +126,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                           },)),
                         InputField("Service Description", _serviceDescription),
                         InputField("Material Description", _materialDescription),
-                        InputField("Price", _price),
+                        InputField("Price", _price,digits:true),
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
                           alignment: Alignment.centerLeft,
@@ -196,7 +193,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                               child: Text("Driver details",style: TextStyle(fontWeight: FontWeight.w500),),
                             ),
                             InputField("Name", _driverName),
-                            InputField("Mobile Number", _driverMob),
+                            InputField("Mobile Number", _driverMob,validatePhone:true),
                             Container(
                               margin: EdgeInsets.symmetric(horizontal: 45),
                               child: Row(
@@ -306,10 +303,12 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       ),
     );
   }
-  Widget InputField(String title,TextEditingController controller,{MapProvider? state,bool hide=false,bool autoComplete = false}){
+  Widget InputField(String title,TextEditingController controller,{MapProvider? state,bool hide=false,bool autoComplete = false,validatePhone=false,digits=false}){
+
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 20),
       child: TextFormField(
+        keyboardType: validatePhone||digits?TextInputType.phone:TextInputType.text,
         obscureText: hide,
         controller: controller,
         onChanged: autoComplete?(text){
@@ -324,6 +323,9 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       validator: (text){
           if(text?.length==0){
             return "Required field";
+          }
+          if(validatePhone){
+            if(text==null || text.length<10)return "Please enter a valid number";
           }
       },
       ),

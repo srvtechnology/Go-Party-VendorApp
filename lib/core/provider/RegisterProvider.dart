@@ -119,6 +119,10 @@ class RegisterProvider with ChangeNotifier {
     instance.setInt("progress", value);
     notifyListeners();
   }
+  void clear()async{
+    final SharedPreferences instance = await SharedPreferences.getInstance();
+    instance.clear();
+  }
 }
 
 class RegisterCache{
