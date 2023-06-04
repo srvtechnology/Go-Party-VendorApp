@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -7,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:search_choices/search_choices.dart';
 import 'package:utsavlife/core/components/loading.dart';
+import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/RegisterProvider.dart';
 import 'package:utsavlife/core/provider/mapProvider.dart';
@@ -131,9 +134,10 @@ class _SignUp1State extends State<SignUp1> {
                           margin:const EdgeInsets.symmetric(vertical: 10),
                           child: Text("Welcome",style: Theme.of(context).textTheme.headlineSmall,),
                         ),Container(
+                          padding: EdgeInsets.all(20),
                           alignment: Alignment.center,
                           margin:const EdgeInsets.symmetric(vertical: 10),
-                          child:const Text("Provide your details below"),
+                          child:const Text("Provide your details below. \nPlease ensure you check your email. Once you register you will not be able to change the email.",textAlign: TextAlign.center,style: TextStyle(fontWeight: FontWeight.bold),),
                         ),
                         CustomInputField("Full Name", _name),
                         CustomInputField("Email", _email),
@@ -249,7 +253,7 @@ class _SignUp1State extends State<SignUp1> {
         validator: (text){
           if(text?.length==0) return "Required field";
           if(validatePhone){
-            if(text!=null && (text.length<10 || text.length>12)){
+            if(text!=null && (text.length<10 || text.length>15)){
               return "Please enter a valid phone number";
             }
           }
@@ -299,6 +303,7 @@ class _SignUp2State extends State<SignUp2> {
   TextEditingController _state = TextEditingController();
   TextEditingController _country = TextEditingController();
   late RegisterCache cache;
+  Country selectedCountry = Country(id: "101", name: "India");
   late DropDownField selectedKyc=kyctypes[0];
   bool isLoading = false;
   late Future _getCacheData ;
@@ -350,7 +355,7 @@ class _SignUp2State extends State<SignUp2> {
                             margin:const EdgeInsets.symmetric(vertical: 10),
                             child:const Text("Provide your details below"),
                           ),
-                          InputField("Pan Card", _pancard,uppercase: true),
+                          InputField("Pan Number", _pancard,uppercase: true),
                           Container(
                             margin: EdgeInsets.symmetric(horizontal: 45),
                             child: Row(
@@ -380,7 +385,51 @@ class _SignUp2State extends State<SignUp2> {
                           InputField("Landmark", _landmark),
                           InputField("City", _city),
                           InputField("State", _state),
-                          InputField("Country", _country),
+                          Container(
+                            padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+                                  alignment:Alignment.centerLeft,
+                                  child: Text("Country",style: TextStyle(fontWeight: FontWeight.w500),),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                   Text(selectedCountry.name),
+                                    SearchChoices.single(
+                                      searchHint: "Select a country",
+                                      searchFn: (String keyword,List<DropdownMenuItem> items){
+                                        List<int> filtered=[];
+                                        items
+                                            .forEachIndexed((index,element) {
+                                          if (element.value
+                                              .name.toString().toLowerCase().startsWith(keyword.toLowerCase())){
+                                            filtered.add(index);
+                                          }
+
+                                        });
+                                        return filtered;
+                                      },
+                                      onChanged: (value){
+                                        setState(() {
+                                          selectedCountry = value ;
+                                        });
+                                      },
+                                      value: selectedCountry,
+                                      items: Countries.map((e) => DropdownMenuItem<Country>(child: Text(e["name"]),onTap: (){
+                                        setState(() {
+                                          _country.text = e["name"];
+                                          selectedCountry = Country(id: e["id"].toString(), name: e["name"]);
+                                        });
+                                      },value: Country(id: e["id"].toString(), name: e["name"]),)).toList(),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                           if(isLoading)Container(alignment: Alignment.center,child: CircularProgressIndicator(),)
                           else SignUpButton(context,state),
                         ],)
@@ -406,7 +455,7 @@ class _SignUp2State extends State<SignUp2> {
         "landmark":_landmark.text,
         "city":_city.text,
         "state":_state.text,
-        "country":_country.text
+        "country":selectedCountry.id
       } ;
       setState(() {
         isLoading=false;
@@ -631,6 +680,9 @@ class _SignUp3State extends State<SignUp3> {
     if(_formKey.currentState!.validate()){
       if(passbookPath==null){
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please Upload a cancelled Check or a passbook front page.")));
+        setState(() {
+          isLoading=false;
+        });
         return;
       }
       Map<String,dynamic> data = {
@@ -907,11 +959,7 @@ class _SignUp4State extends State<SignUp4> {
     CustomLogger.debug(data);
     await completeRegistration3(state,data);
       state.setRegisterProgress(RegisterProgress.completed);
-      if(Navigator.canPop(context)){
-        Navigator.pop(context);
-      }else{
-        Navigator.pushReplacementNamed(context, MainPage.routeName,arguments: true);
-      }
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>TermsAndConditionsPage(registerState:state)));
         setState(() {
         isLoading=false;
       });
@@ -966,13 +1014,13 @@ class SignUpIntermediate extends StatefulWidget {
 }
 
 class _SignUpIntermediateState extends State<SignUpIntermediate> {
-  String categoryOption = "Select Category",categoryId="";
   String serviceOption = "Select Service",serviceId="";
 
   final _formKey = GlobalKey<FormState>();
   bool showLocationList = false;
   bool isLoading = false;
   TextEditingController _serviceDescription = TextEditingController();
+  TextEditingController _materialDescription = TextEditingController();
   TextEditingController _officePinCode = TextEditingController();
   TextEditingController _officeNo = TextEditingController();
   TextEditingController _officeArea = TextEditingController();
@@ -996,7 +1044,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
   late DropDownField selectedKyc;
   late RegisterCache cache;
   late Future _getCacheData;
-  List<String> dataKeys = ["category_id","service_id","service_desc","office_pincode","office_house_no","office_area","office_country","office_landmark","office_city","office_state","price","driver_name","driver_mobile_no","driver_kyc_type","dricer_kyc_no","driver_licence_no","driver_pincode","driver_house_no","driver_area","driver_landmark","driver_city","driver_state","gst_no"];
+  List<String> dataKeys = ["category_id","service_id","service_desc","material_desc","office_pincode","office_house_no","office_area","office_country","office_landmark","office_city","office_state","price","driver_name","driver_mobile_no","driver_kyc_type","dricer_kyc_no","driver_licence_no","driver_pincode","driver_house_no","driver_area","driver_landmark","driver_city","driver_state","gst_no"];
   List<DropDownField> kyctypes = [
     DropDownField(title: "Aadhar",value: "AD"),
     DropDownField(title: "Voter Id",value: "VO"),
@@ -1004,14 +1052,15 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
     DropDownField(title: "Driving License",value: "DL"),
     DropDownField(title: "Other Govt. Id",value: "OT"),
   ];
-
+  late Country selectedOfficeCountry;
   Future<void> getDataFromCache()async{
     await cache.getData(dataKeys);
+    selectedOfficeCountry = Country(id:"101", name:"India");
     selectedKyc = kyctypes.firstWhere((element) => element.value == cache.data["driver_kyc_type"],orElse: ()=>kyctypes[0]);
     _driverKycType.text = selectedKyc.value;
     serviceId=cache.data["service_id"]??"";
-    categoryId=cache.data["category_id"]??"";
     _serviceDescription.text =  cache.data["service_desc"]??"";
+    _materialDescription.text =  cache.data["material_desc"]??"";
     _officePinCode.text =  cache.data["office_pincode"]??"";
     _officeNo.text =  cache.data["office_house_no"]??"";
     _officeArea.text =  cache.data["office_area"]??"";
@@ -1082,13 +1131,56 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                   child: Text("Office details",style: TextStyle(fontWeight: FontWeight.w500),),
                                 ),
                                 InputField("Office Number", _officeNo,validatePhone: true),
-                                InputField("GST Number", _GST,isCapital: true),
+                                InputField("GST Number", _GST,isCapital: true,required:false),
                                 InputField("Area", _officeArea),
                                 InputField("Landmark", _officeLandmark),
                                 InputField("City", _officeCity),
                                 InputField("PinCode", _officePinCode),
                                 InputField("State", _officeState),
-                                InputField("Country", _officeCountry),
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(vertical: 10),
+                                        alignment:Alignment.centerLeft,
+                                        child: Text("Country",style: TextStyle(fontWeight: FontWeight.w500),),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(selectedOfficeCountry.name),
+                                          SearchChoices.single(
+                                            searchFn: (String keyword,List<DropdownMenuItem> items){
+                                              List<int> filtered=[];
+                                              items
+                                                  .forEachIndexed((index,element) {
+                                                    if (element.value
+                                                        .name.toString().toLowerCase().startsWith(keyword.toLowerCase())){
+                                                      filtered.add(index);
+                                                    }
+
+                                              });
+                                              return filtered;
+                                            },
+                                            onChanged: (value){
+                                              setState(() {
+                                                selectedOfficeCountry = value ;
+                                              });
+                                            },
+                                            value: selectedOfficeCountry,
+                                            items: Countries.map((e) => DropdownMenuItem<Country>(child: Text(e["name"]),onTap: (){
+                                              setState(() {
+                                                _officeCountry.text = e["name"];
+                                                selectedOfficeCountry = Country(id: e["id"].toString(), name: e["name"]);
+                                              });
+                                            },value: Country(id: e["id"].toString(), name: e["name"]),)).toList(),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
                                 Container(
                                   alignment: Alignment.centerLeft,
                                   margin: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
@@ -1105,18 +1197,8 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                       });
                                     },),).toList(),
                                 ),
-                                ExpansionTile(
-                                  key: GlobalKey(),
-                                  title: Text(categoryOption),
-                                  children: state.options!.categoryOptions.map(
-                                        (e) => ListTile(title: Text(e.name),onTap: (){
-                                      setState(() {
-                                        categoryOption = e.name ;
-                                        categoryId = e.id;
-                                      });
-                                    },),).toList(),
-                                ),
                                 InputField("Service Description", _serviceDescription),
+                                InputField("Material Description", _materialDescription),
                                 InputField("Price", _price),
                                 if(serviceOption.toLowerCase().contains("car"))
                                   Column(
@@ -1207,7 +1289,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
       ),
     );
   }
-  Widget InputField(String title,TextEditingController controller,{MapProvider? state,bool hide=false,bool autoComplete = false,bool validatePhone=false,bool isCapital= false}){
+  Widget InputField(String title,TextEditingController controller,{bool required=true,MapProvider? state,bool hide=false,bool autoComplete = false,bool validatePhone=false,bool isCapital= false}){
     if(validatePhone){
       if(!controller.text.startsWith("+91"))
         controller.text="+91"+controller.text;
@@ -1228,32 +1310,33 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
         decoration: InputDecoration(
             prefixIcon: Icon(Icons.home_repair_service),
             labelText: title,border: const OutlineInputBorder()),
-        validator: (text){
+        validator: required?(text){
           if(text?.length==0){
             return "Required field";
           }
           if(validatePhone){
-            if(text!=null && (text.length<11 || text.length>13)){
+            if(text!=null && (text.length<10 || text.length>15)){
+              CustomLogger.debug(text.length);
               return "Please enter a valid phone number";
             }
           }
-        },
+        }:null,
       ),
     );
   }
   void createService(RegisterProvider state){
     if(_formKey.currentState!.validate()){
       Map data = {
-        "category_id":categoryId,//
         "service_id":serviceId,//
-        "service_desc":_serviceDescription.text,//
+        "service_desc":_serviceDescription.text,
+        "material_desc":_materialDescription.text,
         "office_pincode":_officePinCode.text,
         "office_house_no":_officeNo.text,
         "office_area":_officeArea.text,
         "office_landmark":_officeLandmark.text,
         "office_city":_officeCity.text,
         "office_state":_officeState.text,
-        "office_country":_officeCountry.text,
+        "office_country":selectedOfficeCountry.id,
         "gst_no":_GST.text,
         "price":_price.text,//
         "driver_name":_driverName.text,
@@ -1282,3 +1365,77 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
   }
 
 }
+
+class TermsAndConditionsPage extends StatefulWidget {
+  RegisterProvider registerState;
+  TermsAndConditionsPage({Key? key,required this.registerState});
+  @override
+  _TermsAndConditionsPageState createState() => _TermsAndConditionsPageState();
+}
+
+class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
+  bool _agreedToTerms = false;
+
+  void _toggleTermsAgreement(bool? value) {
+    setState(() {
+      _agreedToTerms = value!;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Terms and Conditions'),
+        ),
+        body: ListView(
+          padding: EdgeInsets.all(16.0),
+          children: <Widget>[
+            Text(
+              'Terms and Conditions',
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
+              style: TextStyle(fontSize: 16.0),
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
+              style: TextStyle(fontSize: 16.0),
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
+              style: TextStyle(fontSize: 16.0),
+            ),
+            SizedBox(height: 16.0),
+            CheckboxListTile(
+              value: _agreedToTerms,
+              onChanged: _toggleTermsAgreement,
+              title: Text('I agree to the terms and conditions'),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: !_agreedToTerms ? null : (){
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Congratulations!You have successfully complted your registration process, Please wait for 24-48 working hours for the verification process.")));
+                widget.registerState.clear();
+                if(Navigator.canPop(context)){
+                  Navigator.popUntil(context,(route)=>route.isFirst);
+                }else{
+                  Navigator.pushReplacementNamed(context, MainPage.routeName,arguments: true);
+                }
+              },
+              child: Text('Save'),
+            ),
+          ],
+        ),
+    );
+  }
+
+}
+

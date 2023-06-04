@@ -17,10 +17,13 @@ Future<List<serviceModel>> getServiceList(AuthProvider auth)async{
       );
       List<serviceModel> services=[];
     try{
+      CustomLogger.debug(response.data);
       for (var service in response.data["data"]){
         try{
           services.add(serviceModel.fromJson(service));
-        }catch(e){}
+        }catch(e){
+          CustomLogger.error(e);
+        }
       }
       return services;
     }
@@ -70,7 +73,7 @@ Future<bool> deleteService(AuthProvider auth,String serviceId)async{
   }
 }
 
-Future<bool> updateService(AuthProvider auth,String id,Map data)async{
+Future<bool> updateService(AuthProvider auth,String id,Map<String,dynamic> data)async{
   try{
     Response  response = await Dio().post("${APIConfig.baseUrl}/api/service-update",
       options: Options(
@@ -78,7 +81,7 @@ Future<bool> updateService(AuthProvider auth,String id,Map data)async{
             "Authorization":"Bearer ${auth.token}"
           }
       ),
-      data: data
+      data: FormData.fromMap(data)
     );
     CustomLogger.debug(response.data);
     return true;

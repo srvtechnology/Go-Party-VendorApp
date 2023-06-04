@@ -49,10 +49,8 @@ class serviceModel {
     try {
       Map? service_details = json["service_details"]??null;
       Map? category_details = json["category_details"]??null;
-      CustomLogger.debug(category_details);
       return serviceModel(
         id: json["id"].toString(),
-        categoryId: json["category"]??null,
         serviceId: json["service_id"].toString(),
         address: json["address"]??null,
         serviceName:service_details!=null?service_details["service"]??null:null,

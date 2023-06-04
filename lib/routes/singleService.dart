@@ -41,7 +41,6 @@ class _SingleServiceState extends State<SingleService> {
   final CustomFieldController _material = CustomFieldController(title: "Material Description", key: "material_desc");
   final CustomFieldController _address = CustomFieldController(title: "Address", key: "address");
   final CustomFieldController _price = CustomFieldController(title: "Price", key: "price");
-  final CustomFieldController _category = CustomFieldController(title: "Category", key: "category_id");
   final CustomFieldController _driverName = CustomFieldController(title: "Driver Name", key: "driver_name");
   final CustomFieldController _driverMob = CustomFieldController(title: "Driver Mobile Number", key: "driver_mobile_no");
   final CustomFieldController _driverKycType = CustomFieldController(title: "Driver Kyc Type", key: "driver_kyc_type");
@@ -54,7 +53,6 @@ class _SingleServiceState extends State<SingleService> {
   final CustomFieldController _city = CustomFieldController(title: "Driver City", key: "driver_city");
   final CustomFieldController _state = CustomFieldController(title: "Driver State", key: "driver_state");
 
-  final TextEditingController _categoryDescription = TextEditingController();
   final TextEditingController _priceBasis = TextEditingController();
   final TextEditingController _discountedPrice = TextEditingController();
   late List<CustomFieldController> controllers;
@@ -67,15 +65,16 @@ class _SingleServiceState extends State<SingleService> {
     super.initState();
     _service.controller.text = widget.service.serviceId??"1";
     controllers = [_service,_description,_material,_address,_price,
-      _category,_driverName,_driverMob,_driverKycType,
+      _driverName,_driverMob,_driverKycType,
       _driverKycNo,_licenseNo,_pinCode,_houseNo,_area,
       _landmark,_city,_state
     ];
   }
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
     return ListenableProvider(
-      create: (_)=>DropDownOptionProvider(auth: Provider.of<AuthProvider>(context)),
+      create: (_)=>DropDownOptionProvider(auth: auth),
       child: Consumer<AuthProvider>(
         builder:(context,state,child)=> Consumer<DropDownOptionProvider>(
           builder:(context,DropDownstate,child){
@@ -157,48 +156,18 @@ class _SingleServiceState extends State<SingleService> {
                               ),
                             ],
                           ),
-                          if(canEdit)
-                            ExpansionTile(
-                              key: GlobalKey(),
-                              title: Text(widget.service.serviceName??"Service"),
-                              children: DropDownstate.options!.serviceOptions.map(
-                                    (e) => ListTile(title: Text(e.service),onTap: (){
-                                  setState(() {
-                                    _service.controller.text = e.id ;
-                                    widget.service.serviceName = e.service ;
-                                  });
-                                },),).toList(),
-                            )
-                          else
                           Container(
                             alignment: Alignment.centerLeft,
                             height: 10.h,
                             margin: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
                             child: Text("${widget.service.serviceName}",style: Theme.of(context).textTheme.headlineSmall,),
                           ),
-                          if(canEdit)
-                            ExpansionTile(
-                              key: GlobalKey(),
-                              title: Text(widget.service.categoryName??"Category"),
-                              children: DropDownstate.options!.categoryOptions.map(
-                                    (e) => ListTile(title: Text(e.name),onTap: (){
-                                  setState(() {
-                                    _category.controller.text = e.id ;
-                                    widget.service.categoryName = e.name ;
-                                    widget.service.categoryDescription = e.description;
-                                  });
-                                },),).toList(),
-                            )
-                          else
-                            DetailTile("Category", widget.service.categoryName,controller: _category.controller),
-                          DetailTile("Category Description", widget.service.categoryDescription,controller: _categoryDescription,big: true,editable: false),
-                          SizedBox(height: 20,),
-                          Container(
+                           Container(
                             margin: EdgeInsets.symmetric(vertical: 5,horizontal: 20),
                             child: Text("General Information",style: Theme.of(context).textTheme.bodyMedium,),
                           ),
                           DetailTile("Description", widget.service.serviceDescription,controller: _description.controller,big: true),
-                          DetailTile("Address", widget.service.address,controller: _address.controller),
+                          DetailTile("Address", "${auth.user?.officeNumber??""}, ${auth.user?.officeLandmark??""}, ${auth.user?.officeArea}, ${auth.user?.officeCity}-${auth.user?.officeZip},${auth.user?.officeState??""},${auth.user?.officeCountry?.name??""}",controller: _address.controller,editable: false,big: true),
                           DetailTile("Material Description", widget.service.materialDescription,controller: _material.controller),
                           if(widget.service.imageUrls.isNotEmpty && canEdit)
                            Column(
@@ -257,7 +226,9 @@ class _SingleServiceState extends State<SingleService> {
                                     },
                                     child: Container(
                                       margin: EdgeInsets.symmetric(horizontal: 20),
-                                      width: 60.w,height: 80,child:CachedNetworkImage(imageUrl: "${APIConfig.baseUrl}/${imageUrl}/${e}",),),
+                                      width: 60.w,height: 80,child:CachedNetworkImage(
+                                      placeholder: (context,url)=>Container(alignment:Alignment.center,child: const CircularProgressIndicator()),
+                                      imageUrl: "${APIConfig.baseUrl}/${imageUrl}/${e}",),),
                                   )).toList(),
                                 ),
                               ),
@@ -328,9 +299,6 @@ class _SingleServiceState extends State<SingleService> {
                             Expanded(child:DetailTile("Price basis", widget.service.priceBasis,controller: _priceBasis,editable: false)),
                           ],
                           ),
-                          DetailTile("Discounted Price", widget.service.discountedPrice,controller: _discountedPrice,editable: false),
-                          SizedBox(height: 20,),
-
                           SizedBox(height: 20,),
                           if(widget.service.serviceName!.contains("car"))
                             Column(
@@ -425,7 +393,7 @@ class _SingleServiceState extends State<SingleService> {
       isLoading = true ;
     });
     CustomLogger.debug(widget.service.serviceId);
-      Map data = {"id":widget.service.id,"service_id":widget.service.serviceId};
+      Map<String,dynamic> data = {"id":widget.service.id,"service_id":widget.service.serviceId};
       if(videoPath!=null){
         data["video"]=await MultipartFile.fromFile(videoPath!);
       }
@@ -474,9 +442,9 @@ class _SingleServiceState extends State<SingleService> {
       )
   );
 }
-void deleteService(AuthProvider auth){
+void deleteService(AuthProvider auth)async{
     try{
-    serviceRepo.deleteService(auth, widget.service.id);
+    await serviceRepo.deleteService(auth, widget.service.id);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successful")));
     Navigator.pop(context);
     }

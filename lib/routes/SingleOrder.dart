@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:search_choices/search_choices.dart';
 import 'package:utsavlife/core/models/order.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
@@ -83,11 +86,11 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            height: 5.h,
+                            height: 6.h,
                             padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
                             child: Text("₹ ${singleOrderState.order!.amount}",style: Theme.of(context).textTheme.headlineSmall,),
                           ),
-                          SizedBox(height: 20,),
+                          SizedBox(height: 10,),
                           Container(
                             margin: EdgeInsets.symmetric(vertical: 5,horizontal: 20),
                             child: Text("General Information",style: Theme.of(context).textTheme.bodyMedium,),
@@ -111,7 +114,20 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                               Expanded(child: DetailTile("Time", singleOrderState.order!.timing!)),
                               Expanded(child: DetailTile("Days", singleOrderState.order!.days)),
                             ],
-                          )
+                          ),
+                          SizedBox(height: 10,),
+                          if(singleOrderState.order?.customer!=null)
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 5,horizontal: 20),
+                            child: Text("Customer Information",style: Theme.of(context).textTheme.bodyMedium,),
+                          ),
+                          Row(
+                            children: [
+                              Expanded(child:DetailTile("Name", singleOrderState.order!.customer?.name??"Not Set")),
+                              if(singleOrderState.order?.vendorOrderStatus==VendorOrderStatus.approved)
+                              Expanded(child:DetailTile("email", singleOrderState.order!.customer?.email??"Not Set")),
+                            ],
+                          ),
                         ],
                     )
                 );
@@ -265,7 +281,8 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
       margin: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
       child: TextFormField(
         decoration: InputDecoration(
-          labelText: header
+          labelText: header,
+          border: InputBorder.none
         ),
         initialValue: body,
         readOnly: true,

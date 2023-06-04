@@ -18,8 +18,8 @@ class CustomOrderItem extends StatefulWidget {
   bool showButtons;
   CustomOrderItem({
   Key? key,
-           this.ontap,
   required this.order,
+    this.ontap,
     this.showButtons=true
   }) : super(key: key);
 
@@ -112,7 +112,7 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
                    children: [
                      Text(widget.order.amount),
                      Text(widget.order.date),
-                     Text(widget.order.address.isEmpty?"Not set":widget.order.address.substring(0,15)),
+                     Text(widget.order.address.isEmpty?"Not set":widget.order.address.substring(0,8)),
                      Text(widget.order.days),
                    ],
                  ),
@@ -255,75 +255,64 @@ class CustomServiceItem extends StatelessWidget {
       onTap:(){
         Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleService(service: service,))).then((value) => state.getList());
       },
-      child: Container(
-          margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 5),
-          decoration:BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                    offset: Offset(0, 3),
-                    color: Colors.grey[400]!,
-                    blurRadius: 4
-                )
-              ]
-          ),
-          width: 100.w,
-          height: 30.h,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: Container(
-                decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20))
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Container(),
-                    Text("#${(index+1)}",style: TextStyle(color: Colors.white),),
-                  ],
-                ),
+      child: DefaultTextStyle(
+        style: TextStyle(fontSize: 16.sp,color: Colors.black),
+        child: Container(
+            margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 5),
+            decoration:BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                      offset: Offset(0, 3),
+                      color: Colors.grey[400]!,
+                      blurRadius: 4
+                  )
+                ]
+            ),
+            width: 100.w,
+            height: 20.h,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: Container(
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20))
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    children: [
+                      Container(),
+                      Text("#${(index+1)}",style: TextStyle(color: Colors.white),),
+                    ],
+                  ),
+                  )),
+                Expanded(flex: 3,child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 40),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Row(
+                        children: [
+                          SizedBox(width: 20.w,child: Text("Name:")),
+                          SizedBox(width: 10.w,),
+                          SizedBox(width: 30.w,child:Text(service.serviceName??"Not Set")),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(width: 20.w,child:Text("Price:")),
+                          SizedBox(width: 10.w,),
+                          SizedBox(width: 30.w,child:Text(service.price??"Not Set")),
+                        ],
+                      ),
+                    ],
+                  ),
                 )),
-              Expanded(flex: 4,child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 40),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(width: 20.w,child: Text("Name:")),
-                        SizedBox(width: 20.w,),
-                        SizedBox(width: 20.w,child:Text(service.serviceName??"Not Set")),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(width: 20.w,child:Text("Address: ")),
-                        SizedBox(width: 20.w,),
-                        SizedBox(width: 20.w,child:Text(service.address??"Not Set")),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(width: 20.w,child:Text("Category: ")),
-                        SizedBox(width: 20.w,),
-                        SizedBox(width: 20.w,child:Text(service.categoryName??"Not Set")),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(width: 20.w,child:Text("Price:")),
-                        SizedBox(width: 20.w,),
-                        SizedBox(width: 20.w,child:Text(service.price??"Not Set")),
-                      ],
-                    ),
-                  ],
-                ),
-              )),
-            ],
-          )
+              ],
+            )
+        ),
       ),
     );
   }

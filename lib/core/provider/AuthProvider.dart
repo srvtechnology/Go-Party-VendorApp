@@ -123,12 +123,14 @@ class AuthProvider with ChangeNotifier {
       "pan_card":_user!.panCardNumber,
       "kyc_type":_user!.kycType,
       "kyc_no":_user!.kycNumber,
+      "gst_no":_user!.gstNumber,
       "pin_code":_user!.zip,
       "house_no":_user!.houseNumber,
       "area":_user!.area,
       "landmark":_user!.landmark,
       "city":_user!.city,
       "state":_user!.state,
+      "country":_user!.country?.id
     });
     if(status == true){
       getUser();
@@ -141,14 +143,15 @@ class AuthProvider with ChangeNotifier {
 
   void editOfficeDetails()async{
     Map<String,dynamic> data = {
+
         "office_pincode":_user!.officeZip,
-        "office_house_no":_user!.houseNumber,
+        "office_house_no":_user!.officeNumber,
         "office_area" :_user!.officeArea,
         "office_landmark" :_user!.officeLandmark,
         "office_city" :_user!.officeCity,
         "office_state":_user!.officeState,
         "gst_no":_user!.gstNumber,
-        "office_country":_user!.officeCountry
+        "office_country":_user!.officeCountry!.id
       };
     bool status = await userRepo.edit_office_details(_token!, data);
     if(status == true){
@@ -183,7 +186,7 @@ class AuthProvider with ChangeNotifier {
 
     }
   }
-  void editProfileImage({required String profilePath})async{
+  Future<void> editProfileImage({required String profilePath})async{
     Map<String,dynamic> data={
       "img3":await MultipartFile.fromFile(profilePath)
     };

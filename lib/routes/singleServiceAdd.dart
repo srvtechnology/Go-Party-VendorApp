@@ -24,7 +24,6 @@ class AddServiceRoute extends StatefulWidget {
 }
 
 class _AddServiceRouteState extends State<AddServiceRoute> {
-  String categoryOption = "Select Category",categoryId="";
   String serviceOption = "Select Service",serviceId="";
 
   final _formKey = GlobalKey<FormState>();
@@ -52,7 +51,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
   late DropDownField selectedKyc;
 
   List<DropDownField> kyctypes = [
-    DropDownField(title: "Aadhar Card",value: "AD"),
+    DropDownField(title: "Aadhar",value: "AD"),
     DropDownField(title: "Voter Id",value: "VO"),
     DropDownField(title: "Passport",value: "PA"),
     DropDownField(title: "Driving License",value: "DL"),
@@ -101,17 +100,6 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                                     serviceId = e.id ;
                                   });
                                 },),).toList(),
-                        ),
-                        ExpansionTile(
-                          key: GlobalKey(),
-                          title: Text(categoryOption),
-                          children: state.options!.categoryOptions.map(
-                                (e) => ListTile(title: Text(e.name),onTap: (){
-                              setState(() {
-                                categoryOption = e.name ;
-                                categoryId = e.id;
-                              });
-                            },),).toList(),
                         ),
                         InputField("Company Name", _companyName),
                         InputField("Address", _companyAddress,autoComplete: true,state: mapState),
@@ -334,7 +322,6 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
   void createService(AuthProvider auth)async{
     if(_formKey.currentState!.validate()){
       Map<String,dynamic> serviceData = {
-        "category_id":categoryId,
         "service_id":serviceId,
         "company_name":_companyName.text,
         "address":_companyAddress.text,
@@ -361,7 +348,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       }
       CustomLogger.debug(serviceData);
       try{
-        serviceRepo.createService(auth, serviceData);
+        await serviceRepo.createService(auth, serviceData);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Service created successfully")));
         Navigator.pop(context);
       }

@@ -79,16 +79,9 @@ Future<List<OrderModel>> get_history_order_list(AuthProvider auth)async{
 
 Future<OrderModel> get_orderById(AuthProvider auth,String id)async{
   Response response;
-  Dio dio = new Dio();
-  (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
-      (HttpClient client) {
-    client.badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
-    return client;
-  };
   List<OrderModel> orders = [] ;
   try{
-    response = await dio.get("${APIConfig.baseUrl}/api/details-order/${id}",
+    response = await Dio().get("${APIConfig.baseUrl}/api/details-order/${id}",
         options: Options(
             headers: {
               "Authorization":"Bearer ${auth.token}"

@@ -1,11 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
+import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:search_choices/search_choices.dart';
 import 'package:utsavlife/core/components/filters.dart';
 import 'package:utsavlife/core/components/listItems.dart';
 import 'package:utsavlife/core/components/nav.dart';
@@ -13,6 +15,7 @@ import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/core/repo/auth.dart';
+import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/SingleOrder.dart';
 import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/notifications.dart';
@@ -228,11 +231,15 @@ class _ProfileState extends State<Profile> {
   bool ProfileEditMode = false ;
   bool OfficeEditMode = false ;
   bool DocumentsEditMode = false ;
+  String? profileImageLocal;
   bool BankEditMode = false ;
+  late Country selectedOfficeCountry;
+  late Country selectedCountry;
 
   String? passbookPath;
   String passbookUrl = "storage/app/public/vandor/checkbookOrPassbookImage";
-  final _formKey = GlobalKey<FormState>();
+  GlobalKey<FormState>
+  _formKey = GlobalKey<FormState>();
   List<DropDownField> kyctypes = [
     DropDownField(title: "Aadhar",value: "AD"),
     DropDownField(title: "Voter Id",value: "VO"),
@@ -263,6 +270,7 @@ class _ProfileState extends State<Profile> {
     "Landmark":new TextEditingController(),
     "State":new TextEditingController(),
     "City":new TextEditingController(),
+    "House Number":new TextEditingController(),
     "Calling Number":new TextEditingController(),
     "GST Number":new TextEditingController(),
     "Office Number":new TextEditingController(),
@@ -291,8 +299,11 @@ class _ProfileState extends State<Profile> {
   void initState() {
     super.initState();
     Provider.of<AuthProvider>(context,listen: false).getUser();
+    selectedOfficeCountry = Provider.of<AuthProvider>(context,listen: false).user?.officeCountry??Country(id:"101", name:"India");
+    selectedCountry = Country(id:"101", name:"India");
     selectedKyc = kyctypes.firstWhere((element) => element.value == Provider.of<AuthProvider>(context,listen: false).user!.kycType,orElse: ()=>kyctypes[0]);
     selectedAccountType = AccountTypes.firstWhere((element) => element.value == Provider.of<AuthProvider>(context,listen: false).user!.bankDetails?.accountType,orElse: ()=>AccountTypes[0]);
+    selectedCountry = Provider.of<AuthProvider>(context,listen: false).user?.country??Country(id:"101", name:"India");
   }
   @override
   Widget build(BuildContext context) {
@@ -363,6 +374,7 @@ class _ProfileState extends State<Profile> {
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
+        physics: ClampingScrollPhysics(),
         child: Column(
           children: [
             Container(
@@ -374,7 +386,6 @@ class _ProfileState extends State<Profile> {
               }, icon: Icon(Icons.edit,color: OfficeEditMode?Theme.of(context).primaryColor:null),),
             ),
             _CustomText(context, editMode:OfficeEditMode,title: "Office Phone Number",controllerKey: "Office Number",content: auth.user!.officeNumber ?? "",validatePhone:true),
-            _CustomText(context, editMode:OfficeEditMode,title: "GST Number",controllerKey: "GST Number",content: auth.user!.gstNumber ?? "",validatePhone:true),
             if(OfficeEditMode)
               Column(
                 children: [
@@ -382,12 +393,12 @@ class _ProfileState extends State<Profile> {
                   _CustomText(context, editMode:OfficeEditMode,title: "Landmark",controllerKey: "Office Landmark",content: auth.user!.officeLandmark ?? ""),
                   _CustomText(context, editMode:OfficeEditMode,title: "State",controllerKey: "Office State",content: auth.user!.officeState??""),
                   _CustomText(context, editMode:OfficeEditMode,title: "City",controllerKey: "Office City",content: auth.user!.officeCity??""),
-                  _CustomText(context, editMode:OfficeEditMode,title: "Country",controllerKey: "Office Country",content: auth.user!.officeCountry??""),
+                  _CustomText(context, editMode:OfficeEditMode,title: "Country",controllerKey: "Office Country",content: auth.user!.officeCountry?.name??"",isCountry: true,),
                   _CustomText(context, editMode:OfficeEditMode,title: "PinCode",controllerKey: "Office PinCode",content: auth.user!.officeZip ?? ""),
                 ],
               )
               else
-                _CustomText(context, title: "Address", content: "${auth.user!.officeLandmark}, ${auth.user!.officeArea}, ${auth.user!.officeCity}, ${auth.user!.officeState}, ${auth.user!.officeZip}", editMode: OfficeEditMode),
+                _CustomText(context, title: "Address", content: "${auth.user!.officeLandmark}, ${auth.user!.officeArea}, ${auth.user!.officeCity}, ${auth.user!.officeState}, ${auth.user!.officeCountry?.name??""},${auth.user!.officeZip}", editMode: OfficeEditMode),
               if(OfficeEditMode)
               Container(
                 alignment: Alignment.center,
@@ -555,10 +566,11 @@ class _ProfileState extends State<Profile> {
                 });
               }, icon: Icon(Icons.edit,color: ProfileEditMode?Theme.of(context).primaryColor:null),),
             ),
-            _CustomText(context, editMode:ProfileEditMode,title: "Name",content: auth.user!.name??"Not yet"),
+            _CustomText(context, editMode:ProfileEditMode,title: "Name",content: auth.user!.name??"Not yet",canEdit: false),
             _CustomText(context, editMode:ProfileEditMode,title: "Phone",content: auth.user!.mobileno??"",canEdit: false),
             _CustomText(context, editMode:ProfileEditMode,title: "Email",content: auth.user!.email,canEdit: false),
             _CustomText(context, editMode:ProfileEditMode,controllerKey: "PanCard Number",title: "Pan Number",content: auth.user!.panCardNumber??"",capitals:true),
+            _CustomText(context, editMode:ProfileEditMode,title: "GST Number",controllerKey: "GST Number",content: auth.user!.gstNumber ?? "",capitals: true),
             if(ProfileEditMode)
               Container(
               margin: EdgeInsets.symmetric(horizontal: 45),
@@ -584,15 +596,17 @@ class _ProfileState extends State<Profile> {
             if(ProfileEditMode)
               Column(
                 children: [
+                  _CustomText(context, editMode:ProfileEditMode,controllerKey: "House Number",title: "Flat / House / Building Number",content: auth.user!.area ?? ""),
                   _CustomText(context, editMode:ProfileEditMode,controllerKey: "Area",title: "Street/Sector/Village/Area",content: auth.user!.area ?? ""),
                   _CustomText(context, editMode:ProfileEditMode,title: "Landmark",content: auth.user!.landmark ?? ""),
                   _CustomText(context, editMode:ProfileEditMode,title: "City",content: auth.user!.city??""),
-                  _CustomText(context, editMode:ProfileEditMode,title: "PinCode",content: auth.user!.zip ?? ""),
                   _CustomText(context, editMode:ProfileEditMode,title: "State",content: auth.user!.state??""),
+                  _CustomText(context, editMode:ProfileEditMode,title: "Country",content: auth.user!.country?.name??"",isCountry: true,personal: true),
+                  _CustomText(context, editMode:ProfileEditMode,title: "PinCode",content: auth.user!.zip ?? ""),
                 ],
               )
             else
-              _CustomText(context, title: "Address", content: "${auth.user!.landmark??"hu"}, ${auth.user!.area??""}, ${auth.user!.city??""}, ${auth.user!.state??""},${auth.user!.zip ?? ""}", editMode: ProfileEditMode),
+              _CustomText(context, title: "Address", content: "${auth.user!.houseNumber}, ${auth.user!.landmark??"hu"}, ${auth.user!.area??""}, ${auth.user!.city??""}, ${auth.user!.state??""},${auth.user!.country?.name??"India"}, ${auth.user!.zip ?? ""}", editMode: ProfileEditMode),
             if(ProfileEditMode)
               Container(
                 alignment: Alignment.center,
@@ -669,14 +683,16 @@ class _ProfileState extends State<Profile> {
     auth.user!.name =textControllers["Name"]!.text;
     auth.user!.panCardNumber = textControllers["PanCard Number"]!.text;
     auth.user!.kycNumber = textControllers["Kyc Number"]!.text;
-    auth.user!.kycType = textControllers["Kyc Type"]!.text;
+    auth.user!.kycType = selectedKyc.value;
     auth.user!.zip = textControllers["PinCode"]!.text;
     auth.user!.area = textControllers["Area"]!.text;
     auth.user!.landmark = textControllers["Landmark"]!.text;
     auth.user!.state = textControllers["State"]!.text;
     auth.user!.city = textControllers["City"]!.text;
+    auth.user!.houseNumber = textControllers["House Number"]!.text;
+    auth.user!.country = selectedCountry ;
     auth.user!.callingNumber = textControllers["Calling Number"]!.text;
-    auth.user!.gstNumber = textControllers["Gst Number"]!.text;
+    auth.user!.gstNumber = textControllers["GST Number"]!.text;
   }
 
   void setOfficeChanges(AuthProvider auth){
@@ -686,8 +702,7 @@ class _ProfileState extends State<Profile> {
     auth.user!.officeLandmark = textControllers["Office Landmark"]!.text ;
     auth.user!.officeState = textControllers["Office State"]!.text ;
     auth.user!.officeCity=textControllers["Office City"]!.text ;
-    auth.user!.officeCountry=textControllers["Office Country"]!.text ;
-    auth.user!.gstNumber = textControllers["GST Number"]!.text;
+    auth.user!.officeCountry=selectedOfficeCountry;
   }
 
   Widget _CustomImage(BuildContext context,{required String imageUrl,required String title}){
@@ -705,7 +720,16 @@ class _ProfileState extends State<Profile> {
         margin: EdgeInsets.symmetric(horizontal: 20,vertical: 5),
         child: Row(
           children: [
-            Expanded(child: CircleAvatar(radius: 30,backgroundImage: imageUrl.isEmpty && imageUrl.endsWith("pdf")==false?null:CachedNetworkImageProvider(imageUrl))),
+            Expanded(
+              child: Container(
+              child: imageUrl.isEmpty && imageUrl.endsWith("pdf")==false?Text(""):
+        CachedNetworkImage(
+          errorWidget: (context,url,args){
+            return Icon(Icons.account_box,size: 50,);
+          },
+          placeholder: (context,url)=>const CircularProgressIndicator(),
+          imageUrl: imageUrl,)),
+            ),
             Expanded(flex: 5,child: Container(margin: EdgeInsets.symmetric(horizontal: 20),alignment: Alignment.centerLeft,child: Text(title)),),
             if(DocumentsEditMode)
             Expanded(flex: 2,child: Container(height:40,child: TextButton(onPressed: ()async{
@@ -729,7 +753,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _CustomText(BuildContext context,{required String title,String? controllerKey,required String content,required bool editMode,bool canEdit=true,bool capitals = false,bool accountConfirm=false,validatePhone=false}){
+  Widget _CustomText(BuildContext context,{required String title,String? controllerKey,required String content,required bool editMode,bool canEdit=true,bool capitals = false,bool accountConfirm=false,validatePhone=false,bool isCountry=false,bool personal=false}){
     if(controllerKey==null){
       controllerKey = title;
     }
@@ -742,7 +766,65 @@ class _ProfileState extends State<Profile> {
     return Container(
       margin:const EdgeInsets.symmetric(horizontal: 20),
       alignment: Alignment.centerLeft,
-      child: Column(
+      child:(isCountry&&editMode)?Container(
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Country",style: TextStyle(fontWeight: FontWeight.bold),),
+            Row(
+              children: [
+                Container(
+                  width: 40.w,
+                  alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child:Text(personal?selectedCountry.name:selectedOfficeCountry.name)),
+                Expanded(
+                  child: SearchChoices.single(
+                    isExpanded: true,
+                    searchFn: (String keyword,List<DropdownMenuItem> items){
+                      List<int> filtered=[];
+
+                      items
+                          .forEachIndexed((index,element) {
+                        if (element.value
+                            .name.toString().toLowerCase().startsWith(keyword.toLowerCase())){
+                          filtered.add(index);
+                        }
+
+                      });
+                      return filtered;
+                    },
+                    onChanged: (value){
+                      setState(() {
+                        selectedOfficeCountry = value ;
+                        if(personal){
+                          selectedCountry = value ;
+                        }
+                      });
+                    },
+                    value: personal?selectedCountry:selectedOfficeCountry,
+                    items: Countries.map((e) => DropdownMenuItem<Country>(child: Text(e["name"]),onTap: (){
+                      setState(() {
+                        textControllers[controllerKey]?.text = e["name"];
+                        if(personal){
+                          selectedCountry = Country(id: e["id"].toString(), name: e["name"]);
+
+                        }
+                        else
+                        selectedOfficeCountry = Country(id: e["id"].toString(), name: e["name"]);
+                      });
+                    },value: Country(id: e["id"].toString(), name: e["name"]),)).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      )
+          :
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(margin:const EdgeInsets.symmetric(vertical: 10),
@@ -782,22 +864,34 @@ class _ProfileState extends State<Profile> {
       onTap: (){
         showDialog(context: context, builder: (context)=>SimpleDialog(
           children: [
+            if(profileImageLocal!=null)
             Container(
               height: 30.h,
-              child: CircleAvatar(backgroundColor: Colors.black,backgroundImage: profileImage!=null?CachedNetworkImageProvider(profileImage):null,),
+              child: CircleAvatar(backgroundColor: Colors.black,backgroundImage: FileImage(File(profileImageLocal!)),),
+            )
+          else Container(
+              height: 30.h,
+              child: CircleAvatar(backgroundColor: Colors.black,backgroundImage: CachedNetworkImageProvider(profileImage!,errorListener: ()=>Icon(Icons.account_box))),
             ),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 10),
               child: OutlinedButton(onPressed: ()async{
                 XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
                 if(file!=null){
-                  auth.editProfileImage(profilePath: file.path);
-                  Navigator.pop(context);
+                  setState(() {
+                    profileImageLocal = file.path;
+                  });
+                  await auth.editProfileImage(profilePath: file.path);
                 }
               }, child: Text("Upload New Image")),
             )
           ],
-        ));
+        )).then((value){
+          auth.getUser();
+          setState(() {
+
+          });
+        });
       },
       child: Container(
         alignment: Alignment.center,
@@ -847,7 +941,7 @@ class _ProfileState extends State<Profile> {
               Expanded(
                 flex: 2,
                   child: Container(
-                child: Icon(Icons.verified,color: Colors.green,),
+                child: Icon(Icons.verified,color: Theme.of(context).primaryColor,),
               ))
             ],
           ),

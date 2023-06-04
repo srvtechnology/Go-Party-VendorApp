@@ -14,7 +14,18 @@ enum VendorOrderStatus{
   rejected,
   approved,
 }
-
+class CustomerDetailsModel {
+  String name;
+  String? email,phoneNumber;
+  CustomerDetailsModel({
+   required this.name,
+   this.email,
+   this.phoneNumber
+});
+  factory CustomerDetailsModel.fromJson(Map json){
+    return CustomerDetailsModel(name: json["name"], email: json["email"],phoneNumber: json["mobile"]);
+  }
+}
 class OrderModel {
   String id;
   String address;
@@ -27,6 +38,7 @@ class OrderModel {
   String? end_date;
   String? timing;
   String days;
+  CustomerDetailsModel? customer;
   VendorOrderStatus vendorOrderStatus ;
   OrderModel(
       {
@@ -38,6 +50,7 @@ class OrderModel {
         required this.amount,
         required this.vendorOrderStatus,
         required this.days,
+        this.customer,
         this.category,
         this.end_date,
         this.service_name,
@@ -81,13 +94,14 @@ class OrderModel {
     }catch(e){}
     return OrderModel(
         id: json["id"].toString(),
-        address: json["address"].toString(),
+        address: json["event_address"].toString(),
         latitude: json["lat"].toString(),
         longitude: json["long"].toString(),
         date:json["event_date"].toString(),
         amount: json["total_price"].toString(),
         vendorOrderStatus: tempStatus,
         days: json["days"].toString(),
+        customer: CustomerDetailsModel.fromJson(json["customer_details"]),
         timing: tempTiming,
         end_date:json["event_end_date"].toString(),
       service_name: tempServiceName,

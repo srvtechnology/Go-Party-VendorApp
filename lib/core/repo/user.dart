@@ -28,6 +28,7 @@ Future<bool> edit_profile(String token,Map updateFields)async{
   Response response;
   Dio dio = new Dio();
   try{
+    CustomLogger.debug(updateFields);
     response = await dio.post("${APIConfig.baseUrl}/api/vendor-profile-update",
         options: Options(
             headers: {
@@ -39,23 +40,18 @@ Future<bool> edit_profile(String token,Map updateFields)async{
     return true;
   }
   catch(e){
-    print(e);
+    if(e is DioError)
+      {
+        CustomLogger.error(e.response?.data);
+      }
     return false;
   }
 }
 
 
 Future<bool> edit_office_details(String token,Map updateFields)async{
-  Response response;
-  Dio dio = new Dio();
-  (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
-      (HttpClient client) {
-    client.badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
-    return client;
-  };
   try{
-    response = await dio.post("${APIConfig.baseUrl}/api/vendor-office-address-update",
+    Response response = await Dio().post("${APIConfig.baseUrl}/api/vendor-office-address-update",
         options: Options(
             headers: {
               "Authorization":"Bearer ${token}"
@@ -76,15 +72,8 @@ Future<bool> edit_office_details(String token,Map updateFields)async{
 
 Future<bool> edit_Document_details(String token,Map<String,dynamic> updateFields)async{
   Response response;
-  Dio dio = new Dio();
-  (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
-      (HttpClient client) {
-    client.badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
-    return client;
-  };
   try{
-    response = await dio.post("${APIConfig.baseUrl}/api/vendor-all-images-update",
+    response = await Dio().post("${APIConfig.baseUrl}/api/vendor-all-images-update",
         options: Options(
             headers: {
               "Authorization":"Bearer ${token}"
@@ -96,7 +85,10 @@ Future<bool> edit_Document_details(String token,Map<String,dynamic> updateFields
     return true;
   }
   catch(e){
-    print(e);
+    CustomLogger.error(e);
+    if (e is DioError){
+      CustomLogger.error(e.response?.data);
+    }
     return false;
   }
 }
