@@ -9,7 +9,7 @@ import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/otpProvider.dart';
 import 'package:utsavlife/core/utils/logger.dart';
 
-import '../provider/RegisterProvider.dart';
+import '../provider/AuthProvider.dart';
 
 Future<String> login(String email,String password)async{
   Response response;
@@ -21,9 +21,13 @@ Future<String> login(String email,String password)async{
         "password":password,
         "user_type":"vendor",
       }));
+      CustomLogger.debug(response.data);
       return response.data['result']['token'];
     }
     catch(e){
+    if(e is DioError){
+      CustomLogger.error(e.response!.data);
+    }
       return Future.error(e);
     }
 }
@@ -85,7 +89,7 @@ Future<String> resetPassword(String userId,String password,String otp)async{
     return Future.error(e);
   }
 }
-Future<bool> completeRegistration(RegisterProvider state,Map data)async{
+Future<bool> completeRegistration(AuthProvider state,Map data)async{
   try{
   Response response = await Dio().post("${APIConfig.baseUrl}/api/vedor-register-part-registration",
   data: data,
@@ -120,10 +124,10 @@ Future<bool> completeRegistration2(dynamic state,Map<String,dynamic> data)async{
     }
     return Future.error(e);
   }
-}Future<bool> completeRegistrationIntermediate(RegisterProvider state,Map data)async{
+}Future<bool> completeRegistrationIntermediate(AuthProvider state,Map<String,dynamic> data)async{
   try{
     Response response = await Dio().post("${APIConfig.baseUrl}/api/vendor-register-part-two-registration",
-        data: data,
+        data: FormData.fromMap(data),
         options: Options(headers: {
           "Authorization":"Bearer ${state.token}"
         })
@@ -138,7 +142,7 @@ Future<bool> completeRegistration2(dynamic state,Map<String,dynamic> data)async{
     return Future.error(e);
   }
 }
-Future<bool> completeRegistration3(RegisterProvider state,Map<String,dynamic> data)async{
+Future<bool> completeRegistration3(AuthProvider state,Map<String,dynamic> data)async{
   try{
     CustomLogger.debug(data);
     Response response = await Dio().post("${APIConfig.baseUrl}/api/vendor-register-part-four-registration",
@@ -155,5 +159,25 @@ Future<bool> completeRegistration3(RegisterProvider state,Map<String,dynamic> da
       CustomLogger.error(e.response?.data);
     }
     return Future.error(e);
+  }
+}
+
+Future completeRegistrationTerms(AuthProvider auth)async{
+  try{
+    Response res = await Dio()
+        .post("${APIConfig.baseUrl}/api/update-terms-condition-register-status",
+        data: {
+          "vendor_reg_part":7
+        },
+        options: Options(headers: {
+          "Authorization":"Bearer ${auth.token}"
+        })
+    );
+  }catch(e){
+    if(e is DioError){
+      CustomLogger.error(e.response?.data);
+    }
+    return Future.error(e);
+
   }
 }

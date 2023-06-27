@@ -1,13 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:collection/collection.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:search_choices/search_choices.dart';
 import 'package:utsavlife/core/components/filters.dart';
 import 'package:utsavlife/core/components/listItems.dart';
 import 'package:utsavlife/core/components/nav.dart';
@@ -24,6 +24,7 @@ import 'package:utsavlife/routes/servicelist.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
 import '../core/models/dropdown.dart';
 import '../core/models/order.dart';
+import '../core/utils/scaling.dart';
 import 'mainpage.dart';
 import 'dart:io';
 class Homepage extends StatefulWidget {
@@ -238,8 +239,10 @@ class _ProfileState extends State<Profile> {
 
   String? passbookPath;
   String passbookUrl = "storage/app/public/vandor/checkbookOrPassbookImage";
-  GlobalKey<FormState>
-  _formKey = GlobalKey<FormState>();
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  GlobalKey<FormState> _docFormKey = GlobalKey<FormState>();
+  GlobalKey<FormState> _bankFormKey = GlobalKey<FormState>();
+  GlobalKey<FormState> _officeFormKey = GlobalKey<FormState>();
   List<DropDownField> kyctypes = [
     DropDownField(title: "Aadhar",value: "AD"),
     DropDownField(title: "Voter Id",value: "VO"),
@@ -255,7 +258,7 @@ class _ProfileState extends State<Profile> {
     DropDownField(title: "Recurring Deposit Account",value: "recurring"),
     DropDownField(title: "NRI Account",value: "nri"),
   ];
-
+  bool profileImageloading= false;
   late DropDownField selectedAccountType;
   Map<String,TextEditingController> textControllers = {
     "Email":new TextEditingController(),
@@ -274,6 +277,7 @@ class _ProfileState extends State<Profile> {
     "Calling Number":new TextEditingController(),
     "GST Number":new TextEditingController(),
     "Office Number":new TextEditingController(),
+    "Office Phone":new TextEditingController(),
     "Office PinCode":new TextEditingController(),
     "Office Area":new TextEditingController(),
     "Office Landmark":new TextEditingController(),
@@ -294,7 +298,6 @@ class _ProfileState extends State<Profile> {
     "Vendor":null
   };
   late DropDownField selectedKyc;
-
   @override
   void initState() {
     super.initState();
@@ -317,64 +320,64 @@ class _ProfileState extends State<Profile> {
           child: DefaultTabController(
               length: 4,
             child: Column(
-              children: [
-                _ProfileHeader(context,auth,auth.user!.name,auth.user!.email,auth.user!.vendorUrl),
-                SizedBox(height: 30,),
-                TabBar(
-                  indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Theme.of(context).primaryColorDark,
-                    boxShadow: [
-                      BoxShadow(
-                        offset: Offset(1,1),
-                        color: Colors.grey,
-                        blurRadius: 2
-                      )
-                    ]
-                  ),
-                    tabs: [
-                  Tab(child: Text("Personal",style: TextStyle(color: Colors.black,fontSize: 14.sp),),),
-                  Tab(child: Text("Office",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
-                  Tab(child: Text("Bank",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
-                  Tab(child: Text("Doc",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
-                ]),
-                SizedBox(height: 30,),
-                Expanded(child: Container(
-                  margin: EdgeInsets.only(top: 10),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                            offset: Offset(3,3),
-                            color: Colors.grey[300]!,
-                          blurRadius: 2
-                        ),
-                        BoxShadow(
-                            offset: Offset(-3,-3),
-                            color: Colors.grey[300]!,
-                          blurRadius: 2
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(15)
-                  ),
-                  child: TabBarView(children: [
-                  _PersonalInfo(auth),
-                  _OfficeInfo(auth),
-                  SingleChildScrollView(child: _BankDetailsInfo(auth)),
-                  _DocumentInfo(auth),
-                ],),))
+                  children: [
+             _ProfileHeader(context,auth,auth.user!.name,auth.user!.email,auth.user!.vendorUrl),
+             SizedBox(height: 10,),
+             Expanded(child: Container(
+               margin: EdgeInsets.only(top: 10),
+               decoration: BoxDecoration(
+                   color: Colors.white,
+                   boxShadow: [
+                     BoxShadow(
+                         offset: Offset(3,3),
+                         color: Colors.grey[300]!,
+                       blurRadius: 2
+                     ),
+                     BoxShadow(
+                         offset: Offset(-3,-3),
+                         color: Colors.grey[300]!,
+                       blurRadius: 2
+                     ),
+                   ],
+                   borderRadius: BorderRadius.circular(15)
+               ),
+               child: Column(
+                 children: [
+                   Expanded(
+                     child:  Container(
+                       margin: EdgeInsets.all(10),
+                       child: TabBar(
+                           tabs: [
+                             Tab(child: Text("Personal",style: TextStyle(color: Colors.black,fontSize: 14.sp),),),
+                             Tab(child: Text("Office",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
+                             Tab(child: Text("Bank",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
+                             Tab(child: Text("Doc",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
+                           ]),
+                     ),
+                   ),
+                   Expanded(
+                     flex: 5,
+                     child: TabBarView(children: [
+                     _PersonalInfo(auth),
+                     _OfficeInfo(auth),
+                     SingleChildScrollView(child: _BankDetailsInfo(auth)),
+                     _DocumentInfo(auth),
+             ],),
+                   ),
+                 ],
+               ),))
 
-              ],
-            )
+                  ],
+                )
           ),
       );}
     );
   }
   Widget _OfficeInfo(AuthProvider auth){
     return Form(
-      key: _formKey,
+      key: _officeFormKey,
       child: SingleChildScrollView(
-        physics: ClampingScrollPhysics(),
+        physics: OfficeEditMode?ClampingScrollPhysics():NeverScrollableScrollPhysics(),
         child: Column(
           children: [
             Container(
@@ -385,20 +388,21 @@ class _ProfileState extends State<Profile> {
                 });
               }, icon: Icon(Icons.edit,color: OfficeEditMode?Theme.of(context).primaryColor:null),),
             ),
-            _CustomText(context, editMode:OfficeEditMode,title: "Office Phone Number",controllerKey: "Office Number",content: auth.user!.officeNumber ?? "",validatePhone:true),
+            _CustomText(context, editMode:OfficeEditMode,title: "Phone Number",controllerKey: "Office Phone",content: auth.user!.officePhone ?? "",validatePhone:true),
             if(OfficeEditMode)
               Column(
                 children: [
+                  _CustomText(context, editMode:OfficeEditMode,title: "Flat / House / Building Number",controllerKey: "Office Number",content: auth.user!.officeNumber ?? ""),
                   _CustomText(context, editMode:OfficeEditMode,title: "Street/Sector/Village/Area",controllerKey: "Office Area",content: auth.user!.officeArea ?? ""),
                   _CustomText(context, editMode:OfficeEditMode,title: "Landmark",controllerKey: "Office Landmark",content: auth.user!.officeLandmark ?? ""),
-                  _CustomText(context, editMode:OfficeEditMode,title: "State",controllerKey: "Office State",content: auth.user!.officeState??""),
                   _CustomText(context, editMode:OfficeEditMode,title: "City",controllerKey: "Office City",content: auth.user!.officeCity??""),
+                  _CustomText(context, editMode:OfficeEditMode,title: "PinCode",controllerKey: "Office PinCode",content: auth.user!.officeZip ?? "",isPin:true),
+                  _CustomText(context, editMode:OfficeEditMode,title: "State",controllerKey: "Office State",content: auth.user!.officeState??""),
                   _CustomText(context, editMode:OfficeEditMode,title: "Country",controllerKey: "Office Country",content: auth.user!.officeCountry?.name??"",isCountry: true,),
-                  _CustomText(context, editMode:OfficeEditMode,title: "PinCode",controllerKey: "Office PinCode",content: auth.user!.officeZip ?? ""),
                 ],
               )
               else
-                _CustomText(context, title: "Address", content: "${auth.user!.officeLandmark}, ${auth.user!.officeArea}, ${auth.user!.officeCity}, ${auth.user!.officeState}, ${auth.user!.officeCountry?.name??""},${auth.user!.officeZip}", editMode: OfficeEditMode),
+                _CustomText(context, title: "Address", content: "${auth.user!.officeNumber}, ${auth.user!.officeLandmark}, ${auth.user!.officeArea}, ${auth.user!.officeCity}, ${auth.user!.officeZip}, ${auth.user!.officeState}, ${auth.user!.officeCountry?.name??""}", editMode: OfficeEditMode),
               if(OfficeEditMode)
               Container(
                 alignment: Alignment.center,
@@ -407,7 +411,7 @@ class _ProfileState extends State<Profile> {
                       side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
                   ),
                   onPressed: () {
-                    if(_formKey.currentState!.validate()){
+                    if(_officeFormKey.currentState!.validate()){
                       setOfficeChanges(auth);
                       auth.editOfficeDetails();
                       setState(() {
@@ -442,7 +446,7 @@ class _ProfileState extends State<Profile> {
     )
     :
       Form(
-        key: _formKey,
+        key: _bankFormKey,
         child: Column(
           children: [
             Container(
@@ -457,27 +461,36 @@ class _ProfileState extends State<Profile> {
             _CustomText(context, editMode:BankEditMode,title: "Account Number",content: auth.user!.bankDetails?.accountNumber ?? "",accountConfirm: true),
             if(BankEditMode)
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 25),
+                margin: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text("Account Type",style: TextStyle(fontWeight: FontWeight.bold),),
                     Expanded(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: DropdownButton(
-                          isExpanded: true,
-                          value: selectedAccountType,
-                          items: AccountTypes.map((e)=>DropdownMenuItem(child: Text(e.title,style: TextStyle(fontSize: 15.sp),),value: e,)).toList(),
-                          onChanged: (_){
-                            setState(() {
-                              textControllers["Account Type"]?.text = _!.value ;
-                              selectedAccountType = _! ;
-                            });
-                          },
-
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          label:Container(
+                            margin: const EdgeInsets.only(left: 20),
+                            child: Text("Account Type"),
+                          ),
+                            contentPadding: EdgeInsets.symmetric(horizontal:0),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                  )
+                    ),
+                        child: ExpansionTile(
+                          trailing:Text(""),
+                          key: GlobalKey(),
+                          title: Text(selectedAccountType.title),
+                          children: AccountTypes.map((e) => ListTile(
+                            onTap: (){
+                              setState(() {
+                                selectedAccountType = e ;
+                              });
+                            },
+                            title: Text(e.title),
+                          )).toList(),
                         ),
-                      ),
+                      )
                     ),
                   ],
                 ),
@@ -512,7 +525,7 @@ class _ProfileState extends State<Profile> {
                       side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
                   ),
                   onPressed: () {
-                    if(_formKey.currentState!.validate()){
+                    if(_bankFormKey.currentState!.validate()){
                       setBankChanges(auth);
                       setState(() {
                         BankEditMode = false ;
@@ -600,13 +613,13 @@ class _ProfileState extends State<Profile> {
                   _CustomText(context, editMode:ProfileEditMode,controllerKey: "Area",title: "Street/Sector/Village/Area",content: auth.user!.area ?? ""),
                   _CustomText(context, editMode:ProfileEditMode,title: "Landmark",content: auth.user!.landmark ?? ""),
                   _CustomText(context, editMode:ProfileEditMode,title: "City",content: auth.user!.city??""),
+                  _CustomText(context, editMode:ProfileEditMode,title: "PinCode",content: auth.user!.zip ?? "",isPin:true),
                   _CustomText(context, editMode:ProfileEditMode,title: "State",content: auth.user!.state??""),
                   _CustomText(context, editMode:ProfileEditMode,title: "Country",content: auth.user!.country?.name??"",isCountry: true,personal: true),
-                  _CustomText(context, editMode:ProfileEditMode,title: "PinCode",content: auth.user!.zip ?? ""),
                 ],
               )
             else
-              _CustomText(context, title: "Address", content: "${auth.user!.houseNumber}, ${auth.user!.landmark??"hu"}, ${auth.user!.area??""}, ${auth.user!.city??""}, ${auth.user!.state??""},${auth.user!.country?.name??"India"}, ${auth.user!.zip ?? ""}", editMode: ProfileEditMode),
+              _CustomText(context, title: "Address", content: "${auth.user!.houseNumber}, ${auth.user!.landmark??"hu"}, ${auth.user!.area??""}, ${auth.user!.city??""}, ${auth.user!.zip ?? ""}, ${auth.user!.state??""},${auth.user!.country?.name??"India"}", editMode: ProfileEditMode),
             if(ProfileEditMode)
               Container(
                 alignment: Alignment.center,
@@ -615,13 +628,14 @@ class _ProfileState extends State<Profile> {
                       side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
                   ),
                   onPressed: () {
-                    setUserProfileChanges(auth);
-                    auth.editProfile();
-                    setState(() {
-                      ProfileEditMode=false;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
-
+                    if(_formKey.currentState!.validate()){
+                      setUserProfileChanges(auth);
+                      auth.editProfile();
+                      setState(() {
+                        ProfileEditMode=false;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Successfully updated")));
+                    }
                   },
                   child: Text("Save"),
                 ),
@@ -634,7 +648,7 @@ class _ProfileState extends State<Profile> {
   Widget _DocumentInfo(AuthProvider auth){
     return SingleChildScrollView(
       child: Form(
-        key: _formKey,
+        key: _docFormKey,
         child: Column(
           children: [
             Container(
@@ -645,10 +659,7 @@ class _ProfileState extends State<Profile> {
                 });
               }, icon: Icon(Icons.edit,color: DocumentsEditMode?Theme.of(context).primaryColor:null),),
             ),
-            _CustomImage(context, imageUrl: auth.user!.panCardUrl??"", title: "Pan Card"),
-            _CustomImage(context, imageUrl: auth.user!.kycUrl??"", title: "KYC"),
             _CustomImage(context, imageUrl: auth.user!.gstUrl??"", title: "GST"),
-             _CustomImage(context, imageUrl: auth.user!.vendorUrl??"", title: "Vendor"),
             if(DocumentsEditMode)
               Container(
                 alignment: Alignment.center,
@@ -657,7 +668,7 @@ class _ProfileState extends State<Profile> {
                       side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
                   ),
                   onPressed: () async{
-                        if(_formKey.currentState!.validate()) {
+                        if(_docFormKey.currentState!.validate()) {
                           auth.editDocument(panPath: imgPath["Pan Card"],
                               kycPath: imgPath["KYC"],
                               vendorPath: imgPath["Vendor"],
@@ -696,6 +707,7 @@ class _ProfileState extends State<Profile> {
   }
 
   void setOfficeChanges(AuthProvider auth){
+    auth.user!.officePhone = textControllers["Office Phone"]!.text ;
     auth.user!.officeNumber = textControllers["Office Number"]!.text ;
     auth.user!.officeZip = textControllers["Office PinCode"]!.text ;
     auth.user!.officeArea = textControllers["Office Area"]!.text ;
@@ -720,14 +732,18 @@ class _ProfileState extends State<Profile> {
         margin: EdgeInsets.symmetric(horizontal: 20,vertical: 5),
         child: Row(
           children: [
+            if(imgPath[title]!=null)
+          Expanded(
+              child: Container(
+              child: Image.file(File(imgPath[title]!))))
+        else
             Expanded(
               child: Container(
-              child: imageUrl.isEmpty && imageUrl.endsWith("pdf")==false?Text(""):
-        CachedNetworkImage(
+              child: (imageUrl.isEmpty && imageUrl.endsWith("pdf")==false)?Text(""):CachedNetworkImage(
           errorWidget: (context,url,args){
             return Icon(Icons.account_box,size: 50,);
           },
-          placeholder: (context,url)=>const CircularProgressIndicator(),
+          placeholder: (context,url)=>Container(alignment: Alignment.center,child: const CircularProgressIndicator()),
           imageUrl: imageUrl,)),
             ),
             Expanded(flex: 5,child: Container(margin: EdgeInsets.symmetric(horizontal: 20),alignment: Alignment.centerLeft,child: Text(title)),),
@@ -753,11 +769,18 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _CustomText(BuildContext context,{required String title,String? controllerKey,required String content,required bool editMode,bool canEdit=true,bool capitals = false,bool accountConfirm=false,validatePhone=false,bool isCountry=false,bool personal=false}){
+  Widget _CustomText(BuildContext context,{required String title,String? controllerKey,required String content,required bool editMode,bool canEdit=true,bool capitals = false,bool accountConfirm=false,validatePhone=false,bool isCountry=false,bool personal=false,bool isPin=false}){
     if(controllerKey==null){
       controllerKey = title;
     }
+    if(content.isEmpty){
+      content = "Not Set";
+    }
+
     if(validatePhone){
+      if (editMode && (content.isEmpty || content=="Not Set")){
+        content="+91";
+      }
       if(!textControllers[controllerKey]!.text.contains("+91")){
         textControllers[controllerKey]?.text = "+91"+ textControllers[controllerKey]!.text;
       }
@@ -768,58 +791,36 @@ class _ProfileState extends State<Profile> {
       alignment: Alignment.centerLeft,
       child:(isCountry&&editMode)?Container(
         alignment: Alignment.centerLeft,
-        padding: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Country",style: TextStyle(fontWeight: FontWeight.bold),),
+            SizedBox(height: 20,),
             Row(
               children: [
-                Container(
-                  width: 40.w,
-                  alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child:Text(personal?selectedCountry.name:selectedOfficeCountry.name)),
                 Expanded(
-                  child: SearchChoices.single(
-                    isExpanded: true,
-                    searchFn: (String keyword,List<DropdownMenuItem> items){
-                      List<int> filtered=[];
+                  child: DropdownSearch<Country>(
+                    selectedItem: personal?selectedCountry:selectedOfficeCountry,
+                    onChanged: (country){
+                      if(personal){
+                        setState(() {
+                          selectedCountry = country! ;
+                        });
+                      }else{
+                        setState(() {
+                          selectedOfficeCountry = country! ;
+                        });
+                      }
 
-                      items
-                          .forEachIndexed((index,element) {
-                        if (element.value
-                            .name.toString().toLowerCase().startsWith(keyword.toLowerCase())){
-                          filtered.add(index);
-                        }
-
-                      });
-                      return filtered;
                     },
-                    onChanged: (value){
-                      setState(() {
-                        selectedOfficeCountry = value ;
-                        if(personal){
-                          selectedCountry = value ;
-                        }
-                      });
-                    },
-                    value: personal?selectedCountry:selectedOfficeCountry,
-                    items: Countries.map((e) => DropdownMenuItem<Country>(child: Text(e["name"]),onTap: (){
-                      setState(() {
-                        textControllers[controllerKey]?.text = e["name"];
-                        if(personal){
-                          selectedCountry = Country(id: e["id"].toString(), name: e["name"]);
-
-                        }
-                        else
-                        selectedOfficeCountry = Country(id: e["id"].toString(), name: e["name"]);
-                      });
-                    },value: Country(id: e["id"].toString(), name: e["name"]),)).toList(),
+                    items: Countries.map((e) => Country(id: e["id"].toString(), name: e["name"])).toList(),
                   ),
                 ),
+
               ],
             ),
+            SizedBox(height: 20,),
+
           ],
         ),
       )
@@ -829,14 +830,19 @@ class _ProfileState extends State<Profile> {
         children: [
           Container(margin:const EdgeInsets.symmetric(vertical: 10),
               child: editMode?TextFormField(
-                keyboardType: validatePhone||accountConfirm?TextInputType.phone:TextInputType.text,
+                keyboardType: validatePhone||accountConfirm||isPin?TextInputType.phone:TextInputType.text,
                 validator: (text){
                   if(text==null || text.isEmpty) return "Required";
                   if(accountConfirm){
                     if(text.length<12 ||text.length>20)return "Enter Valid Account Number";
                   }
                   if(validatePhone){
-                    if(text.length<10)return "Enter valid Number";
+                    if(text.length<10 || text.length>13)return "Enter valid Number";
+                  }
+                  if(isPin){
+                    if (text.length!=6){
+                      return "Please enter a 6 digit valid pincode";
+                    }
                   }
                 },
                 textCapitalization: capitals?TextCapitalization.characters:TextCapitalization.none,
@@ -861,36 +867,72 @@ class _ProfileState extends State<Profile> {
 
   Widget _ProfileHeader(BuildContext context,AuthProvider auth,String name,String email,String? profileImage){
     return GestureDetector(
-      onTap: (){
-        showDialog(context: context, builder: (context)=>SimpleDialog(
-          children: [
-            if(profileImageLocal!=null)
-            Container(
-              height: 30.h,
-              child: CircleAvatar(backgroundColor: Colors.black,backgroundImage: FileImage(File(profileImageLocal!)),),
-            )
-          else Container(
-              height: 30.h,
-              child: CircleAvatar(backgroundColor: Colors.black,backgroundImage: CachedNetworkImageProvider(profileImage!,errorListener: ()=>Icon(Icons.account_box))),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: OutlinedButton(onPressed: ()async{
-                XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
-                if(file!=null){
-                  setState(() {
-                    profileImageLocal = file.path;
-                  });
-                  await auth.editProfileImage(profilePath: file.path);
-                }
-              }, child: Text("Upload New Image")),
-            )
-          ],
-        )).then((value){
-          auth.getUser();
-          setState(() {
+      onTap: ()async{
+        await showDialog(context: context, builder:(context){
+          return StatefulBuilder(
+            builder: (context,setState) {
+              return SimpleDialog(
+                children: [
+                  if(profileImageLocal!=null)
+                    Container(
+                      height: 25.h,
+                      child: CircleAvatar(backgroundColor: Colors.black,backgroundImage: FileImage(File(profileImageLocal!)),),
+                    )
+                  else Container(
+                    height: 25.h,
+                    child: CircleAvatar(backgroundColor: Colors.black,backgroundImage: CachedNetworkImageProvider(profileImage??"",errorListener: ()=>Icon(Icons.account_box))),
+                  ),
+                  SizedBox(height: 20,),
+                  if (profileImageloading)
+                    Container(
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator(),
+                    )
+                  else
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: OutlinedButton(onPressed: ()async{
+                            XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+                            if(file!=null){
+                              setState(() {
+                                profileImageLocal=file.path;
+                              });
+                            }
+                          }, child: Text("Select New Image",style: TextStyle(fontSize: 14.sp),)),
+                        ),
+                      ),
+                      if(profileImageLocal!=null)
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: OutlinedButton(onPressed: ()async{
+                              if(profileImageLocal!=null)
+                              {
+                                setState((){
+                                  profileImageloading=true;
+                                });
+                                await auth.editProfileImage(profilePath: profileImageLocal!);
+                                await auth.getUser();
+                                Navigator.pop(context);
+                              }
 
-          });
+                            }, child: Text("Save")),
+                          ),
+                        ),
+                    ],
+                  )
+                ],
+              );
+            }
+          );
+        });
+        setState(() {
+          profileImageLocal=null;
+          profileImageloading=false;
         });
       },
       child: Container(
@@ -934,7 +976,8 @@ class _ProfileState extends State<Profile> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(name,style: Theme.of(context).textTheme.headlineSmall,),
-                    Text(email,),
+                    Text(email,style: Theme.of(context).textTheme.bodySmall,
+                      textAlign: TextAlign.center,textScaleFactor: ScaleSize.textScaleFactor(context),),
                   ],
                 ),
               )),
@@ -970,78 +1013,66 @@ class _HistoryState extends State<History> {
   }
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: double.infinity,
-        width: double.infinity,
-        padding:const EdgeInsets.all(10),
-        child: Column(children: [
-          Expanded(
-            flex: 4,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey[400]!,
-                    offset: Offset(0,2),
-                    blurRadius: 6
-                  )
-                ]
-              ),
-              alignment: Alignment.centerLeft,
-              margin:const EdgeInsets.symmetric(vertical: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child:Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Filter(onsearch: (String searchItem) {
-                    setState(() {
-                      searchitem = searchItem ;
-                      context.read<HistoryOrderProvider>().load_history_orders();
-                    });
-                  },onstatusSelect: (VendorOrderStatus? status) {
-                    setState(() {
-                      orderStatus=status;
-                      context.read<HistoryOrderProvider>().load_history_orders();
-                    });
-                  },),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.only(left: 20),
-                    child: Text("History Orders",style: TextStyle(fontSize: 16.sp,fontWeight: FontWeight.bold),),
-                  ),
-                ],
-              ))
-          ),
-          Expanded(flex: 16,child: Consumer<HistoryOrderProvider>(
-            builder: (context,orderState,child){
-              if(orderState.isLoading){
-                return Container(
-                  alignment: Alignment.topCenter,
-                  child:const CircularProgressIndicator(),
+    return NestedScrollView(
+      floatHeaderSlivers: true,
+      headerSliverBuilder: (context,isScrolled){
+        return [
+          SliverAppBar(
+            automaticallyImplyLeading: false,
+            floating: true,
+            snap: true,
+            expandedHeight: 70,
+            elevation: 1,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            title: Filter(onsearch: (String searchItem) {
+              setState(() {
+                searchitem = searchItem ;
+              });
+              context.watch<HistoryOrderProvider>().load_history_orders();
+            },onstatusSelect: (VendorOrderStatus? status) {
+              setState(() {
+                orderStatus=status;
+              });
+              context.watch<HistoryOrderProvider>().load_history_orders();
+            },),
+            centerTitle: true,
+          )
+        ];
+      },
+      body: Container(
+          height: double.infinity,
+          width: double.infinity,
+          padding:const EdgeInsets.all(10),
+          child: Column(children: [
+            Expanded(flex: 16,child: Consumer<HistoryOrderProvider>(
+              builder: (context,orderState,child){
+                if(orderState.isLoading){
+                  return Container(
+                    alignment: Alignment.topCenter,
+                    child:const CircularProgressIndicator(),
+                  );
+                }
+                else if(orderState.orders.isEmpty){
+                  return Container(
+                    margin: EdgeInsets.all(10),
+                    child: Text("No History"),
+                  );
+                }
+                return SingleChildScrollView(
+                  child: Column(
+                      children:orderState.orders.where((element) => (element.amount.contains(searchitem)|| element.service_name!.toLowerCase().contains(searchitem.toLowerCase())))
+                          .where((element) {
+                        if(orderStatus==null)return true;
+                        return element.vendorOrderStatus == orderStatus ;
+                      }).map((e) => CustomOrderItem(showButtons: false,order: e,ontap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: true,))).then((value) => refresh(context));
+                      },)).toList()),
                 );
-              }
-              else if(orderState.orders.isEmpty){
-                return Container(
-                  margin: EdgeInsets.all(10),
-                  child: Text("No History"),
-                );
-              }
-              return SingleChildScrollView(
-                child: Column(
-                    children:orderState.orders.where((element) => element.amount.contains(searchitem))
-                        .where((element) {
-                      if(orderStatus==null)return true;
-                      return element.vendorOrderStatus == orderStatus ;
-                    }).map((e) => CustomOrderItem(showButtons: false,order: e,ontap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: true,))).then((value) => refresh(context));
-                    },)).toList()),
-              );
-            },
-          ))
+              },
+            ))
 
-        ]),
+          ]),
+      ),
     );
   }
 }
@@ -1069,78 +1100,62 @@ class _OrdersState extends State<Orders> {
   }
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: double.infinity,
-      width: double.infinity,
-      padding:const EdgeInsets.all(10),
-      child: Column(children: [
-        Expanded(
-            flex: 4,
-            child: Container(
-          decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.grey[400]!,
-                    offset: Offset(0,2),
-                    blurRadius: 6
-                )
-              ]
-          ),
-          alignment: Alignment.centerLeft,
-          margin:const EdgeInsets.symmetric(vertical: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Filter2(onsearch: (String searchItem) {
-                setState(() {
-                  searchitem = searchItem;
-                  context.read<UpcomingOrderProvider>().load_upcoming_orders();
-                },);
-              }, onstatusSelect: (VendorOrderStatus? status) {
-                setState(() {
-                orderStatus=status;
-                context.read<UpcomingOrderProvider>().load_upcoming_orders();
-                });
-              },),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(left: 20,),
-                child: Text("Upcoming Orders",style: TextStyle(fontSize: 16.sp,fontWeight: FontWeight.bold),),
-              ),
-            ],
-          ),
-        )),
-
-        Expanded(flex: 16,child: Consumer<UpcomingOrderProvider>(
-          builder: (context,orderState,child){
-            if(orderState.isLoading){
-              return Container(
-                alignment: Alignment.topCenter,
-                child:const CircularProgressIndicator(),
+    return NestedScrollView(
+      floatHeaderSlivers: true,
+      headerSliverBuilder: (context,isScrolled)=> [
+        SliverAppBar(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          floating: true,
+          snap: true,
+          title: Filter2(onsearch: (String searchItem) {
+            setState(() {
+              searchitem = searchItem;
+              context.read<UpcomingOrderProvider>().load_upcoming_orders();
+            },);
+          }, onstatusSelect: (VendorOrderStatus? status) {
+            setState(() {
+              orderStatus=status;
+              context.read<UpcomingOrderProvider>().load_upcoming_orders();
+            });
+          },),
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+        )
+      ],
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        padding:const EdgeInsets.all(10),
+        child: Column(children: [
+          Expanded(flex: 16,child: Consumer<UpcomingOrderProvider>(
+            builder: (context,orderState,child){
+              if(orderState.isLoading){
+                return Container(
+                  alignment: Alignment.topCenter,
+                  child:const CircularProgressIndicator(),
+                );
+              }
+              else if(orderState.orders.isEmpty){
+                return Container(
+                  margin: EdgeInsets.all(10),
+                  child: Text("No upcoming orders"),
+                );
+              }
+              return SingleChildScrollView(
+                child: Column(
+                    children: orderState.orders.where((element) => (element.amount.contains(searchitem) || element.service_name!.toLowerCase().contains(searchitem.toLowerCase())))
+                        .where((element) {
+                      if(orderStatus==null)return true;
+                      return element.vendorOrderStatus == orderStatus ;
+                    }).map((e) => CustomOrderItem(order: e,ontap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: false,))).then((value) => refresh(context));
+                    },)).toList()),
               );
-            }
-            else if(orderState.orders.isEmpty){
-              return Container(
-                margin: EdgeInsets.all(10),
-                child: Text("No upcoming orders"),
-              );
-            }
-            return SingleChildScrollView(
-              child: Column(
-                  children: orderState.orders.where((element) => element.amount.contains(searchitem))
-                      .where((element) {
-                    if(orderStatus==null)return true;
-                    return element.vendorOrderStatus == orderStatus ;
-                  }).map((e) => CustomOrderItem(order: e,ontap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: false,))).then((value) => refresh(context));
-                  },)).toList()),
-            );
-          },
-        ))
-      ]),
+            },
+          ))
+        ]),
+      ),
     );
   }
 }
+

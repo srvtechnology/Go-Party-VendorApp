@@ -29,15 +29,17 @@ class MainPage extends StatelessWidget {
               }
               return errorScreenRoute(icon: Icons.wifi,message: "Seems like you are offline.Please connect to a network",hasAppbar: false,);
       },
-      child: Consumer2<AuthProvider,RegisterProvider>(builder: (context,auth,registerState,child) {
+      child: Consumer<AuthProvider>(builder: (context,auth,child) {
+        CustomLogger.debug(auth.authState);
          if (auth.authState == AuthState.Waiting){
           return LoadingWidget(willRedirect: true,);
         }
-        if (auth.authState == AuthState.LoggedIn) {
+         if (auth.authState == AuthState.LoggedIn) {
           if (auth.user?.userStatus == UserApprovalStatus.unverified) {
-            if (registerState.registerProgress != RegisterProgress.completed && registerState.registerProgress != RegisterProgress.one) {
-              return SignUp(dialogShow: true,);
-            }
+            if(auth.user!.progress != RegisterProgress.one && auth.user!.progress != RegisterProgress.completed)
+              {
+                return SignUp();
+              }
             return errorScreenRoute(
                 icon: Icons.account_box,
                 message: "Your account is under verification process, please wait for 24-48 working hours.");

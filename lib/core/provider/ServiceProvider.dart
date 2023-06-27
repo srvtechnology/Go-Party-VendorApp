@@ -5,7 +5,7 @@ import 'package:utsavlife/core/utils/logger.dart';
 import '../models/service.dart';
 
 class ServiceListProvider with ChangeNotifier {
-    List<serviceModel>? services;
+    List<ServiceModel>? services;
     AuthProvider auth;
     bool isLoading = false;
 
@@ -53,8 +53,8 @@ class DropDownOptionProvider with ChangeNotifier {
     getOptions();
   }
   Future<void> getOptions()async{
+    startLoading();
     if(auth.isLoading==false){
-      startLoading();
       try{
         options=await serviceRepo.getServiceOptions(auth);
       }catch(e){
@@ -62,8 +62,8 @@ class DropDownOptionProvider with ChangeNotifier {
         stopLoading();
         throw ArgumentError("Invalid token");
       }
-      stopLoading();
     }
+    stopLoading();
   }
 
 }

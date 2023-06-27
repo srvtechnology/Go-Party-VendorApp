@@ -52,7 +52,7 @@ class _serviceListRouteState extends State<serviceListRoute> {
                       });
                     }),
                     Column(
-                      children: state.services!.where((element) => element.categoryName?.toLowerCase().contains(searchString.toLowerCase())??false || element.serviceName!.toLowerCase().contains(searchString.toLowerCase())).mapIndexed((index,e) => CustomServiceItem(service: e, index: index,state: state)).toList(),
+                      children: state.services!.where((element) => element.serviceName!.toLowerCase().contains(searchString.toLowerCase()) || (element.address!=null && element.address!.toLowerCase().contains(searchString.toLowerCase())) || (element.price!=null && element.price!.contains(searchString))).mapIndexed((index,e) => CustomServiceItem(service: e, index: index,state: state)).toList(),
                     )
                   ],
                 ),

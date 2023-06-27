@@ -1,4 +1,7 @@
+import 'package:utsavlife/core/models/service.dart';
 import 'package:utsavlife/core/utils/logger.dart';
+
+import '../provider/RegisterProvider.dart';
 class Country{
   String id,name;
   Country({
@@ -7,6 +10,10 @@ class Country{
   });
   factory Country.fromJson(Map json){
     return Country(id: json["id"].toString(), name: json["name"]);
+  }
+  @override
+  String toString(){
+    return this.name;
   }
 }
 
@@ -1275,21 +1282,25 @@ enum UserApprovalStatus{
 }
 class UserModel {
   String id,name,email;
+  ServiceModel? service;
   // personal details
   String? mobileno,landmark,state,city,zip,area,panCardNumber,callingNumber,kycNumber,gstNumber,kycType,houseNumber;
   Country? country;
   // office details
-  String? officeNumber, officeZip, officeArea, officeLandmark, officeState, officeCity ;
+  String? officeNumber,officePhone, officeZip, officeArea, officeLandmark, officeState, officeCity ;
   Country? officeCountry;
   // Documents
   String? panCardUrl, kycUrl, gstUrl, dlUrl,vendorUrl ;
   BankDetails? bankDetails;
   UserApprovalStatus userStatus;
+  RegisterProgress progress;
   UserModel({
    required this.id,
    required this.name,
    required this.email,
     required this.userStatus,
+    required this.progress,
+    this.service,
    this.mobileno,
    this.country,
     this.state,
@@ -1304,6 +1315,7 @@ class UserModel {
     this.kycNumber,
     this.gstNumber,
   //Office details
+    this.officePhone,
     this.officeArea,
     this.officeCity,
     this.officeLandmark,
@@ -1323,15 +1335,46 @@ class UserModel {
 
   factory UserModel.fromJson(Map json){
     BankDetails? details;
+    RegisterProgress progress = RegisterProgress.two;
+    ServiceModel? service = null;
+    if (json["first_service"]!=null){
+      service = ServiceModel.fromJson(json["first_service"]);
+    }
     if(json["vendor_details"]==null){
       return UserModel(
+        progress: progress,
         userStatus: json["data"]["status"]=="A"?UserApprovalStatus.verified:UserApprovalStatus.unverified,
         id: json["data"]["id"].toString(),
         name: json["data"]["name"].toString(),
         email: json["data"]["email"].toString(),
         mobileno: json["data"]["mobile"],
         country: json["data"]["country"],
+        service: service
       );
+    }
+    if(json["vendor_details"]["vendor_reg_part"]!=null){
+      switch(json["vendor_details"]["vendor_reg_part"]){
+        case 1:
+          progress = RegisterProgress.one;
+          break;
+        case 2:
+          progress = RegisterProgress.two;
+          break;
+        case 3:
+          progress = RegisterProgress.three;
+          break;
+        case 4:
+          progress = RegisterProgress.four;
+          break;
+        case 5:
+          progress = RegisterProgress.five;
+          break;
+        case 6:
+          progress = RegisterProgress.six;
+          break;
+        case 7:
+          progress = RegisterProgress.completed;
+      }
     }
     if(json["bank_details"]!=null){
       details = BankDetails.fromJson(json["bank_details"]);
@@ -1339,6 +1382,7 @@ class UserModel {
     return UserModel(
         userStatus: json["data"]["status"]=="A"?UserApprovalStatus.verified:UserApprovalStatus.unverified,
         id: json["data"]["id"].toString(),
+      progress: progress,
       name: json["data"]["name"].toString(),
       email: json["data"]["email"].toString(),
       mobileno: json["data"]["mobile"],
@@ -1356,6 +1400,7 @@ class UserModel {
       gstNumber: json["vendor_details"]["gst_no"],
       officeZip: json["vendor_details"]["office_pincode"],
       officeNumber: json["vendor_details"]["office_house_no"],
+      officePhone: json["vendor_details"]["office_mobile"]??"",
       officeArea: json["vendor_details"]["office_area"],
       officeLandmark: json["vendor_details"]["office_landmark"],
       officeCity: json["vendor_details"]["office_city"],
@@ -1366,7 +1411,8 @@ class UserModel {
       kycUrl: '${json["kyc_image"]}${json["vendor_details"]["kyc_image"]}',
       vendorUrl: '${json["vendor_image"]}${json["vendor_details"]["vendor_image"]}',
       dlUrl: '${json["dl_image"]}${json["vendor_details"]["dl_image"]}',
-      bankDetails: details
+      bankDetails: details,
+      service: service
     );
 
   }

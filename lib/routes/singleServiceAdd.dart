@@ -78,6 +78,11 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
          if(state.isLoading && state.options==null) {
            return LoadingWidget(willRedirect:true,);
          }
+         if(state.options==null)
+           {
+             state.getOptions();
+             return LoadingWidget(willRedirect:true,);
+           }
           return Consumer<MapProvider>(
             builder:(context,mapState,child)=>Scaffold(
               appBar: AppBar(),

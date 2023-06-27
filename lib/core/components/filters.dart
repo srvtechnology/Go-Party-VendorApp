@@ -23,8 +23,9 @@ class _FilterState extends State<Filter> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      alignment: Alignment.center,
       padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-      height: 8.h,
+      height: 15.h,
         child: Row(children: [
           Expanded(flex: 3,child: _SearchBar(context)),
           Expanded(child: Container(),),
@@ -34,7 +35,6 @@ class _FilterState extends State<Filter> {
   }
   Widget _statusFilter(BuildContext context){
     return Container(
-
       alignment: Alignment.center,
       width: 40.w,
       child: DropdownButton(
@@ -58,7 +58,7 @@ class _FilterState extends State<Filter> {
   }
   Widget _SearchBar(BuildContext context){
     return Container(
-      height: 30,
+      height: 35,
       decoration:const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(5))
       ),
@@ -68,6 +68,7 @@ class _FilterState extends State<Filter> {
         widget.onsearch(text);
       },
       decoration:const InputDecoration(
+        contentPadding: EdgeInsets.only(bottom: 5,left: 5),
         icon: Icon(Icons.search),
         border: OutlineInputBorder(),
       ),
@@ -100,7 +101,7 @@ class _Filter2State extends State<Filter2> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10),
-      height: 8.h,
+      height: 15.h,
       child: Row(children: [
         Expanded(flex: 3,child: _SearchBar(context)),
         Expanded(child: Container(),),
@@ -133,7 +134,7 @@ class _Filter2State extends State<Filter2> {
   }
   Widget _SearchBar(BuildContext context){
     return Container(
-      height: 30,
+      height: 35,
       decoration:const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(5))
       ),
@@ -143,6 +144,7 @@ class _Filter2State extends State<Filter2> {
           widget.onsearch(text);
         },
         decoration:const InputDecoration(
+          contentPadding: EdgeInsets.only(left: 5,bottom: 5),
           icon: Icon(Icons.search),
           border: OutlineInputBorder(),
         ),

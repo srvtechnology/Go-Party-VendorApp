@@ -11,9 +11,10 @@ enum RegisterProgress {
   three,
   four,
   five,
+  six,
   completed
 }
-
+// This class is not used
 class RegisterProvider with ChangeNotifier {
   AuthProvider? auth;
   RegisterProgress _registerProgress=RegisterProgress.one;
@@ -59,6 +60,10 @@ class RegisterProvider with ChangeNotifier {
           _registerProgress = RegisterProgress.five;
           getAuthToken();
           break;
+          case 6:
+          _registerProgress = RegisterProgress.six;
+          getAuthToken();
+          break;
       }
     }
     }catch(e){}
@@ -95,31 +100,11 @@ class RegisterProvider with ChangeNotifier {
     return instance.getString("regPassword");
   }
   void setRegisterProgress(RegisterProgress progress)async{
-    final SharedPreferences instance = await SharedPreferences.getInstance();
-    int value = 1;
     _registerProgress = progress;
-    switch(progress){
-      case RegisterProgress.one:
-
-          value = 1;
-          break;
-      case RegisterProgress.two:
-        value = 2;
-        break;
-      case RegisterProgress.three:
-        value = 3;
-        break;
-      case RegisterProgress.four:
-        value = 4;
-        break;
-      case RegisterProgress.five:
-        value = 5;
-        break;
-    }
-    instance.setInt("progress", value);
     notifyListeners();
   }
   void clear()async{
+    CustomLogger.debug("Deleting all data");
     final SharedPreferences instance = await SharedPreferences.getInstance();
     instance.clear();
   }

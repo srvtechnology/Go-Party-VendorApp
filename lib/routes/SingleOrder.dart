@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:search_choices/search_choices.dart';
 import 'package:utsavlife/core/models/order.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
@@ -98,9 +97,10 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                           Row(
                             children: [
                               Expanded(child: DetailTile("Status", singleOrderState.order!.vendorOrderStatus == VendorOrderStatus.approved?"Accepted":singleOrderState.order!.vendorOrderStatus == VendorOrderStatus.pending?"Pending":"Rejected")),
-                              Expanded(child: DetailTile("Category", singleOrderState.order!.category!)),
+                              Expanded(child: DetailTile("Event Name", singleOrderState.order!.category!)),
                             ],
                           ),
+                          DetailTile("Category", singleOrderState.order!.category!),
                           DetailTile("Service Name", singleOrderState.order!.service_name!),
                           DetailTile("Address", singleOrderState.order!.address!),
                           Row(
@@ -278,8 +278,12 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
   Widget DetailTile(String header,String body){
     if(body=="")body="Not set";
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: 40.h
+      ),
       margin: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
       child: TextFormField(
+        maxLines: null,
         decoration: InputDecoration(
           labelText: header,
           border: InputBorder.none

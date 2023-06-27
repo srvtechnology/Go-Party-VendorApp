@@ -20,13 +20,13 @@ class Driver{
 });
 }
 
-class serviceModel {
+class ServiceModel {
   String id;
   String? categoryId,serviceId,address,serviceName,serviceDescription,materialDescription,company,priceBasis,price,discountedPrice,categoryName,categoryDescription,videoUrl;
   Driver driverDetails;
   List<String?> imageUrls;
 
-  serviceModel({
+  ServiceModel({
     required this.id,
     required this.driverDetails,
     required this.imageUrls,
@@ -45,11 +45,11 @@ class serviceModel {
     this.videoUrl
 });
 
-  factory serviceModel.fromJson(Map json){
+  factory ServiceModel.fromJson(Map json){
     try {
       Map? service_details = json["service_details"]??null;
       Map? category_details = json["category_details"]??null;
-      return serviceModel(
+      return ServiceModel(
         id: json["id"].toString(),
         serviceId: json["service_id"].toString(),
         address: json["address"]??null,
@@ -122,11 +122,9 @@ class CategoryOptionModel{
 }
 
 class ServiceDropDownOptions{
-  List<CategoryOptionModel> categoryOptions;
   List<ServiceOptionModel> serviceOptions;
 
   ServiceDropDownOptions({
-    required this.categoryOptions,
     required this.serviceOptions
 });
 }

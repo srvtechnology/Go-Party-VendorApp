@@ -6,7 +6,7 @@ import 'package:utsavlife/core/utils/logger.dart';
 
 import '../models/service.dart';
 
-Future<List<serviceModel>> getServiceList(AuthProvider auth)async{
+Future<List<ServiceModel>> getServiceList(AuthProvider auth)async{
 
   Response  response = await Dio().get("${APIConfig.baseUrl}/api/service-list-vendor",
         options: Options(
@@ -15,12 +15,12 @@ Future<List<serviceModel>> getServiceList(AuthProvider auth)async{
           }
         )
       );
-      List<serviceModel> services=[];
+      List<ServiceModel> services=[];
     try{
       CustomLogger.debug(response.data);
       for (var service in response.data["data"]){
         try{
-          services.add(serviceModel.fromJson(service));
+          services.add(ServiceModel.fromJson(service));
         }catch(e){
           CustomLogger.error(e);
         }
@@ -103,15 +103,11 @@ Future<ServiceDropDownOptions> getServiceOptions(dynamic auth)async{
           }
       ),
     );
-    List<CategoryOptionModel> categories=[];
     List<ServiceOptionModel> serviceOptions=[];
     for(var i in response.data["services"]){
       serviceOptions.add(ServiceOptionModel.fromJson(i));
     }
-    for(var i in response.data["category"]){
-      categories.add(CategoryOptionModel.fromJson(i));
-    }
-    return ServiceDropDownOptions(categoryOptions: categories, serviceOptions: serviceOptions);
+    return ServiceDropDownOptions(serviceOptions: serviceOptions);
   }
   catch(e){
     if(e is DioError){

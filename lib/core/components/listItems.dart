@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -75,7 +77,7 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
           ]
         ),
        width: 100.w,
-       height: 30.h,
+       height: 25.h,
        child: Column(
          crossAxisAlignment: CrossAxisAlignment.start,
          children: [
@@ -245,7 +247,7 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
 
 class CustomServiceItem extends StatelessWidget {
   int index;
-  serviceModel service;
+  ServiceModel service;
   ServiceListProvider state;
   CustomServiceItem({Key? key,required this.index,required this.service,required this.state}) : super(key: key);
 
@@ -282,9 +284,13 @@ class CustomServiceItem extends StatelessWidget {
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(),
-                      Text("#${(index+1)}",style: TextStyle(color: Colors.white),),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Text("${(index+1)}",style: TextStyle(color: Colors.white),),
+                      ),
+                      Text(service.address!.substring(0,min(service.address!.length,10)),style: TextStyle(color: Colors.white),)
                     ],
                   ),
                   )),

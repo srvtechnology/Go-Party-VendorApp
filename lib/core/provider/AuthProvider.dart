@@ -5,6 +5,8 @@ import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/repo/auth.dart' as authRepo;
 import 'package:utsavlife/core/repo/user.dart' as userRepo;
 import 'package:utsavlife/core/utils/logger.dart';
+
+import 'RegisterProvider.dart';
 enum AuthState {
   LoggedOut,
   Waiting,
@@ -90,7 +92,7 @@ class AuthProvider with ChangeNotifier {
     String? password =await getPasswordFromStorage();
     if(email!=null && password!=null)login(email, password);
   }
-  void login(String email,String password)async{
+  Future<void> login(String email,String password)async{
     _authState = AuthState.Waiting;
     notifyListeners();
     try {
@@ -112,9 +114,11 @@ class AuthProvider with ChangeNotifier {
   void logout(){
       _token = null;
       _authState = AuthState.LoggedOut;
+      _user = null ;
+      CustomLogger.debug("Changed");
+      notifyListeners();
       deleteTokenFromStorage();
       deleteAllFromStorage();
-      notifyListeners();
   }
 
   void editProfile()async{
@@ -140,10 +144,19 @@ class AuthProvider with ChangeNotifier {
       
     }
   }
-
+  void setRegisterProgress(RegisterProgress progress)async{
+    getUser();
+    _user?.progress = progress;
+    notifyListeners();
+  }
+  void clear()async{
+    CustomLogger.debug("Deleting all data");
+    final SharedPreferences instance = await SharedPreferences.getInstance();
+    instance.clear();
+  }
   void editOfficeDetails()async{
     Map<String,dynamic> data = {
-
+        "office_mobile":_user!.officePhone,
         "office_pincode":_user!.officeZip,
         "office_house_no":_user!.officeNumber,
         "office_area" :_user!.officeArea,
