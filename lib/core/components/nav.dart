@@ -20,7 +20,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       items: const[
         BottomNavigationBarItem(icon: Icon(Icons.arrow_circle_down),label: "Orders"),
         BottomNavigationBarItem(icon: Icon(Icons.arrow_circle_down),label: "History"),
-       BottomNavigationBarItem(icon: Icon(Icons.person),label: "Profile"),
+        BottomNavigationBarItem(icon: Icon(Icons.person),label: "Profile"),
     ]);
   }
 }

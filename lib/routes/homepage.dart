@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:utsavlife/core/components/filters.dart';
 import 'package:utsavlife/core/components/listItems.dart';
 import 'package:utsavlife/core/components/nav.dart';
@@ -15,7 +16,6 @@ import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/core/repo/auth.dart';
-import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/SingleOrder.dart';
 import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/notifications.dart';
@@ -38,6 +38,10 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   int startingIndex;
+  GlobalKey _drawer = GlobalKey();
+  GlobalKey _addServices = GlobalKey();
+  GlobalKey _serviceList = GlobalKey();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   _HomepageState({required this.startingIndex});
   int index=0;
   final _drawerKey = GlobalKey();
@@ -64,6 +68,7 @@ class _HomepageState extends State<Homepage> {
           )),
         ],
         builder:(context,args)=> Scaffold(
+          key: _scaffoldKey,
           drawer: Drawer(
             child: SingleChildScrollView(
               child: Column(
@@ -77,12 +82,20 @@ class _HomepageState extends State<Homepage> {
                       child: Image.asset("assets/images/logo/logo.png"),
                     ),
                   ),
-                  ListTile(title: Text("Add services"), leading:Icon( Icons.cleaning_services), onTap: (){
-                    Navigator.pushNamed(context, AddServiceRoute.routeName);
-                  }),
-                  ListTile(title:Text( "Services List"), leading:Icon( Icons.list_alt), onTap: (){
-                    Navigator.pushNamed(context, serviceListRoute.routeName);
-                  }),
+                  Showcase(
+                    key: _addServices,
+                    description: "Click here to add new service",
+                    child: ListTile(title: Text("Add services"), leading:Icon( Icons.cleaning_services), onTap: (){
+                      Navigator.pushNamed(context, AddServiceRoute.routeName);
+                    }),
+                  ),
+                  Showcase(
+                    key: _serviceList,
+                    description: "Click here to view the services you added",
+                    child: ListTile(title:Text( "Services List"), leading:Icon( Icons.list_alt), onTap: (){
+                      Navigator.pushNamed(context, serviceListRoute.routeName);
+                    }),
+                  ),
                   ListTile(title:Text( "Notifications"), leading:Icon( Icons.notifications_active), onTap: (){}),
                   ListTile(title:Text( "Logout"), leading:Icon( Icons.logout), onTap: (){
                     Provider.of<AuthProvider>(context,listen: false).logout();
@@ -93,6 +106,15 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
           appBar: AppBar(
+            leading: IconButton(
+              onPressed: (){
+                try{
+                  ShowCaseWidget.of(context).startShowCase([_addServices,_serviceList]);
+                }catch(e){}
+                _scaffoldKey.currentState!.openDrawer();
+              },
+              icon: Icon(Icons.menu,color: Colors.white,),
+            ),
             actions: [
               IconButton(onPressed: (){
                 Provider.of<AuthProvider>(context,listen: false).logout();
@@ -243,6 +265,7 @@ class _ProfileState extends State<Profile> {
   GlobalKey<FormState> _docFormKey = GlobalKey<FormState>();
   GlobalKey<FormState> _bankFormKey = GlobalKey<FormState>();
   GlobalKey<FormState> _officeFormKey = GlobalKey<FormState>();
+  GlobalKey _profile = GlobalKey();
   List<DropDownField> kyctypes = [
     DropDownField(title: "Aadhar",value: "AD"),
     DropDownField(title: "Voter Id",value: "VO"),
@@ -301,6 +324,9 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) =>
+        ShowCaseWidget.of(context).startShowCase([_profile])
+    );
     Provider.of<AuthProvider>(context,listen: false).getUser();
     selectedOfficeCountry = Provider.of<AuthProvider>(context,listen: false).user?.officeCountry??Country(id:"101", name:"India");
     selectedCountry = Country(id:"101", name:"India");
@@ -313,63 +339,67 @@ class _ProfileState extends State<Profile> {
     return Consumer<AuthProvider>(
       builder:(context,auth,child){
         return Container(
-          height: double.infinity,
-          width: double.infinity,
-          margin:const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-          padding:const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-          child: DefaultTabController(
-              length: 4,
-            child: Column(
-                  children: [
-             _ProfileHeader(context,auth,auth.user!.name,auth.user!.email,auth.user!.vendorUrl),
-             SizedBox(height: 10,),
-             Expanded(child: Container(
-               margin: EdgeInsets.only(top: 10),
-               decoration: BoxDecoration(
-                   color: Colors.white,
-                   boxShadow: [
-                     BoxShadow(
-                         offset: Offset(3,3),
-                         color: Colors.grey[300]!,
-                       blurRadius: 2
-                     ),
-                     BoxShadow(
-                         offset: Offset(-3,-3),
-                         color: Colors.grey[300]!,
-                       blurRadius: 2
-                     ),
-                   ],
-                   borderRadius: BorderRadius.circular(15)
-               ),
-               child: Column(
-                 children: [
-                   Expanded(
-                     child:  Container(
-                       margin: EdgeInsets.all(10),
-                       child: TabBar(
-                           tabs: [
-                             Tab(child: Text("Personal",style: TextStyle(color: Colors.black,fontSize: 14.sp),),),
-                             Tab(child: Text("Office",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
-                             Tab(child: Text("Bank",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
-                             Tab(child: Text("Doc",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
-                           ]),
-                     ),
+           height: double.infinity,
+           width: double.infinity,
+           margin:const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+           padding:const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+           child: DefaultTabController(
+                length: 4,
+              child: Column(
+                    children: [
+               _ProfileHeader(context,auth,auth.user!.name,auth.user!.email,auth.user!.vendorUrl),
+               SizedBox(height: 10,),
+               Expanded(child: Showcase(
+                 key: _profile,
+                 description: "This is the profile section. You can edit / view your details",
+                 child: Container(
+                   margin: EdgeInsets.only(top: 10),
+                   decoration: BoxDecoration(
+                       color: Colors.white,
+                       boxShadow: [
+                         BoxShadow(
+                             offset: Offset(3,3),
+                             color: Colors.grey[300]!,
+                           blurRadius: 2
+                         ),
+                         BoxShadow(
+                             offset: Offset(-3,-3),
+                             color: Colors.grey[300]!,
+                           blurRadius: 2
+                         ),
+                       ],
+                       borderRadius: BorderRadius.circular(15)
                    ),
-                   Expanded(
-                     flex: 5,
-                     child: TabBarView(children: [
-                     _PersonalInfo(auth),
-                     _OfficeInfo(auth),
-                     SingleChildScrollView(child: _BankDetailsInfo(auth)),
-                     _DocumentInfo(auth),
-             ],),
-                   ),
-                 ],
-               ),))
+                   child: Column(
+                     children: [
+                       Expanded(
+                         child:  Container(
+                           margin: EdgeInsets.all(10),
+                           child: TabBar(
+                               tabs: [
+                                 Tab(child: Text("Personal",style: TextStyle(color: Colors.black,fontSize: 14.sp),),),
+                                 Tab(child: Text("Office",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
+                                 Tab(child: Text("Bank",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
+                                 Tab(child: Text("Doc",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
+                               ]),
+                         ),
+                       ),
+                       Expanded(
+                         flex: 5,
+                         child: TabBarView(children: [
+                         _PersonalInfo(auth),
+                         _OfficeInfo(auth),
+                         SingleChildScrollView(child: _BankDetailsInfo(auth)),
+                         _DocumentInfo(auth),
+                 ],),
+                       ),
+                     ],
+                   ),),
+               ))
 
-                  ],
-                )
-          ),
+                    ],
+                  )
+            ),
       );}
     );
   }
@@ -1003,7 +1033,14 @@ class History extends StatefulWidget {
 class _HistoryState extends State<History> {
   String searchitem = "";
   VendorOrderStatus? orderStatus;
-
+  GlobalKey _history = GlobalKey();
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) =>
+        ShowCaseWidget.of(context).startShowCase([_history])
+    );
+  }
   void refresh(BuildContext context){
     context.read<HistoryOrderProvider>().load_history_orders();
     setState(() {
@@ -1039,39 +1076,43 @@ class _HistoryState extends State<History> {
           )
         ];
       },
-      body: Container(
-          height: double.infinity,
-          width: double.infinity,
-          padding:const EdgeInsets.all(10),
-          child: Column(children: [
-            Expanded(flex: 16,child: Consumer<HistoryOrderProvider>(
-              builder: (context,orderState,child){
-                if(orderState.isLoading){
-                  return Container(
-                    alignment: Alignment.topCenter,
-                    child:const CircularProgressIndicator(),
+      body: Showcase(
+        key: _history,
+        description: "This is the section where you can see your previous orders.",
+        child: Container(
+            height: double.infinity,
+            width: double.infinity,
+            padding:const EdgeInsets.all(10),
+            child: Column(children: [
+              Expanded(flex: 16,child: Consumer<HistoryOrderProvider>(
+                builder: (context,orderState,child){
+                  if(orderState.isLoading){
+                    return Container(
+                      alignment: Alignment.topCenter,
+                      child:const CircularProgressIndicator(),
+                    );
+                  }
+                  else if(orderState.orders.isEmpty){
+                    return Container(
+                      margin: EdgeInsets.all(10),
+                      child: Text("No History"),
+                    );
+                  }
+                  return SingleChildScrollView(
+                    child: Column(
+                        children:orderState.orders.where((element) => (element.amount.contains(searchitem)|| element.service_name!.toLowerCase().contains(searchitem.toLowerCase())))
+                            .where((element) {
+                          if(orderStatus==null)return true;
+                          return element.vendorOrderStatus == orderStatus ;
+                        }).map((e) => CustomOrderItem(showButtons: false,order: e,ontap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: true,))).then((value) => refresh(context));
+                        },)).toList()),
                   );
-                }
-                else if(orderState.orders.isEmpty){
-                  return Container(
-                    margin: EdgeInsets.all(10),
-                    child: Text("No History"),
-                  );
-                }
-                return SingleChildScrollView(
-                  child: Column(
-                      children:orderState.orders.where((element) => (element.amount.contains(searchitem)|| element.service_name!.toLowerCase().contains(searchitem.toLowerCase())))
-                          .where((element) {
-                        if(orderStatus==null)return true;
-                        return element.vendorOrderStatus == orderStatus ;
-                      }).map((e) => CustomOrderItem(showButtons: false,order: e,ontap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: true,))).then((value) => refresh(context));
-                      },)).toList()),
-                );
-              },
-            ))
+                },
+              ))
 
-          ]),
+            ]),
+        ),
       ),
     );
   }
@@ -1087,6 +1128,7 @@ class Orders extends StatefulWidget {
 class _OrdersState extends State<Orders> {
   String searchitem = "";
   VendorOrderStatus? orderStatus;
+  GlobalKey _order = GlobalKey();
   void refresh(BuildContext context){
     context.read<UpcomingOrderProvider>().load_upcoming_orders();
     setState(() {
@@ -1097,6 +1139,9 @@ class _OrdersState extends State<Orders> {
   @override
   void initState(){
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) =>
+        ShowCaseWidget.of(context).startShowCase([_order])
+    );
   }
   @override
   Widget build(BuildContext context) {
@@ -1136,20 +1181,29 @@ class _OrdersState extends State<Orders> {
                 );
               }
               else if(orderState.orders.isEmpty){
-                return Container(
-                  margin: EdgeInsets.all(10),
-                  child: Text("No upcoming orders"),
+                return Showcase(
+                  key: _order,
+                  description: "This is the upcoming order section. The Pending and Upcoming orders will be shown here",
+                  child: Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.all(10),
+                    child: Text("No upcoming orders"),
+                  ),
                 );
               }
-              return SingleChildScrollView(
-                child: Column(
-                    children: orderState.orders.where((element) => (element.amount.contains(searchitem) || element.service_name!.toLowerCase().contains(searchitem.toLowerCase())))
-                        .where((element) {
-                      if(orderStatus==null)return true;
-                      return element.vendorOrderStatus == orderStatus ;
-                    }).map((e) => CustomOrderItem(order: e,ontap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: false,))).then((value) => refresh(context));
-                    },)).toList()),
+              return Showcase(
+                key: _order,
+                description: "This is the upcoming order section. The Pending and Upcoming orders will be shown here",
+                child: SingleChildScrollView(
+                  child: Column(
+                      children: orderState.orders.where((element) => (element.amount.contains(searchitem) || element.service_name!.toLowerCase().contains(searchitem.toLowerCase())))
+                          .where((element) {
+                        if(orderStatus==null)return true;
+                        return element.vendorOrderStatus == orderStatus ;
+                      }).map((e) => CustomOrderItem(order: e,ontap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: false,))).then((value) => refresh(context));
+                      },)).toList()),
+                ),
               );
             },
           ))

@@ -763,7 +763,7 @@ class _SignUp3State extends State<SignUp3> {
                                   ],
                                 ),
                               ),
-                              InputField("Bank Name", _bankName,leading: Icon(Icons.currency_exchange,color: Colors.white,)),
+                              InputField("Bank Name", _bankName,leading: Icon(Icons.currency_rupee,color: Colors.white,)),
                               Container(
                                 margin: EdgeInsets.symmetric(horizontal: 40,vertical: 10),
                                 child: InputDecorator(

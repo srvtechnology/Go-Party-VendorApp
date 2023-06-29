@@ -30,7 +30,6 @@ class MainPage extends StatelessWidget {
               return errorScreenRoute(icon: Icons.wifi,message: "Seems like you are offline.Please connect to a network",hasAppbar: false,);
       },
       child: Consumer<AuthProvider>(builder: (context,auth,child) {
-        CustomLogger.debug(auth.authState);
          if (auth.authState == AuthState.Waiting){
           return LoadingWidget(willRedirect: true,);
         }
