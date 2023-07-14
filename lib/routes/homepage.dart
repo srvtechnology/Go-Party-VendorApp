@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:csc_picker/csc_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -6,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -16,6 +18,7 @@ import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/core/repo/auth.dart';
+import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/SingleOrder.dart';
 import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/notifications.dart';
@@ -374,13 +377,19 @@ class _ProfileState extends State<Profile> {
                      children: [
                        Expanded(
                          child:  Container(
-                           margin: EdgeInsets.all(10),
+                           margin: EdgeInsets.symmetric(horizontal: 10,vertical: 16.sp),
                            child: TabBar(
+                             unselectedLabelColor: Colors.black,
+                               labelColor: Colors.white,
+                               indicator: BoxDecoration(
+                                   borderRadius: BorderRadius.circular(20),
+                                   color: Theme.of(context).primaryColorDark
+                               ),
                                tabs: [
-                                 Tab(child: Text("Personal",style: TextStyle(color: Colors.black,fontSize: 14.sp),),),
-                                 Tab(child: Text("Office",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
-                                 Tab(child: Text("Bank",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
-                                 Tab(child: Text("Doc",style: TextStyle(color: Colors.black,fontSize: 15.sp),),),
+                                 Tab(child: Text("Personal",style: TextStyle(fontSize: 14.sp),),),
+                                 Tab(child: Text("Office",style: TextStyle(fontSize: 15.sp),),),
+                                 Tab(child: Text("Bank",style: TextStyle(fontSize: 15.sp),),),
+                                 Tab(child: Text("Doc",style: TextStyle(fontSize: 15.sp),),),
                                ]),
                          ),
                        ),
@@ -425,11 +434,34 @@ class _ProfileState extends State<Profile> {
                   _CustomText(context, editMode:OfficeEditMode,title: "Flat / House / Building Number",controllerKey: "Office Number",content: auth.user!.officeNumber ?? ""),
                   _CustomText(context, editMode:OfficeEditMode,title: "Street/Sector/Village/Area",controllerKey: "Office Area",content: auth.user!.officeArea ?? ""),
                   _CustomText(context, editMode:OfficeEditMode,title: "Landmark",controllerKey: "Office Landmark",content: auth.user!.officeLandmark ?? ""),
-                  _CustomText(context, editMode:OfficeEditMode,title: "City",controllerKey: "Office City",content: auth.user!.officeCity??""),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                    child: CSCPicker(
+                      currentCity: auth.user!.officeCity??"",
+                      currentState: auth.user!.officeState??"",
+                      currentCountry: auth.user!.officeCountry?.name??"",
+                      defaultCountry: CscCountry.India,
+                      showStates: true,
+                      showCities: true,
+                      onCountryChanged: (country){
+                        setState(() {
+                          textControllers["Office Country"]!.text=country??"";
+                        });
+                      },
+                      onStateChanged: (state){
+                        setState(() {
+                          textControllers["Office State"]!.text=state??"";
+                        });
+                      },
+                      onCityChanged: (city){
+                        setState(() {
+                          textControllers["Office City"]!.text=city??"";
+                        });
+                      },
+                    ),
+                  ),
                   _CustomText(context, editMode:OfficeEditMode,title: "PinCode",controllerKey: "Office PinCode",content: auth.user!.officeZip ?? "",isPin:true),
-                  _CustomText(context, editMode:OfficeEditMode,title: "State",controllerKey: "Office State",content: auth.user!.officeState??""),
-                  _CustomText(context, editMode:OfficeEditMode,title: "Country",controllerKey: "Office Country",content: auth.user!.officeCountry?.name??"",isCountry: true,),
-                ],
+                 ],
               )
               else
                 _CustomText(context, title: "Address", content: "${auth.user!.officeNumber}, ${auth.user!.officeLandmark}, ${auth.user!.officeArea}, ${auth.user!.officeCity}, ${auth.user!.officeZip}, ${auth.user!.officeState}, ${auth.user!.officeCountry?.name??""}", editMode: OfficeEditMode),
@@ -442,6 +474,14 @@ class _ProfileState extends State<Profile> {
                   ),
                   onPressed: () {
                     if(_officeFormKey.currentState!.validate()){
+                      if(textControllers["Office State"]!.text.isEmpty){
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select state")));
+                        return;
+                      }
+                      if(textControllers["Office City"]!.text.isEmpty){
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select city")));
+                        return;
+                      }
                       setOfficeChanges(auth);
                       auth.editOfficeDetails();
                       setState(() {
@@ -610,7 +650,7 @@ class _ProfileState extends State<Profile> {
               }, icon: Icon(Icons.edit,color: ProfileEditMode?Theme.of(context).primaryColor:null),),
             ),
             _CustomText(context, editMode:ProfileEditMode,title: "Name",content: auth.user!.name??"Not yet",canEdit: false),
-            _CustomText(context, editMode:ProfileEditMode,title: "Phone",content: auth.user!.mobileno??"",canEdit: false),
+            _CustomText(context, editMode:ProfileEditMode,title: "Phone Number",controllerKey: "Phone",content: auth.user!.mobileno??"",validatePhone: true),
             _CustomText(context, editMode:ProfileEditMode,title: "Email",content: auth.user!.email,canEdit: false),
             _CustomText(context, editMode:ProfileEditMode,controllerKey: "PanCard Number",title: "Pan Number",content: auth.user!.panCardNumber??"",capitals:true),
             _CustomText(context, editMode:ProfileEditMode,title: "GST Number",controllerKey: "GST Number",content: auth.user!.gstNumber ?? "",capitals: true),
@@ -642,10 +682,24 @@ class _ProfileState extends State<Profile> {
                   _CustomText(context, editMode:ProfileEditMode,controllerKey: "House Number",title: "Flat / House / Building Number",content: auth.user!.area ?? ""),
                   _CustomText(context, editMode:ProfileEditMode,controllerKey: "Area",title: "Street/Sector/Village/Area",content: auth.user!.area ?? ""),
                   _CustomText(context, editMode:ProfileEditMode,title: "Landmark",content: auth.user!.landmark ?? ""),
-                  _CustomText(context, editMode:ProfileEditMode,title: "City",content: auth.user!.city??""),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                    child: CSCPicker(
+                      defaultCountry: CscCountry.India,
+                      currentState: auth.user!.state,
+                      currentCity: auth.user!.city,
+                      onCountryChanged: (country){
+
+                      },
+                      onStateChanged: (state){
+                          textControllers["State"]!.text=state??"";
+                      },
+                      onCityChanged: (city){
+                          textControllers["City"]!.text=city??"";
+                      },
+                    )
+                  ),
                   _CustomText(context, editMode:ProfileEditMode,title: "PinCode",content: auth.user!.zip ?? "",isPin:true),
-                  _CustomText(context, editMode:ProfileEditMode,title: "State",content: auth.user!.state??""),
-                  _CustomText(context, editMode:ProfileEditMode,title: "Country",content: auth.user!.country?.name??"",isCountry: true,personal: true),
                 ],
               )
             else
@@ -659,6 +713,14 @@ class _ProfileState extends State<Profile> {
                   ),
                   onPressed: () {
                     if(_formKey.currentState!.validate()){
+                      if(textControllers["State"]!.text.isEmpty){
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select state")));
+                        return;
+                      }
+                      if(textControllers["City"]!.text.isEmpty){
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select city")));
+                        return;
+                      }
                       setUserProfileChanges(auth);
                       auth.editProfile();
                       setState(() {
@@ -723,6 +785,7 @@ class _ProfileState extends State<Profile> {
   void setUserProfileChanges(AuthProvider auth){
     auth.user!.name =textControllers["Name"]!.text;
     auth.user!.panCardNumber = textControllers["PanCard Number"]!.text;
+    auth.user!.mobileno  = textControllers["Phone"]!.text;
     auth.user!.kycNumber = textControllers["Kyc Number"]!.text;
     auth.user!.kycType = selectedKyc.value;
     auth.user!.zip = textControllers["PinCode"]!.text;
@@ -737,6 +800,7 @@ class _ProfileState extends State<Profile> {
   }
 
   void setOfficeChanges(AuthProvider auth){
+    CustomLogger.debug(textControllers["Office State"]!.text);
     auth.user!.officePhone = textControllers["Office Phone"]!.text ;
     auth.user!.officeNumber = textControllers["Office Number"]!.text ;
     auth.user!.officeZip = textControllers["Office PinCode"]!.text ;
@@ -807,13 +871,33 @@ class _ProfileState extends State<Profile> {
       content = "Not Set";
     }
 
-    if(validatePhone){
-      if (editMode && (content.isEmpty || content=="Not Set")){
-        content="+91";
-      }
-      if(!textControllers[controllerKey]!.text.contains("+91")){
-        textControllers[controllerKey]?.text = "+91"+ textControllers[controllerKey]!.text;
-      }
+    if(validatePhone && editMode){
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: IntlPhoneField(
+          initialValue: content,
+          showCountryFlag: false,
+          decoration: InputDecoration(
+              labelText: title, labelStyle:TextStyle(color: Colors.black,fontSize: 16.sp),
+              hintText: "Not set",
+              border: const OutlineInputBorder(
+              ),
+          enabled: (editMode&&canEdit),
+          ),
+          validator: (text){
+            if(text==null || text.completeNumber.isEmpty){
+              return "Required field";
+            }
+            if(text.completeNumber.length<12 || text.completeNumber.length>15){
+              return "Please enter a valid number";
+            }
+          },
+          onChanged: (number){
+            textControllers[controllerKey]?.text = number.completeNumber;
+          },
+        ),
+      );
+
     }
     textControllers[controllerKey]?.text = content ;
     return Container(
@@ -843,7 +927,7 @@ class _ProfileState extends State<Profile> {
                       }
 
                     },
-                    items: Countries.map((e) => Country(id: e["id"].toString(), name: e["name"])).toList(),
+                    items: DefaultCountries.map((e) => Country(id: e["id"].toString(), name: e["name"])).toList(),
                   ),
                 ),
 
@@ -1094,6 +1178,7 @@ class _HistoryState extends State<History> {
                   }
                   else if(orderState.orders.isEmpty){
                     return Container(
+                      alignment: Alignment.topCenter,
                       margin: EdgeInsets.all(10),
                       child: Text("No History"),
                     );
@@ -1185,6 +1270,7 @@ class _OrdersState extends State<Orders> {
                   key: _order,
                   description: "This is the upcoming order section. The Pending and Upcoming orders will be shown here",
                   child: Container(
+                    alignment: Alignment.topCenter,
                     width: double.infinity,
                     margin: EdgeInsets.all(10),
                     child: Text("No upcoming orders"),

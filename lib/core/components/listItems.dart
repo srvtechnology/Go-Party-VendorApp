@@ -94,9 +94,11 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
                Container(child: Text(_statusText,style: TextStyle(color: _statusTextColor),)),
              ],
            ),)),
-           Expanded(flex: 4,child: Container(
+           Expanded(flex: 4,child:
+           Container(
+             padding: EdgeInsets.symmetric(horizontal: 20),
              child: Row(
-               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+               mainAxisAlignment: MainAxisAlignment.start,
                children: [
                  Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,11 +110,12 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
                      Text("Days"),
                    ],
                  ),
+                 SizedBox(width: 30.w,),
                  Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                    children: [
-                     Text(widget.order.amount),
+                     Text("₹ ${widget.order.amount}"),
                      Text(widget.order.date),
                      Text(widget.order.address.isEmpty?"Not set":widget.order.address.substring(0,8)),
                      Text(widget.order.days),

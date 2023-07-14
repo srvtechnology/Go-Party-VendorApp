@@ -46,7 +46,7 @@ dependencies:
   cached_network_image: ^3.2.3
   image_picker: ^0.8.7+1
   syncfusion_flutter_pdfviewer: ^21.1.38
-  file_picker: ^5.2.7
+  file_picker: ^5.3.1
   webview_flutter: ^4.0.7
   connectivity_plus: ^3.0.4
   flutter_localizations:
@@ -55,6 +55,8 @@ dependencies:
   video_player: ^2.6.1
   dropdown_search: ^5.0.6
   showcaseview: ^2.0.3
+  intl_phone_field: ^3.2.0
+  csc_picker: ^0.2.7
 
 
 dev_dependencies:

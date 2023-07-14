@@ -17,7 +17,7 @@ class Country{
   }
 }
 
-List<Map> Countries = [
+List<Map> DefaultCountries = [
   {
     "id": 1,
     "sortname": "AF",

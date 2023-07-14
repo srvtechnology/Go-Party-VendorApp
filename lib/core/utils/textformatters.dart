@@ -9,3 +9,12 @@ class UpperCaseTextFormatter extends TextInputFormatter {
     );
   }
 }
+
+bool isNumeric(String s) {
+  try{
+    double.parse(s);
+    return true;
+  }catch(E){
+    return false;
+  }
+}

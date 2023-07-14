@@ -17,7 +17,6 @@ import 'package:utsavlife/routes/signIn.dart';
 import 'package:utsavlife/routes/signUp.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
 import 'package:utsavlife/routes/splash.dart';
-
 import 'core/provider/networkProvider.dart';
 import 'core/provider/showcaseProvider.dart';
 

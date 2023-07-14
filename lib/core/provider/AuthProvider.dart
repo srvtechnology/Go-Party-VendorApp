@@ -115,7 +115,6 @@ class AuthProvider with ChangeNotifier {
       _token = null;
       _authState = AuthState.LoggedOut;
       _user = null ;
-      CustomLogger.debug("Changed");
       notifyListeners();
       deleteTokenFromStorage();
       deleteAllFromStorage();
@@ -134,7 +133,8 @@ class AuthProvider with ChangeNotifier {
       "landmark":_user!.landmark,
       "city":_user!.city,
       "state":_user!.state,
-      "country":_user!.country?.id
+      "country":_user!.country?.id,
+      "mobile":_user!.mobileno
     });
     if(status == true){
       getUser();
@@ -166,6 +166,7 @@ class AuthProvider with ChangeNotifier {
         "gst_no":_user!.gstNumber,
         "office_country":_user!.officeCountry!.id
       };
+    CustomLogger.debug(data);
     bool status = await userRepo.edit_office_details(_token!, data);
     if(status == true){
       getUser();

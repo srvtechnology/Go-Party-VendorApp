@@ -1,4 +1,3 @@
-import 'package:utsavlife/core/utils/logger.dart';
 
 class Driver{
   String? name,mobileNumber,kycType,kycNumber,licenseNumber,pinCode,houseNumber,area,landmark,city,state,image,dlImage;

@@ -2,13 +2,17 @@ import 'dart:math';
 import 'dart:io';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:csc_picker/csc_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
+import 'package:utsavlife/config.dart';
 import 'package:utsavlife/core/components/loading.dart';
 import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
@@ -178,20 +182,122 @@ class _SignUp1State extends State<SignUp1> {
                                   CustomInputField("Full Name", _name),
                                   CustomInputField("Email", _email,leading: Icon(Icons.email,color: Colors.white,)),
                                   Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 20),
+                                      padding: EdgeInsets.symmetric(horizontal: 20,),
+                                      margin: EdgeInsets.only(top: 10),
                                       child: InputField(
                                         title:"Password",controller: _password,isPassword:true,obscureText: true,leading: Icon(Icons.password),)),
-                                  CustomInputField("Mobile number", _mobileNo,validatePhone:true,leading: Icon(Icons.phone_android,color: Colors.white,)),
-                                  CustomInputField("Address", _address,autocomplete:true,state: mapState,leading: Icon(Icons.home,color: Colors.white,)),
-                                  if(showLocationList&&mapState.locations.isNotEmpty)
-                                    ListView.builder(
-                                        physics: ClampingScrollPhysics(),
-                                        shrinkWrap: true,itemCount: min(6, mapState.locations.length),itemBuilder: (context,index)=>ListTile(leading: Icon(Icons.location_on),title: Text(mapState.locations[index]),onTap: (){
-                                      _address.text = mapState.locations[index];
-                                      setState(() {
-                                        showLocationList=false;
-                                      });
-                                    },)),
+                                  Container(
+                                    padding: EdgeInsets.only(left: 40,right: 40,top: 30),
+                                    child: IntlPhoneField(
+                                      initialCountryCode: "IN",
+                                      showCountryFlag: false,
+                                      dropdownIcon: const Icon(Icons.arrow_drop_down,color: Colors.white,),
+                                      style: TextStyle(color: Colors.white),
+                                      dropdownTextStyle: TextStyle(color: Colors.white),
+                                      decoration: InputDecoration(
+                                        label: Text("Phone Number",
+                                          style: TextStyle(color: Colors.white),),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                            width: 1.0,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (text){
+                                        if(text==null || text.completeNumber.isEmpty){
+                                          return "Required field";
+                                        }
+                                        if(text.completeNumber.length<12 || text.completeNumber.length>15){
+                                          return "Please enter a valid number";
+                                        }
+                                      },
+                                      onChanged: (number){
+                                        _mobileNo.text = number.completeNumber;
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
+                                    child: CSCPicker(
+
+                                      disabledDropdownDecoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: Colors.white,width: 1),
+                                        color: Colors.transparent,
+                                      ),
+
+                                      selectedItemStyle: TextStyle(color: Colors.white),
+                                      dropdownDecoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: Colors.white,width: 1),
+                                        color: Colors.transparent,
+                                      ),
+                                      onCountryChanged: (country){
+
+                                      },
+                                      onStateChanged: (state){
+
+                                      },
+                                      onCityChanged: (city){
+                                        setState(() {
+                                          _address.text=city??"";
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  // Padding(
+                                  //   padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
+                                  //   child: DropdownSearch<String>(
+                                  //     items: DefaultCities,
+                                  //     selectedItem: _address.text,
+                                  //     validator: (text){
+                                  //       if(text==null) return "Required";
+                                  //     },
+                                  //     dropdownDecoratorProps: DropDownDecoratorProps(
+                                  //       baseStyle: TextStyle(color: Colors.white),
+                                  //       dropdownSearchDecoration: InputDecoration(
+                                  //         suffixIconColor: Colors.white,
+                                  //         prefixIcon: Icon(Icons.home,color: Colors.white,),
+                                  //         label: Text("City",style: TextStyle(color: Colors.white),),
+                                  //         focusedBorder: OutlineInputBorder(
+                                  //           borderRadius: BorderRadius.circular(10.0),
+                                  //           borderSide: BorderSide(
+                                  //             color: Colors.blue,
+                                  //           ),
+                                  //         ),
+                                  //         enabledBorder: OutlineInputBorder(
+                                  //           borderRadius: BorderRadius.circular(10.0),
+                                  //           borderSide: BorderSide(
+                                  //             color: Colors.white,
+                                  //             width: 1.0,
+                                  //           ),
+                                  //         ),
+                                  //       )
+                                  //     ),
+                                  //     onChanged: (text){
+                                  //       setState(() {
+                                  //         _address.text = text!;
+                                  //       });
+                                  //     },
+                                  //   ),
+                                  // ),
+                                  // if(showLocationList&&mapState.locations.isNotEmpty)
+                                  //   ListView.builder(
+                                  //       physics: ClampingScrollPhysics(),
+                                  //       shrinkWrap: true,itemCount: min(6, mapState.locations.length),itemBuilder: (context,index)=>ListTile(leading: Icon(Icons.location_on),title: Text(mapState.locations[index]),onTap: (){
+                                  //     _address.text = mapState.locations[index];
+                                  //     setState(() {
+                                  //       showLocationList=false;
+                                  //     });
+                                  //   },)),
                                   if(isLoading)Container(alignment: Alignment.center,child: CircularProgressIndicator(),)
                                   else SignUpButton(context,mapState,registerState),
                                 ],
@@ -426,7 +532,7 @@ class _SignUp2State extends State<SignUp2> {
                                   leading: Icon(Icons.numbers,color: Colors.white,),
                                   validator: (text){
                                       if(text==null || text.isEmpty)return "Required";
-                                      if(text.length<10) return "Please enter a valid number";
+                                      if(text.length!=10 || (isNumeric(text.substring(0,5))) || (!isNumeric(text.substring(5,9))) || (isNumeric(text.substring(9,10)))) return "Please enter a valid Pan Number";
                                   }
                               ),
                               Container(
@@ -454,9 +560,6 @@ class _SignUp2State extends State<SignUp2> {
                                       children: [
                                         Expanded(
                                             child: ExpansionTile(
-                                              shape: OutlineInputBorder(
-                                                  borderSide: BorderSide(width: 1,color: Colors.white),
-                                                  borderRadius: BorderRadius.circular(5)),
                                                   collapsedTextColor: Colors.white,
                                                   trailing:Text(""),
                                                   key: GlobalKey(),
@@ -479,12 +582,49 @@ class _SignUp2State extends State<SignUp2> {
                                   _kycNo,
                                   validator: (text){
                                           if(text==null || text.isEmpty)return "Required";
-                                          if(text.length<10) return "Please enter a valid number";
+                                          if(selectedKyc.value=="AD" && text.length!=12) return "Please enter a valid number";
+                                          if(text.length<12) return "Please enter a valid number";
                                   }),
                               InputField("Flat / House / Building Number", _houseNo,validator: null,leading: Icon(Icons.home_filled,color: Colors.white,)),
                               InputField("Street/Sector/Village/Area", _area,leading: Icon(Icons.home_filled,color: Colors.white,)),
                               InputField("Landmark", _landmark,leading: Icon(Icons.home_filled,color: Colors.white,)),
-                              InputField("City", _city,leading: Icon(Icons.location_city,color: Colors.white,)),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
+                                child: CSCPicker(
+                                  defaultCountry: CscCountry.India,
+                                  showStates: true,
+                                  showCities: true,
+                                  disabledDropdownDecoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.white,width: 1),
+                                    color: Colors.transparent,
+                                        ),
+                                  currentCountry: selectedCountry.name,
+                                  currentCity: _city.text,
+                                  currentState: _state.text,
+                                  selectedItemStyle: TextStyle(color: Colors.white),
+                                   dropdownDecoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: Colors.white,width: 1),
+                                    color: Colors.transparent,
+                                  ),
+                                  onCountryChanged: (country){
+                                    setState(() {
+                                      _country.text = country;
+                                    });
+                                  },
+                                  onStateChanged: (state){
+                                    setState(() {
+                                      _state.text = state??"" ;
+                                    });
+                                  },
+                                  onCityChanged: (city){
+                                    setState(() {
+                                      _city.text=city??"";
+                                    });
+                                  },
+                                ),
+                              ),
                               InputField("Pin code", _pinCode,leading: Icon(Icons.pin_drop,color: Colors.white,),keyboardType: TextInputType.phone,validator: (text){
                                 if(text==null || text.isEmpty){
                                   return "Required Field";
@@ -493,56 +633,6 @@ class _SignUp2State extends State<SignUp2> {
                                   return "Please enter a 6 digit valid pincode";
                                 }
                               }),
-                              InputField("State", _state,leading: Icon(Icons.stadium_sharp,color: Colors.white,)),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 5,horizontal: 20),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
-                                      alignment:Alignment.centerLeft,
-                                      child: Text("Country",style: TextStyle(fontWeight: FontWeight.w500,color: Colors.white),),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: DropdownSearch<Country>(
-                                              dropdownDecoratorProps: DropDownDecoratorProps(
-                                                baseStyle: TextStyle(color: Colors.white),
-                                                dropdownSearchDecoration: InputDecoration(
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10.0),
-                                                    borderSide: BorderSide(
-                                                      color: Colors.blue,
-                                                    ),
-                                                  ),
-                                                  enabledBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10.0),
-                                                    borderSide: BorderSide(
-                                                      color: Colors.white,
-                                                      width: 1.0,
-                                                    ),
-                                                  ),
-                                                )
-                                              ),
-                                              selectedItem: selectedCountry,
-                                              onChanged: (country){
-                                                setState(() {
-                                                  selectedCountry = country! ;
-                                                });
-                                              },
-                                              items: Countries.map((e) => Country(id: e["id"].toString(), name: e["name"])).toList(),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                               if(isLoading)Container(alignment: Alignment.center,child: CircularProgressIndicator(),)
                               else SignUpButton(context,state),
                             ],)
@@ -616,7 +706,6 @@ class _SignUp2State extends State<SignUp2> {
       ),
     );
   }
-
   Widget InputField(String title,TextEditingController controller,{Icon leading = const Icon(Icons.person,color: Colors.white,),TextInputType keyboardType=TextInputType.text,bool hide=false,bool autocomplete=true,bool uppercase = false,String? Function(String? text)? validator}){
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 40),
@@ -808,7 +897,7 @@ class _SignUp3State extends State<SignUp3> {
                                 ),
                               ),
                               InputField("Account Number", _AccountNo,accountConfirm: true),
-                              InputField("Account Number (Again)", _AccountNoConfirm,accountConfirm:true),
+                              InputField("Re-Enter Account Number", _AccountNoConfirm,accountConfirm:true),
                               InputField("IFSC Code", _IFSCNo),
                               InputField("Holder Name", _HolderName),
                               InputField("Branch Name", _BranchName,leading: Icon(Icons.home_outlined,color: Colors.white,)),
@@ -920,6 +1009,7 @@ class _SignUp3State extends State<SignUp3> {
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 40),
       child: TextFormField(
+        keyboardType: accountConfirm?TextInputType.number:TextInputType.text,
         obscureText: hide,
         controller: controller,
         validator: (text){
@@ -1044,7 +1134,6 @@ class _SignUp4State extends State<SignUp4> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(height: 80,),
                                     Text("Pan Card",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,),),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1109,15 +1198,15 @@ class _SignUp4State extends State<SignUp4> {
                                               :
                                           imgPath["GST"]==null?Icon(Icons.file_copy,size: 60,color: Colors.white,):Image.file(File(imgPath["GST"]!)),),
                                         ElevatedButton(onPressed: ()async{
-                                          XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+                                         FilePickerResult? file = await FilePicker.platform.pickFiles(allowedExtensions: ["pdf","jpg","jpeg"],type: FileType.custom);
                                           if(file!=null){
-                                            int size = await file!.length()~/1024;
+                                            int size = await file.files.single.size~/1024;
                                             if(size>2048){
                                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Image too big. Please select an image below 2mb")));
                                             }
                                             else{
                                               setState(() {
-                                                imgPath["GST"]=file?.path;
+                                                imgPath["GST"]=file.files.single.path;
                                                 gst=null;
                                               });
                                             }
@@ -1352,7 +1441,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
     selectedOfficeCountry = Country(id: "101", name: "India");
     Map country = {"id": "101", "name": "India"};
     try{
-    country = Countries.where((element) => element["id"]==auth.user!.country?.id).first;
+    country = DefaultCountries.where((element) => element["id"]==auth.user!.country?.id).first;
     if (!country.containsKey("id")) {
       country = {"id": "101", "name": "India"};
     }}
@@ -1468,78 +1557,109 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                       child: Text("Office details",style: TextStyle(fontWeight: FontWeight.w500,color: Colors.white),),
                                     ),
                                     InputField("GST Number", _GST,isCapital: true,required:false,leading: Icon(Icons.numbers,color: Colors.white,)),
-                                    InputField("Phone Number", _officePhone,validatePhone: true,leading: Icon(Icons.phone,color: Colors.white,)),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 20),
+                                      margin: EdgeInsets.only(top: 20),
+                                      child: IntlPhoneField(
+                                        initialCountryCode: "IN",
+                                        showCountryFlag: false,
+                                        dropdownIcon: const Icon(Icons.arrow_drop_down,color: Colors.white,),
+                                        style: TextStyle(color: Colors.white),
+                                        dropdownTextStyle: TextStyle(color: Colors.white),
+                                        decoration: InputDecoration(
+                                          label: Text("Phone Number",
+                                            style: TextStyle(color: Colors.white),),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                            borderSide: BorderSide(
+                                              color: Colors.blue,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                            borderSide: BorderSide(
+                                              color: Colors.white,
+                                              width: 1.0,
+                                            ),
+                                          ),
+                                        ),
+                                        validator: (text){
+                                          if(text==null || text.completeNumber.isEmpty){
+                                            return "Required field";
+                                          }
+                                          if(text.completeNumber.length<12 || text.completeNumber.length>15){
+                                            return "Please enter a valid number";
+                                          }
+                                        },
+                                        onChanged: (number){
+                                          _officePhone.text = number.completeNumber;
+                                        },
+                                      ),
+                                    ),
                                     InputField("Flat / House / Building Number", _officeNo,leading: Icon(Icons.home_filled,color: Colors.white,)),
                                     InputField("Street/Sector/Village/Area", _officeArea,leading: Icon(Icons.home_filled,color: Colors.white,)),
                                     InputField("Landmark", _officeLandmark,leading: Icon(Icons.home_filled,color: Colors.white,)),
-                                    InputField("City", _officeCity,leading: Icon(Icons.location_city,color: Colors.white,)),
-                                    InputField("PinCode", _officePinCode,leading: Icon(Icons.pin_drop,color: Colors.white,),isPin:true),
-                                    InputField("State", _officeState,leading: Icon(Icons.stadium_sharp,color: Colors.white,)),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
-                                      child: Column(
-                                        children: [
-                                          Container(
-                                            padding: EdgeInsets.symmetric(vertical: 10),
-                                            alignment:Alignment.centerLeft,
-                                            child: Text("Country",style: TextStyle(fontWeight: FontWeight.w500,color: Colors.white),),
-                                          ),
-                                          Row(
-                                            children: [
-                                            Expanded(
-                                              child: DropdownSearch<Country>(
-                                                dropdownDecoratorProps: DropDownDecoratorProps(
-                                                    baseStyle:TextStyle(color: Colors.white),
-                                                    dropdownSearchDecoration: InputDecoration(
-                                                    prefixIcon: Icon(Icons.person,color: Colors.white,),
-                                                    focusedBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(10.0),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.blue,
-                                                      ),
-                                                    ),
-                                                    enabledBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(10.0),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.white,
-                                                        width: 1.0,
-                                                      ),
-                                                    ),
-                                                  )
-                                                ),
-                                              selectedItem: selectedOfficeCountry,
-                                              onChanged: (country){
-                                                setState(() {
-                                                  selectedOfficeCountry = country! ;
-                                                });
-                                              },
-                                              items: Countries.map((e) => Country(id: e["id"].toString(), name: e["name"])).toList(),
-                                          ),
-                                            ),
-                                            ],
-                                          ),
-                                        ],
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+                                      child: CSCPicker(
+                                        defaultCountry: CscCountry.India,
+                                        showStates: true,
+                                        showCities: true,
+                                        disabledDropdownDecoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(color: Colors.white,width: 1),
+                                          color: Colors.transparent,
+                                        ),
+                                        currentCountry: selectedOfficeCountry.name,
+                                        currentCity: _officeCity.text,
+                                        currentState: _officeState.text,
+                                        selectedItemStyle: TextStyle(color: Colors.white),
+                                        dropdownDecoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(color: Colors.white,width: 1),
+                                          color: Colors.transparent,
+                                        ),
+                                        onCountryChanged: (country){
+                                          setState(() {
+                                            _officeCountry.text = country;
+                                          });
+                                        },
+                                        onStateChanged: (state){
+                                          setState(() {
+                                            _officeState.text = state??"" ;
+                                          });
+                                        },
+                                        onCityChanged: (city){
+                                          setState(() {
+                                            _officeCity.text=city??"";
+                                          });
+                                        },
                                       ),
                                     ),
+                                    InputField("PinCode", _officePinCode,leading: Icon(Icons.pin_drop,color: Colors.white,),isPin:true),
                                     Container(
                                       alignment: Alignment.centerLeft,
                                       margin: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
                                       child: Text("Service details",style: TextStyle(fontWeight: FontWeight.w500,color: Colors.white),),
                                     ),
-                                    ExpansionTile(
-                                      shape: OutlineInputBorder(borderSide: BorderSide(width: 1,color: Colors.white),borderRadius: BorderRadius.circular(5)),
-                                      textColor: Colors.white,
-                                      iconColor: Colors.white,
-                                      collapsedTextColor: Colors.white,
-                                      key: GlobalKey(),
-                                      title: Text(serviceOption,style: TextStyle(color: Colors.white),),
-                                      children: state.options!.serviceOptions.map(
-                                            (e) => ListTile(title: Text(e.service,style: TextStyle(color: Colors.white),),onTap: (){
-                                          setState(() {
-                                            serviceOption = e.service ;
-                                            serviceId = e.id ;
-                                          });
-                                        },),).toList(),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+                                      child: ExpansionTile(
+                                        collapsedShape: OutlineInputBorder(borderSide: BorderSide(width: 1,color: Colors.white),borderRadius: BorderRadius.circular(5)),
+                                        shape: OutlineInputBorder(borderSide: BorderSide(width: 1,color: Colors.white),borderRadius: BorderRadius.circular(5)),
+                                        textColor: Colors.white,
+                                        iconColor: Colors.white,
+                                        collapsedTextColor: Colors.white,
+                                        key: GlobalKey(),
+                                        title: Text(serviceOption,style: TextStyle(color: Colors.white),),
+                                        children: state.options!.serviceOptions.map(
+                                              (e) => ListTile(title: Text(e.service,style: TextStyle(color: Colors.white),),onTap: (){
+                                            setState(() {
+                                              serviceOption = e.service ;
+                                              serviceId = e.id ;
+                                            });
+                                          },),).toList(),
+                                      ),
                                     ),
                                     InputField("Service Description", _serviceDescription,leading: Icon(Icons.description,color: Colors.white,)),
                                     InputField("Material Description", _materialDescription,leading: Icon(Icons.description_outlined,color: Colors.white,)),
@@ -1610,7 +1730,44 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                             child: Text("Driver details",style: TextStyle(fontWeight: FontWeight.w500,color: Colors.white),),
                                           ),
                                           InputField("Name", _driverName),
-                                          InputField("Mobile Number", _driverMob,validatePhone: true),
+                                          Container(
+                                            padding: EdgeInsets.only(left: 40,right: 40,top: 30),
+                                            child: IntlPhoneField(
+                                              initialCountryCode: "IN",
+                                              showCountryFlag: false,
+                                              dropdownIcon: const Icon(Icons.arrow_drop_down,color: Colors.white,),
+                                              style: TextStyle(color: Colors.white),
+                                              dropdownTextStyle: TextStyle(color: Colors.white),
+                                              decoration: InputDecoration(
+                                                label: Text("Phone Number",
+                                                  style: TextStyle(color: Colors.white),),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10.0),
+                                                  borderSide: BorderSide(
+                                                    color: Colors.blue,
+                                                  ),
+                                                ),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(10.0),
+                                                  borderSide: BorderSide(
+                                                    color: Colors.white,
+                                                    width: 1.0,
+                                                  ),
+                                                ),
+                                              ),
+                                              validator: (text){
+                                                if(text==null || text.completeNumber.isEmpty){
+                                                  return "Required field";
+                                                }
+                                                if(text.completeNumber.length<12 || text.completeNumber.length>15){
+                                                  return "Please enter a valid number";
+                                                }
+                                              },
+                                              onChanged: (number){
+                                                _driverMob.text = number.completeNumber;
+                                              },
+                                            ),
+                                          ),
                                           Container(
                                             margin: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
                                             child: InputDecorator(
@@ -1933,9 +2090,6 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
                                 child: Image.asset("assets/images/logo/logo.png")),
                           ],
                         ),
-                      ),
-                      SizedBox(
-                        height: 100,
                       ),
                       Text(
                         'Terms and Conditions',

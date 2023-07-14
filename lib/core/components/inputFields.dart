@@ -49,7 +49,7 @@ class _InputFieldState extends State<InputField> {
             setState(() {
               widget.obscureText=!widget.obscureText;
             });
-          },icon: Icon(Icons.remove_red_eye_outlined),
+          },icon: Icon(Icons.remove_red_eye_outlined,color: Colors.white,),
         )
             :
         null),
