@@ -24,6 +24,7 @@ import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/notifications.dart';
 import 'package:utsavlife/routes/pdfView.dart';
 import 'package:utsavlife/routes/servicelist.dart';
+import 'package:utsavlife/routes/settingsPage.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
 import '../core/models/dropdown.dart';
 import '../core/models/order.dart';
@@ -100,6 +101,9 @@ class _HomepageState extends State<Homepage> {
                     }),
                   ),
                   ListTile(title:Text( "Notifications"), leading:Icon( Icons.notifications_active), onTap: (){}),
+                  ListTile(title:Text( "Settings"), leading:Icon( Icons.settings), onTap: (){
+                    Navigator.pushNamed(context, SettingsPage.routeName);
+                  }),
                   ListTile(title:Text( "Logout"), leading:Icon( Icons.logout), onTap: (){
                     Provider.of<AuthProvider>(context,listen: false).logout();
                     Navigator.pushReplacementNamed(context, MainPage.routeName);

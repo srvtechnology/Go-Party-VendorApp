@@ -181,3 +181,35 @@ Future completeRegistrationTerms(AuthProvider auth)async{
 
   }
 }
+
+Future<void> deactivateAccount(AuthProvider auth)async{
+  try{
+    Response response = await Dio().post("${APIConfig.baseUrl}/api/manage-vendor/inactive");
+  }catch(e){
+    if(e is DioError){
+      CustomLogger.error(e.response?.data);
+    }
+    return Future.error(e);
+  }
+}
+Future<void> activateAccount(AuthProvider auth)async{
+  try{
+    Response response = await Dio().post("${APIConfig.baseUrl}/api/manage-vendor/active");
+  }catch(e){
+    if(e is DioError){
+      CustomLogger.error(e.response?.data);
+    }
+    return Future.error(e);
+  }
+}
+
+Future<void> deleteAccount(AuthProvider auth)async{
+  try{
+    Response response = await Dio().post("${APIConfig.baseUrl}/api/api/manage-vendor/delete");
+  }catch(e){
+    if(e is DioError){
+      CustomLogger.error(e.response?.data);
+    }
+    return Future.error(e);
+  }
+}

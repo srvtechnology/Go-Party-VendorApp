@@ -13,6 +13,7 @@ import 'package:utsavlife/routes/mainpage.dart';
 import 'package:utsavlife/routes/notifications.dart';
 import 'package:utsavlife/routes/otpPage.dart';
 import 'package:utsavlife/routes/servicelist.dart';
+import 'package:utsavlife/routes/settingsPage.dart';
 import 'package:utsavlife/routes/signIn.dart';
 import 'package:utsavlife/routes/signUp.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
@@ -66,6 +67,8 @@ void main() {
                         OtpPageRoute.routeName:(context)=>const SafeArea(child: OtpPageRoute()),
                         serviceListRoute.routeName:(context)=> const SafeArea(child: serviceListRoute()),
                         AddServiceRoute.routeName:(context)=> SafeArea(child: AddServiceRoute()),
+                        SettingsPage.routeName:(context)=> SafeArea(child: SettingsPage()),
+                        AccountPage.routeName:(context)=>SafeArea(child: AccountPage())
                     },
                   );
                 }
