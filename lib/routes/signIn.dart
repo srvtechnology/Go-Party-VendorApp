@@ -107,7 +107,7 @@ class _SignInState extends State<SignIn> {
                                     style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                                       onPressed: () {
                                     Navigator.pushNamed(context, SignUp.routeName);
-                                  }, child: const Text("New? Sign up",style: TextStyle(color: Colors.white),)),
+                                  }, child: const Text("Register for new vendor",style: TextStyle(color: Colors.white),)),
                                 ),
                               ],
                             ),

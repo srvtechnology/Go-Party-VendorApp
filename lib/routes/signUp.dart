@@ -151,6 +151,7 @@ class _SignUp1State extends State<SignUp1> {
                       Navigator.pushReplacementNamed(context, MainPage.routeName);
                     },icon: Icon(Icons.arrow_back_ios),),
                     elevation: 0,
+                    title: Text("Basic Information",style: TextStyle(fontWeight: FontWeight.w400),),
                     iconTheme: IconThemeData(color: Colors.black),
                   ),
                   body: Form(
@@ -508,6 +509,7 @@ class _SignUp2State extends State<SignUp2> {
                         CustomLogger.debug(state.authState);
                       },icon: Icon(Icons.arrow_back_ios),),
                       elevation: 0,
+                      title: Text("Personal Information",style: TextStyle(fontWeight: FontWeight.w400),),
                       iconTheme: IconThemeData(color: Colors.black),
                     ),
                     body: Form(
@@ -831,6 +833,7 @@ class _SignUp3State extends State<SignUp3> {
                         state.setRegisterProgress(RegisterProgress.three);
                       },icon: Icon(Icons.arrow_back_ios),),
                       elevation: 0,
+                      title: Text("Bank details",style: TextStyle(fontWeight: FontWeight.w400),),
                       iconTheme: IconThemeData(color: Colors.black),
                     ),
                     body: Form(
@@ -1111,6 +1114,7 @@ class _SignUp4State extends State<SignUp4> {
                         state.setRegisterProgress(RegisterProgress.four);
                       },icon: Icon(Icons.arrow_back_ios),),
                       elevation: 0,
+                      title: Text("KYC documents",style: TextStyle(fontWeight: FontWeight.w400),),
                       iconTheme: IconThemeData(color: Colors.black),
                     ),
                     body: Form(
@@ -1529,6 +1533,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                             regState.setRegisterProgress(RegisterProgress.two);
                           },icon: Icon(Icons.arrow_back_ios),),
                           elevation: 0,
+                          title: Text("Office Details",style: TextStyle(fontWeight: FontWeight.w400),),
                           iconTheme: IconThemeData(color: Colors.black),
                         ),
                         body: Form(
@@ -1550,11 +1555,6 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                               child: Image.asset("assets/images/logo/logo.png")),
                                         ],
                                       ),
-                                    ),
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      margin: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
-                                      child: Text("Office details",style: TextStyle(fontWeight: FontWeight.w500,color: Colors.white),),
                                     ),
                                     InputField("GST Number", _GST,isCapital: true,required:false,leading: Icon(Icons.numbers,color: Colors.white,)),
                                     Container(
@@ -2073,6 +2073,7 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
                   registerState.setRegisterProgress(RegisterProgress.five);
                 },icon: Icon(Icons.arrow_back_ios),),
                 elevation: 0,
+                title: Text("Terms and Conditions",style: TextStyle(fontWeight: FontWeight.w400),),
                 iconTheme: IconThemeData(color: Colors.black),
               ),
               body: DefaultTextStyle(
@@ -2091,13 +2092,13 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
                           ],
                         ),
                       ),
-                      Text(
-                        'Terms and Conditions',
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      // Text(
+                      //   'Terms and Conditions',
+                      //   style: TextStyle(
+                      //     fontSize: 18.0,
+                      //     fontWeight: FontWeight.bold,
+                      //   ),
+                      // ),
                       SizedBox(height: 16.0),
                       Text(
                         'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
