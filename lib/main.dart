@@ -18,6 +18,7 @@ import 'package:utsavlife/routes/signIn.dart';
 import 'package:utsavlife/routes/signUp.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
 import 'package:utsavlife/routes/splash.dart';
+import 'package:utsavlife/routes/wallet.dart';
 import 'core/provider/networkProvider.dart';
 import 'core/provider/showcaseProvider.dart';
 
@@ -68,7 +69,8 @@ void main() {
                         serviceListRoute.routeName:(context)=> const SafeArea(child: serviceListRoute()),
                         AddServiceRoute.routeName:(context)=> SafeArea(child: AddServiceRoute()),
                         SettingsPage.routeName:(context)=> SafeArea(child: SettingsPage()),
-                        AccountPage.routeName:(context)=>SafeArea(child: AccountPage())
+                        AccountPage.routeName:(context)=>SafeArea(child: AccountPage()),
+                        WalletPage.routeName:(context)=>SafeArea(child: WalletPage()),
                     },
                   );
                 }

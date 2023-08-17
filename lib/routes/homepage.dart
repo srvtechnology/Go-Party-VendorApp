@@ -26,6 +26,7 @@ import 'package:utsavlife/routes/pdfView.dart';
 import 'package:utsavlife/routes/servicelist.dart';
 import 'package:utsavlife/routes/settingsPage.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
+import 'package:utsavlife/routes/wallet.dart';
 import '../core/models/dropdown.dart';
 import '../core/models/order.dart';
 import '../core/utils/scaling.dart';
@@ -104,6 +105,9 @@ class _HomepageState extends State<Homepage> {
                   ListTile(title:Text( "Settings"), leading:Icon( Icons.settings), onTap: (){
                     Navigator.pushNamed(context, SettingsPage.routeName);
                   }),
+                  ListTile(title:Text( "Wallet"), leading:Icon( Icons.wallet), onTap: (){
+                    Navigator.pushNamed(context, WalletPage.routeName);
+                  }),
                   ListTile(title:Text( "Logout"), leading:Icon( Icons.logout), onTap: (){
                     Provider.of<AuthProvider>(context,listen: false).logout();
                     Navigator.pushReplacementNamed(context, MainPage.routeName);
@@ -113,23 +117,31 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
           appBar: AppBar(
+            elevation: 0,
+            centerTitle: true,
+            title: Padding(
+              padding: const EdgeInsets.only(right: 25),
+              child: SizedBox(child: Image.asset("assets/images/logo/logo.png",),height: 25,),
+            ),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             leading: IconButton(
+              color: Theme.of(context).primaryColorDark,
               onPressed: (){
                 try{
                   ShowCaseWidget.of(context).startShowCase([_addServices,_serviceList]);
                 }catch(e){}
                 _scaffoldKey.currentState!.openDrawer();
               },
-              icon: Icon(Icons.menu,color: Colors.white,),
+              icon: Icon(Icons.menu),
             ),
             actions: [
               IconButton(onPressed: (){
                 Provider.of<AuthProvider>(context,listen: false).logout();
                 Navigator.pushReplacementNamed(context, MainPage.routeName);
-              }, icon: Icon(Icons.logout)),
+              }, icon: Icon(Icons.logout,color: Theme.of(context).primaryColorDark,)),
               IconButton(onPressed: (){
                 Navigator.pushNamed(context, NotificationPage.routeName);
-              }, icon:const Icon(Icons.notifications))
+              }, icon: Icon(Icons.notifications,color: Theme.of(context).primaryColorDark))
             ],
           ),
             body: items[index],

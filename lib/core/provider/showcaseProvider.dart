@@ -31,6 +31,7 @@ class ShowCaseProvider with ChangeNotifier{
   }
   Future<void> setState()async{
     _pref!.setBool("showcase", false);
+    _show = false;
     notifyListeners();
   }
 

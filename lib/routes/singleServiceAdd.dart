@@ -85,7 +85,9 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
            }
           return Consumer<MapProvider>(
             builder:(context,mapState,child)=>Scaffold(
-              appBar: AppBar(),
+              appBar: AppBar(
+                title: Text("Add service"),
+              ),
               body: Form(
                 key: _formKey,
                 child: Container(
