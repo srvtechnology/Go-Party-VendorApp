@@ -184,7 +184,11 @@ Future completeRegistrationTerms(AuthProvider auth)async{
 
 Future<void> deactivateAccount(AuthProvider auth)async{
   try{
-    Response response = await Dio().post("${APIConfig.baseUrl}/api/manage-vendor/inactive");
+    Response response = await Dio().get("${APIConfig.baseUrl}/api/manage-vendor/inactive",
+        options: Options(headers: {
+          "Authorization":"Bearer ${auth.token}"
+        })
+    );
   }catch(e){
     if(e is DioError){
       CustomLogger.error(e.response?.data);

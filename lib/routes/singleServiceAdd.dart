@@ -97,17 +97,17 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                   child: SingleChildScrollView(
                     child: Column(
                       children:<Widget>[
-                        ExpansionTile(
-                          key: GlobalKey(),
-                            title: Text(serviceOption),
-                          children: state.options!.serviceOptions.map(
-                                (e) => ListTile(title: Text(e.service),onTap: (){
-                                  setState(() {
-                                    serviceOption = e.service ;
-                                    serviceId = e.id ;
-                                  });
-                                },),).toList(),
-                        ),
+                        // ExpansionTile(
+                        //   key: GlobalKey(),
+                        //     title: Text(serviceOption),
+                        //   children: state.options!.serviceOptions.map(
+                        //         (e) => ListTile(title: Text(e.service),onTap: (){
+                        //           setState(() {
+                        //             serviceOption = e.service ;
+                        //             serviceId = e.id ;
+                        //           });
+                        //         },),).toList(),
+                        // ),
                         InputField("Company Name", _companyName),
                         InputField("Address", _companyAddress,autoComplete: true,state: mapState),
                         if(showLocationList&&mapState.locations.isNotEmpty)
