@@ -113,7 +113,7 @@ class _WalletPageState extends State<WalletPage> {
                       Container(
                         height: 20.h,
                         width: double.infinity,
-                        margin: EdgeInsets.symmetric(horizontal: 40,vertical: 10),
+                        margin: EdgeInsets.symmetric(horizontal: 40,vertical: 5),
                         padding: EdgeInsets.symmetric(vertical: 15,horizontal: 20),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -133,16 +133,16 @@ class _WalletPageState extends State<WalletPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Total cash: ",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16),),
-                                Text(state.walletData.totalAmount.toString(),style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16),),
+                                Text("Available to withdraw: ",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16),),
+                                Text(state.walletData.availableToWithdraw.toString(),style: TextStyle(fontWeight: FontWeight.w400,fontSize: 16),),
                               ],
                             ),
                             const SizedBox(height: 20,),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Available to withdraw: ",style: TextStyle(fontWeight: FontWeight.w400,fontSize: 15),),
-                                Text(state.walletData.availableToWithdraw.toString(),style: TextStyle(fontWeight: FontWeight.w400,fontSize: 15),),
+                                Text("Pending Amount: ",style: TextStyle(fontSize: 15),),
+                                Text(state.walletData.totalAmount.toString(),style: TextStyle(fontWeight: FontWeight.w400,fontSize: 15),),
                               ],
                             ),
                             const SizedBox(height: 10,),
@@ -153,11 +153,11 @@ class _WalletPageState extends State<WalletPage> {
                         ),
                       ),
                       Container(
-                          margin: EdgeInsets.symmetric(horizontal: 40,vertical: 20),
+                          margin: EdgeInsets.symmetric(horizontal: 40,vertical: 10),
                           child: Text("Latest Transactions",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16),)),
                       Expanded(
                           child: Container(
-                            padding: EdgeInsets.all(40),
+                            padding: EdgeInsets.all(20),
                             width: double.infinity,
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
@@ -216,11 +216,18 @@ class TransactionTile extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: CircleAvatar(backgroundColor: Colors.redAccent,radius: 15,child: Text("D"),)),
-          Expanded(flex:4,child: Center(child: Text(transaction.id.toString()))),
-          Expanded(flex: 2,child: Container(
+          Expanded(flex:2,child: Center(child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Wallet Debit"),
+              Text(transaction.transactionDate.toString().substring(0,10),style: TextStyle(color: Colors.grey,fontSize: 12),),
+            ],
+          ))),
+          Expanded(flex: 4,child: Container(
             padding: EdgeInsets.symmetric(horizontal: 30),
               alignment: Alignment.centerRight,
-              child: FittedBox(child: Text(transaction.amount.toString()))))
+              child: FittedBox(child: Text(" ${transaction.amount.toString()}"))))
         ],
       ),
     );

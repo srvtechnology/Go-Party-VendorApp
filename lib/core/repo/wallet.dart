@@ -34,6 +34,7 @@ Future<List<Transaction>> getTransactionDetails(AuthProvider auth)async{
           }
         )
     );
+    CustomLogger.debug(response.data);
     List<Transaction> data=[];
     for (var i in response.data["transactions"]){
       data.add(Transaction.fromJson(i));

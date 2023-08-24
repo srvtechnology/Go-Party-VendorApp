@@ -5,9 +5,11 @@ import 'package:csc_picker/csc_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_field/countries.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/components/loading.dart';
+import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/ServiceProvider.dart';
 import 'package:utsavlife/core/provider/mapProvider.dart';
@@ -381,6 +383,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       });
       return;
     }
+    String countryId = DefaultCountries.firstWhere((element) => element["name"]== selectedCountry)["id"].toString();
     if(_formKey.currentState!.validate()){
       Map<String,dynamic> serviceData = {
         "service_id":serviceId,
@@ -399,7 +402,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
         "driver_area":_driverArea.text,
         "driver_landmark":_driverLandmark.text,
         "driver_city":_driverCity.text,
-        "country":selectedCountry,
+        "country":countryId,
         "state":selectedState,
         "city":selectedCity,
         "driver_state":_driverState.text,

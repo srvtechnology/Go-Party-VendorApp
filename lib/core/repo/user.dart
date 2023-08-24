@@ -16,6 +16,7 @@ Future<UserModel> get_UserData(String token)async{
             }
         )
     );
+    CustomLogger.debug(response.data);
     return UserModel.fromJson(response.data);
   }
   catch(e){
