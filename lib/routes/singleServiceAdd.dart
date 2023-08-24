@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:csc_picker/csc_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,7 +25,8 @@ class AddServiceRoute extends StatefulWidget {
 }
 
 class _AddServiceRouteState extends State<AddServiceRoute> {
-  String serviceOption = "Select Service",serviceId="";
+  String serviceOption = "Select Service";
+  String? serviceId;
 
   final _formKey = GlobalKey<FormState>();
   bool showLocationList = false;
@@ -49,6 +51,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
   String? driverImage,drivingLicenseImage;
   List<AddProductPhoto> productImages = [];
   late DropDownField selectedKyc;
+  String? selectedCountry="India",selectedState,selectedCity;
 
   List<DropDownField> kyctypes = [
     DropDownField(title: "Aadhar",value: "AD"),
@@ -97,19 +100,56 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                   child: SingleChildScrollView(
                     child: Column(
                       children:<Widget>[
-                        // ExpansionTile(
-                        //   key: GlobalKey(),
-                        //     title: Text(serviceOption),
-                        //   children: state.options!.serviceOptions.map(
-                        //         (e) => ListTile(title: Text(e.service),onTap: (){
-                        //           setState(() {
-                        //             serviceOption = e.service ;
-                        //             serviceId = e.id ;
-                        //           });
-                        //         },),).toList(),
-                        // ),
+                        ExpansionTile(
+                          key: GlobalKey(),
+                            title: Text(serviceOption),
+                          children: state.options!.serviceOptions.map(
+                                (e) => ListTile(title: Text(e.service),onTap: (){
+                                  setState(() {
+                                    serviceOption = e.service ;
+                                    serviceId = e.id ;
+                                  });
+                                },),).toList(),
+                        ),
                         InputField("Company Name", _companyName),
                         InputField("Address", _companyAddress,autoComplete: true,state: mapState),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: CSCPicker(
+                            flagState: CountryFlag.DISABLE,
+                            defaultCountry: CscCountry.India,
+                            showStates: true,
+                            showCities: true,
+                            disabledDropdownDecoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                                border: Border.all(width: 0.5,color: Colors.grey)
+
+                            ),
+
+                            currentCountry: selectedCountry,
+                            currentCity: selectedCity,
+                            currentState: selectedState,
+                            dropdownDecoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(width: 0.5,color: Colors.grey)
+                            ),
+                            onCountryChanged: (country){
+                              setState(() {
+                                selectedCountry = country;
+                              });
+                            },
+                            onStateChanged: (state){
+                              setState(() {
+                                selectedState = state??"" ;
+                              });
+                            },
+                            onCityChanged: (city){
+                              setState(() {
+                                selectedCity=city??"";
+                              });
+                            },
+                          ),
+                        ),
                         if(showLocationList&&mapState.locations.isNotEmpty)
                           ListView.builder(
                               physics: ClampingScrollPhysics(),
@@ -327,6 +367,20 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
     );
   }
   void createService(AuthProvider auth)async{
+    if(serviceId==null){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select service")));
+      setState(() {
+        isLoading=false;
+      });
+      return;
+    }
+    if(selectedCountry==null || selectedState==null || selectedCity==null){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select Country, state and city")));
+      setState(() {
+        isLoading=false;
+      });
+      return;
+    }
     if(_formKey.currentState!.validate()){
       Map<String,dynamic> serviceData = {
         "service_id":serviceId,
@@ -345,6 +399,9 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
         "driver_area":_driverArea.text,
         "driver_landmark":_driverLandmark.text,
         "driver_city":_driverCity.text,
+        "country":selectedCountry,
+        "state":selectedState,
+        "city":selectedCity,
         "driver_state":_driverState.text,
        "img6":driverImage==null?null:await MultipartFile.fromFile(driverImage!),
        "img5":drivingLicenseImage==null?null:await MultipartFile.fromFile(drivingLicenseImage!),

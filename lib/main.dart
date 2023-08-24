@@ -46,7 +46,6 @@ void main() {
               return ShowCaseWidget(
               enableShowcase: state.show,
               onFinish: (){
-                CustomLogger.debug("Finished");
                 state.setState();
               },
               builder: Builder(

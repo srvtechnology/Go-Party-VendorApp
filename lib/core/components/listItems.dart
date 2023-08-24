@@ -293,7 +293,7 @@ class CustomServiceItem extends StatelessWidget {
                         padding: const EdgeInsets.only(left: 20),
                         child: Text("${(index+1)}",style: TextStyle(color: Colors.white),),
                       ),
-                      Text(service.address!.substring(0,min(service.address!.length,10)),style: TextStyle(color: Colors.white),)
+                      Text(service.address?.substring(0,min(service.address!.length,10))??"",style: TextStyle(color: Colors.white),)
                     ],
                   ),
                   )),

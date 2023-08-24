@@ -533,7 +533,7 @@ class _SignUp2State extends State<SignUp2> {
                                   uppercase: true,
                                   leading: Icon(Icons.numbers,color: Colors.white,),
                                   validator: (text){
-                                      if(text==null || text.isEmpty)return "Required";
+                                      if(text==null || text.isEmpty)return null;
                                       if(text.length!=10 || (isNumeric(text.substring(0,5))) || (!isNumeric(text.substring(5,9))) || (isNumeric(text.substring(9,10)))) return "Please enter a valid Pan Number";
                                   }
                               ),
@@ -583,7 +583,7 @@ class _SignUp2State extends State<SignUp2> {
                               InputField("${selectedKyc.title} Number (optional)",
                                   _kycNo,
                                   validator: (text){
-                                          if(text==null || text.isEmpty)return "Required";
+                                        if(text==null || text.isEmpty)return null;
                                           if(selectedKyc.value=="AD" && text.length!=12) return "Please enter a valid number";
                                           if(text.length<12) return "Please enter a valid number";
                                   }),

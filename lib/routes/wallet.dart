@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/core/models/wallet.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/walletProvider.dart';
+import 'package:utsavlife/core/repo/wallet.dart';
 
 class WalletPage extends StatefulWidget {
   static const routeName = "/wallet";
@@ -14,7 +16,9 @@ class WalletPage extends StatefulWidget {
 
 class _WalletPageState extends State<WalletPage> {
   final TextEditingController _withdrawAmount = TextEditingController();
-  void _withdraw(BuildContext context){
+  final _formKey = GlobalKey<FormState>();
+
+  void _withdraw(BuildContext context,double withdrawAmount){
     showModalBottomSheet(context: context,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(topRight: Radius.circular(25),topLeft: Radius.circular(25))
@@ -32,26 +36,37 @@ class _WalletPageState extends State<WalletPage> {
                   children: [
                     Text("Available to withdraw",style: TextStyle(fontWeight: FontWeight.w400,fontSize: 16),),
                     const SizedBox(height: 10,),
-                    Text("₹ 300",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 20),),
+                    Text("₹ $withdrawAmount",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 20),),
                   ],
                 ),
                 const SizedBox(height: 20,),
-                TextFormField(
-                  keyboardType: TextInputType.number,
+                Form(
+                  key: _formKey,
+                  child: TextFormField(
+                  keyboardType: TextInputType.numberWithOptions(signed: false),
                   controller: _withdrawAmount,
                   decoration: InputDecoration(
-                    labelText: "Enter Amount",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15)
-                    )
+                      labelText: "Enter Amount",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15)
+                      )
                   ),
-                ),
+                ),),
                 const SizedBox(height: 10,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ElevatedButton(onPressed: (){
-
+                    ElevatedButton(onPressed: ()async{
+                      if(_formKey.currentState!.validate()){
+                        try{
+                          Navigator.pop(context);
+                          await withdrawAmountFromWallet(context.read<AuthProvider>(), _withdrawAmount.text);
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Your withdrawal request has been successfully placed and forwarded to admin for approval")));
+                        }
+                        catch(e){
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Some error occurred, Please try again.")));
+                        }
+                      }
                     }, child: Text("Withdraw"))
                   ],
                 )
@@ -69,6 +84,7 @@ class _WalletPageState extends State<WalletPage> {
         builder: (context,state,child) {
           if(state.isLoading){
             return Container(
+              color: Colors.white,
               alignment: Alignment.center,
               child: CircularProgressIndicator(),
             );
@@ -118,7 +134,7 @@ class _WalletPageState extends State<WalletPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text("Total cash: ",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16),),
-                                Text("300",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16),),
+                                Text(state.walletData.totalAmount.toString(),style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16),),
                               ],
                             ),
                             const SizedBox(height: 20,),
@@ -126,12 +142,12 @@ class _WalletPageState extends State<WalletPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text("Available to withdraw: ",style: TextStyle(fontWeight: FontWeight.w400,fontSize: 15),),
-                                Text("300",style: TextStyle(fontWeight: FontWeight.w400,fontSize: 15),),
+                                Text(state.walletData.availableToWithdraw.toString(),style: TextStyle(fontWeight: FontWeight.w400,fontSize: 15),),
                               ],
                             ),
                             const SizedBox(height: 10,),
                             ElevatedButton(onPressed: (){
-                              _withdraw(context);
+                              _withdraw(context,state.walletData.availableToWithdraw);
                             }, child: Text("Withdraw"),style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColorDark),)
                             ],
                         ),
@@ -141,7 +157,8 @@ class _WalletPageState extends State<WalletPage> {
                           child: Text("Latest Transactions",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16),)),
                       Expanded(
                           child: Container(
-                            padding: EdgeInsets.all(20),
+                            padding: EdgeInsets.all(40),
+                            width: double.infinity,
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
                               borderRadius: BorderRadius.only(topLeft: Radius.circular(50),topRight: Radius.circular(50)),
@@ -154,20 +171,13 @@ class _WalletPageState extends State<WalletPage> {
                                   )
                                 ]
                             ),
-                            child: Column(
-                              children: [
-                                TransactionTile(),
-                                TransactionTile(),
-                                TransactionTile(),
-                                TransactionTile(),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    TextButton(onPressed: (){}, child: Text("See more",style: TextStyle(color: Theme.of(context).primaryColor),))
-                                  ],
-                                )
-                              ],
-                            ),
+                            child: state.transactionData.isNotEmpty?SingleChildScrollView(
+                              child: Column(
+                                children: state.transactionData.map(
+                                        (e) => TransactionTile(transaction: e,)
+                                ).toList()
+                              ),
+                            ):Text("Looks like you do not have any Transactions !",textAlign: TextAlign.center,style: TextStyle(fontSize: 16.sp,fontWeight: FontWeight.w500),),
                           )),
                     ],
                   ),
@@ -183,8 +193,8 @@ class _WalletPageState extends State<WalletPage> {
 }
 
 class TransactionTile extends StatelessWidget {
-
-  const TransactionTile({Key? key}) : super(key: key);
+  final Transaction transaction;
+  TransactionTile({Key? key,required this.transaction}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -206,11 +216,11 @@ class TransactionTile extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: CircleAvatar(backgroundColor: Colors.redAccent,radius: 15,child: Text("D"),)),
-          Expanded(flex:4,child: Center(child: Text("1232442fref4t4"))),
+          Expanded(flex:4,child: Center(child: Text(transaction.id.toString()))),
           Expanded(flex: 2,child: Container(
             padding: EdgeInsets.symmetric(horizontal: 30),
               alignment: Alignment.centerRight,
-              child: FittedBox(child: Text("300"))))
+              child: FittedBox(child: Text(transaction.amount.toString()))))
         ],
       ),
     );

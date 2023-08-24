@@ -23,3 +23,18 @@ class Transaction {
     );
   }
 }
+
+class WalletModel {
+  double totalAmount,availableToWithdraw;
+  WalletModel({
+   required this.totalAmount,
+   required this.availableToWithdraw,
+});
+
+  factory WalletModel.fromJson(Map json){
+    return WalletModel(
+        totalAmount: double.parse(json["wallet_total"].toString()),
+        availableToWithdraw:double.parse(json["withdraw"].toString())
+    );
+  }
+}
