@@ -198,7 +198,12 @@ Future<void> deactivateAccount(AuthProvider auth)async{
 }
 Future<void> activateAccount(AuthProvider auth)async{
   try{
-    Response response = await Dio().post("${APIConfig.baseUrl}/api/manage-vendor/active");
+    Response response = await Dio().get("${APIConfig.baseUrl}/api/manage-vendor/active",
+        options: Options(headers: {
+          "Authorization":"Bearer ${auth.token}"
+        })
+    );
+    CustomLogger.debug(response.data);
   }catch(e){
     if(e is DioError){
       CustomLogger.error(e.response?.data);

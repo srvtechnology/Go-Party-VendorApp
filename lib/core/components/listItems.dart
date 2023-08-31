@@ -9,6 +9,7 @@ import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/core/provider/ServiceProvider.dart';
 import 'package:utsavlife/core/repo/order.dart';
+import 'package:utsavlife/routes/partialPaymentPage.dart';
 import '../../routes/singleService.dart';
 import '../models/order.dart';
 
@@ -18,9 +19,11 @@ class CustomOrderItem extends StatefulWidget {
   Ontap? ontap;
   OrderModel order;
   bool showButtons;
+  UpcomingOrderProvider? state;
   CustomOrderItem({
   Key? key,
   required this.order,
+    this.state,
     this.ontap,
     this.showButtons=true
   }) : super(key: key);
@@ -108,6 +111,7 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
                      Text("Date: "),
                      Text("Location: "),
                      Text("Days"),
+                     Text("Payment Status")
                    ],
                  ),
                  SizedBox(width: 30.w,),
@@ -119,6 +123,10 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
                      Text(widget.order.date),
                      Text(widget.order.address.isEmpty?"Not set":widget.order.address.substring(0,8)),
                      Text(widget.order.days),
+                     if(widget.order.paymentStatus==OrderPaymentStatus.partial)
+                     FittedBox(child: Text("Partial Payment",style: TextStyle(color: Colors.red,fontSize: 12),))
+                     else
+                       FittedBox(child: Text("Payment Completed",style: TextStyle(color: Colors.greenAccent,fontSize: 10),),)
                    ],
                  ),
                ],
@@ -138,6 +146,14 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
                    child: widget.showButtons?Row(
                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                      children: [
+                       if(widget.order.paymentStatus==OrderPaymentStatus.partial)
+                         ElevatedButton(
+                             style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColorDark),
+                             onPressed: (){
+                               Navigator.push(context, MaterialPageRoute(builder: (context)=>PartialPaymentPage(order: widget.order))).then((value) => widget.state?.load_upcoming_orders());
+
+                         },
+                             child: Text("Pay",style: TextStyle(color: Colors.white),)),
                        if(widget.order.vendorOrderStatus == VendorOrderStatus.rejected || widget.order.vendorOrderStatus == VendorOrderStatus.pending)OutlinedButton(onPressed: (){
                           approveOrder(context, widget.order.id);
                        }, child: Text("Approve",style: TextStyle(color: Colors.green),)),

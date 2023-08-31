@@ -73,7 +73,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
     return MultiProvider(
       providers: [
            ChangeNotifierProvider(create: (_)=>DropDownOptionProvider(auth: Provider.of<AuthProvider>(context)),),
-            ChangeNotifierProvider(create: (_)=>MapProvider())
+            //ChangeNotifierProvider(create: (_)=>MapProvider())
       ],
       child: Consumer<DropDownOptionProvider>(
         builder:(context,state,child){
@@ -83,13 +83,8 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
          if(state.isLoading && state.options==null) {
            return LoadingWidget(willRedirect:true,);
          }
-         if(state.options==null)
-           {
-             state.getOptions();
-             return LoadingWidget(willRedirect:true,);
-           }
-          return Consumer<MapProvider>(
-            builder:(context,mapState,child)=>Scaffold(
+         CustomLogger.debug(state.options);
+          return Scaffold(
               appBar: AppBar(
                 title: Text("Add service"),
               ),
@@ -114,7 +109,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                                 },),).toList(),
                         ),
                         InputField("Company Name", _companyName),
-                        InputField("Address", _companyAddress,autoComplete: true,state: mapState),
+                        InputField("Address", _companyAddress,autoComplete: true),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: CSCPicker(
@@ -152,15 +147,6 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                             },
                           ),
                         ),
-                        if(showLocationList&&mapState.locations.isNotEmpty)
-                          ListView.builder(
-                              physics: ClampingScrollPhysics(),
-                              shrinkWrap: true,itemCount: min(6, mapState.locations.length),itemBuilder: (context,index)=>ListTile(leading: Icon(Icons.location_on),title: Text(mapState.locations[index]),onTap: (){
-                            _companyAddress.text = mapState.locations[index];
-                            setState(() {
-                              showLocationList=false;
-                            });
-                          },)),
                         InputField("Service Description", _serviceDescription),
                         InputField("Material Description", _materialDescription),
                         InputField("Price", _price,digits:true),
@@ -316,7 +302,6 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                   ),
                 ),
               ),
-            ),
           );
         }
       ),
@@ -332,6 +317,9 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
             isLoading = true;
           });
           createService(auth);
+          setState(() {
+            isLoading = false;
+          });
         },
         style: OutlinedButton.styleFrom(
             side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
@@ -341,7 +329,6 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
     );
   }
   Widget InputField(String title,TextEditingController controller,{MapProvider? state,bool hide=false,bool autoComplete = false,validatePhone=false,digits=false}){
-
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 20),
       child: TextFormField(

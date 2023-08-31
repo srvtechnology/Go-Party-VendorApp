@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,11 +7,13 @@ import 'package:utsavlife/core/models/order.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/core/utils/logger.dart';
+import 'package:utsavlife/routes/partialPaymentPage.dart';
 
 class SingleOrderPage extends StatefulWidget {
   String id;
+  Function? onPop;
   bool readOnly;
-  SingleOrderPage({Key? key,required this.id,required this.readOnly}) : super(key: key);
+  SingleOrderPage({Key? key,required this.id,required this.readOnly,this.onPop}) : super(key: key);
 
   @override
   State<SingleOrderPage> createState() => _SingleOrderPageState();
@@ -100,7 +101,12 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                               Expanded(child: DetailTile("Event Name", singleOrderState.order!.category!)),
                             ],
                           ),
-                          DetailTile("Category", singleOrderState.order!.category!),
+                          Row(
+                            children: [
+                              Expanded(child: DetailTile("Category", singleOrderState.order!.category!)),
+                              Expanded(child: DetailTile("Category", singleOrderState.order!.paymentStatus==OrderPaymentStatus.partial?"Partial Payment":"Payment Completed",)),
+                            ],
+                          ),
                           DetailTile("Service Name", singleOrderState.order!.service_name!),
                           DetailTile("Address", singleOrderState.order!.address!),
                           Row(
@@ -159,6 +165,14 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
               child: Row(
                 mainAxisAlignment:MainAxisAlignment.spaceEvenly,
                 children: [
+                  if(singleOrderState.order?.paymentStatus==OrderPaymentStatus.partial)
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColorDark),
+                        onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>PartialPaymentPage(order: singleOrderState.order!))).then((value) => widget.onPop!=null?widget.onPop!():null);
+
+                        },
+                        child: Text("Pay",style: TextStyle(color: Colors.white),)),
                   if(singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.rejected || singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.pending)
                   BottomButton(context:context,onPressed: ()=>approveOrder(context),text: "Accept",primaryColor: Colors.green),
                   if(singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.approved || singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.pending)
@@ -231,7 +245,6 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                     },
                     decoration: InputDecoration(
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-
                     ),
                   ),
                 ),

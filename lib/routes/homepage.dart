@@ -1302,8 +1302,10 @@ class _OrdersState extends State<Orders> {
                           .where((element) {
                         if(orderStatus==null)return true;
                         return element.vendorOrderStatus == orderStatus ;
-                      }).map((e) => CustomOrderItem(order: e,ontap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: false,))).then((value) => refresh(context));
+                      }).map((e) => CustomOrderItem(state: orderState,order: e,ontap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(onPop: (){
+                          orderState.load_upcoming_orders();
+                        },id:e.id,readOnly: false,))).then((value) => refresh(context));
                       },)).toList()),
                 ),
               );

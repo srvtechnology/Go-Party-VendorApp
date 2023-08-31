@@ -30,9 +30,11 @@ class MainPage extends StatelessWidget {
               return errorScreenRoute(icon: Icons.wifi,message: "Seems like you are offline.Please connect to a network",hasAppbar: false,);
       },
       child: Consumer<AuthProvider>(builder: (context,auth,child) {
-         if (auth.authState == AuthState.Waiting){
+
+        if (auth.authState == AuthState.Waiting){
           return LoadingWidget(willRedirect: true,);
         }
+        bool arg = args!=null?args as bool:false;
          if (auth.authState == AuthState.LoggedIn) {
           if (auth.user?.userStatus == UserApprovalStatus.unverified) {
             if(auth.user!.progress != RegisterProgress.one && auth.user!.progress != RegisterProgress.completed)
@@ -40,15 +42,15 @@ class MainPage extends StatelessWidget {
                 return SignUp();
               }
             return errorScreenRoute(
+              showPopUp: arg,
                 icon: Icons.account_box,
-                message: "Your account is under verification process, please wait for 24-48 working hours.");
+                message: "You have successfully completed your registration.Your account is under verification process, please wait for 24-48 working hours.");
           }
           return Homepage();
         }
         else if (auth.authState == AuthState.Waiting) {
           return LoadingWidget(willRedirect: true,);
         }
-        bool arg = args!=null?args as bool:false;
         return SignIn(showPopup: arg,);
       }
     )

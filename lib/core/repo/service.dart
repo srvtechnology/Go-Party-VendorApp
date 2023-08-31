@@ -96,6 +96,7 @@ Future<bool> updateService(AuthProvider auth,String id,Map<String,dynamic> data)
 
 Future<ServiceDropDownOptions> getServiceOptions(dynamic auth)async{
   try{
+    CustomLogger.debug("getting service options");
     Response  response = await Dio().get("${APIConfig.baseUrl}/api/service-list-add-view",
       options: Options(
           headers: {
@@ -104,8 +105,11 @@ Future<ServiceDropDownOptions> getServiceOptions(dynamic auth)async{
       ),
     );
     List<ServiceOptionModel> serviceOptions=[];
+    CustomLogger.debug(response.data);
     for(var i in response.data["services"]){
-      serviceOptions.add(ServiceOptionModel.fromJson(i));
+      try{
+        serviceOptions.add(ServiceOptionModel.fromJson(i));
+      }catch(e){}
     }
     return ServiceDropDownOptions(serviceOptions: serviceOptions);
   }

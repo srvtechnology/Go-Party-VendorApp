@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -11,23 +10,16 @@ import '../utils/logger.dart';
 
 Future<List<OrderModel>> get_upcoming_order_list(AuthProvider auth)async{
   Response response;
-  Dio dio = new Dio();
-  (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
-      (HttpClient client) {
-    client.badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
-    return client;
-  };
   List<OrderModel> orders = [] ;
   try{
-      response = await dio.get("${APIConfig.baseUrl}/api/upcoming-order",
+      response = await Dio().get("${APIConfig.baseUrl}/api/upcoming-order",
       options: Options(
         headers: {
           "Authorization":"Bearer ${auth.token}"
         }
       )
       );
-         for(var order in response.data["data"]){
+      for(var order in response.data["data"]){
             orders.add(OrderModel.fromJson(order));
           }
           return orders;
@@ -38,8 +30,7 @@ Future<List<OrderModel>> get_upcoming_order_list(AuthProvider auth)async{
         auth.reLogin();
       }
     }
-    print(e);
-          return Future.error(e);
+    return Future.error(e);
         }
 }
 Future<List<OrderModel>> get_history_order_list(AuthProvider auth)async{
@@ -60,7 +51,6 @@ Future<List<OrderModel>> get_history_order_list(AuthProvider auth)async{
         }
       )
       );
-      print(response.data);
           for(var order in response.data["data"]){
             orders.add(OrderModel.fromJson(order));
           }
@@ -72,7 +62,6 @@ Future<List<OrderModel>> get_history_order_list(AuthProvider auth)async{
          auth.reLogin();
        }
      }
-     print(e);
           return Future.error(e);
         }
 }
@@ -88,7 +77,6 @@ Future<OrderModel> get_orderById(AuthProvider auth,String id)async{
             }
         )
     );
-    print(response.data);
     return OrderModel.fromJson(response.data["data"]);
   }
   catch(e){
@@ -97,7 +85,6 @@ Future<OrderModel> get_orderById(AuthProvider auth,String id)async{
         auth.reLogin();
       }
     }
-    print(e);
     return Future.error(e);
   }
 }
@@ -140,7 +127,6 @@ Future<String> ChangeOrderStatus(AuthProvider auth,VendorOrderStatus status,Stri
         auth.reLogin();
       }
     }
-    print(e);
     return Future.error(e);
   }
 }
@@ -165,5 +151,24 @@ Future<List<String>> getRejectReasons(AuthProvider auth)async{
       CustomLogger.error(e.response?.data);
     }
     return Future.error(e);
+  }
+}
+
+Future<void> payPartialAmount(AuthProvider auth,String orderId,String amount)async{
+  try{
+    Response response = await Dio().post(
+      "${APIConfig.baseUrl}/api/vendor/payment",
+      options: Options(
+          headers: {
+            "Authorization":"Bearer ${auth.token}"
+          }
+      ),
+      data: FormData.fromMap({
+        "order_id":orderId,
+        "paid_amount":amount,
+      })
+    );
+  }catch(e){
+    rethrow;
   }
 }

@@ -4,16 +4,27 @@ import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 
-class errorScreenRoute extends StatelessWidget {
+class errorScreenRoute extends StatefulWidget {
   IconData icon;
   String message;
   bool hasAppbar;
-  errorScreenRoute({Key? key,required this.icon,required this.message,this.hasAppbar=true}) : super(key: key);
+  bool showPopUp;
+  errorScreenRoute({Key? key,required this.icon,required this.message,this.hasAppbar=true,this.showPopUp=false}) : super(key: key);
 
+  @override
+  State<errorScreenRoute> createState() => _errorScreenRouteState();
+}
+
+class _errorScreenRouteState extends State<errorScreenRoute> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: hasAppbar?AppBar(
+      appBar: widget.hasAppbar?AppBar(
         actions: [
           IconButton(onPressed: (){
             context.read<AuthProvider>().logout();
@@ -30,10 +41,10 @@ class errorScreenRoute extends StatelessWidget {
           children: [
             Container(
               alignment: Alignment.topCenter,
-              child: Icon(icon,size: 100,color: Theme.of(context).primaryColorDark,),
+              child: Icon(widget.icon,size: 100,color: Theme.of(context).primaryColorDark,),
             ),
             Divider(height: 5.h,color: Colors.transparent,),
-            Text(message,textAlign: TextAlign.center,style: Theme.of(context).textTheme.headlineSmall,)
+            Text(widget.message,textAlign: TextAlign.center,style: Theme.of(context).textTheme.headlineSmall,)
           ],
         ),
       )

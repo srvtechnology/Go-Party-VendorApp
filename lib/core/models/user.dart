@@ -1278,6 +1278,12 @@ enum UserApprovalStatus{
   verified,
   unverified
 }
+
+enum UserActiveStatus {
+  inactive,
+  active
+}
+
 class UserModel {
   String id,name,email;
   ServiceModel? service;
@@ -1292,12 +1298,14 @@ class UserModel {
   BankDetails? bankDetails;
   UserApprovalStatus userStatus;
   RegisterProgress progress;
+  UserActiveStatus userActiveStatus;
   UserModel({
    required this.id,
    required this.name,
    required this.email,
     required this.userStatus,
     required this.progress,
+    required this.userActiveStatus,
     this.service,
    this.mobileno,
    this.country,
@@ -1347,7 +1355,8 @@ class UserModel {
         email: json["data"]["email"].toString(),
         mobileno: json["data"]["mobile"],
         country: json["data"]["country"],
-        service: service
+        service: service,
+        userActiveStatus: UserActiveStatus.active
       );
     }
     if(json["vendor_details"]["vendor_reg_part"]!=null){
@@ -1410,7 +1419,8 @@ class UserModel {
       vendorUrl: '${json["vendor_image"]}${json["vendor_details"]["vendor_image"]}',
       dlUrl: '${json["dl_image"]}${json["vendor_details"]["dl_image"]}',
       bankDetails: details,
-      service: service
+      service: service,
+      userActiveStatus: json["data_active_inactive_del"]["Vendor_status"]!="I"?UserActiveStatus.active:UserActiveStatus.inactive
     );
 
   }

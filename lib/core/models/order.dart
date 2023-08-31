@@ -26,6 +26,11 @@ class CustomerDetailsModel {
     return CustomerDetailsModel(name: json["name"], email: json["email"],phoneNumber: json["mobile"]);
   }
 }
+
+enum OrderPaymentStatus {
+  partial,
+  completed
+}
 class OrderModel {
   String id;
   String address;
@@ -39,6 +44,7 @@ class OrderModel {
   String? timing;
   String days;
   CustomerDetailsModel? customer;
+  OrderPaymentStatus paymentStatus;
   VendorOrderStatus vendorOrderStatus ;
   OrderModel(
       {
@@ -50,6 +56,7 @@ class OrderModel {
         required this.amount,
         required this.vendorOrderStatus,
         required this.days,
+        required this.paymentStatus,
         this.customer,
         this.category,
         this.end_date,
@@ -94,6 +101,7 @@ class OrderModel {
     }catch(e){}
     return OrderModel(
         id: json["id"].toString(),
+        paymentStatus: json["paid_status"]=="partial"?OrderPaymentStatus.partial:OrderPaymentStatus.completed,
         address: json["event_address"].toString(),
         latitude: json["lat"].toString(),
         longitude: json["long"].toString(),

@@ -56,7 +56,7 @@ class ServiceModel {
         serviceDescription: json["service_desc"]??null,
         materialDescription: json["material_desc"]??null,
         company: json["company_name"]??null,
-        price: json["price"].toString(),
+        price: json["price"]!=null?json["price"].toString():"",
         priceBasis: service_details!=null?service_details["price_basis"]??null:null,
         discountedPrice: service_details!=null?service_details["discount_price"]:null,
         categoryName: category_details!=null?category_details["category_name"]:null,

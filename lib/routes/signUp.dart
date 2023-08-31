@@ -19,6 +19,8 @@ import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/RegisterProvider.dart';
 import 'package:utsavlife/core/provider/mapProvider.dart';
 import 'package:utsavlife/core/repo/auth.dart';
+import 'package:utsavlife/core/repo/maps.dart';
+import 'package:utsavlife/core/utils/geolocator.dart';
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/core/utils/textformatters.dart';
 import 'package:utsavlife/routes/mainpage.dart';
@@ -94,9 +96,11 @@ class _SignUp1State extends State<SignUp1> {
   final TextEditingController _address=TextEditingController();
   final TextEditingController _area=TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  String selectedCountry="",selectedCity="",selectedState="";
   late List<TextEditingController> _controllers;
   bool showLocationList = false ;
   bool isLoading = false;
+  late Future _getLocation;
   List<String> dataKeys = [
     "name","email","password","mobile","address_address","distance_cover","address_latitude","address_longitude"];
   @override
@@ -109,211 +113,239 @@ class _SignUp1State extends State<SignUp1> {
       _address,
       _area
     ];
+    _getLocation=_initCountryStateCity();
     super.initState();
   }
 
+  Future _initCountryStateCity()async{
+    var data = await getCountryCityState();
+    setState(() {
+      selectedCountry=data["country"];
+      selectedState=data["state"];
+      selectedCity=data["city"];
+      _address.text=selectedCity;
+    });
+  }
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListenableProvider(create: (_)=>MapProvider(),
-        child: Consumer2<MapProvider,AuthProvider>(
-          builder:(context,mapState,registerState,child)=>GestureDetector(
-            onTap: (){
-              FocusManager.instance.primaryFocus!.unfocus();
-            },
-            child: Stack(
-              children: [
-                Container(
-                  height: double.infinity,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage("assets/images/signup5bg.jpg"),
-                          fit: BoxFit.fitHeight
-                      )
-                  ),
-                ),
-                BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                  child: Container(
-                    height: double.infinity,
-                    width: double.infinity,
-                    color: Colors.black.withOpacity(0.6),
-                  ),
-                ),
-                Scaffold(
-                  extendBodyBehindAppBar: true,
-                  backgroundColor: Colors.transparent,
-                  appBar: AppBar(
-                    backgroundColor: Colors.transparent,
-                    leading: IconButton(color: Colors.white,onPressed: (){
-                      registerState.logout();
-                      Navigator.pushReplacementNamed(context, MainPage.routeName);
-                    },icon: Icon(Icons.arrow_back_ios),),
-                    elevation: 0,
-                    title: Text("Basic Information",style: TextStyle(fontWeight: FontWeight.w400),),
-                    iconTheme: IconThemeData(color: Colors.black),
-                  ),
-                  body: Form(
-                    key: _formKey,
-                    child: SingleChildScrollView(
-                        child:Container(
-                          child: Column(children: [
-                           Container(
-                             margin: EdgeInsets.only(left: 20,right: 20),
-                             child: Column(
-                               children: [
-                                 Container(
-                                     height:200,
-                                     width: 200,
-                                     child: Image.asset("assets/images/logo/logo.png")),
-                                 Container(
-                                   alignment: Alignment.center,
-                                   margin:const EdgeInsets.only(bottom: 10),
-                                   child: Text("Welcome",style: Theme.of(context).textTheme.headlineSmall!.copyWith(color:Colors.white),),
-                                 ),
-                               ],
-                             ),
-                           ),
-                            Container(
-                              margin: EdgeInsets.symmetric(vertical: 10),
-                              child: Column(
-                                children: [
-                                  //SizedBox(height: 40,),
-                                  CustomInputField("Full Name", _name),
-                                  CustomInputField("Email", _email,leading: Icon(Icons.email,color: Colors.white,)),
-                                  Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 20,),
-                                      margin: EdgeInsets.only(top: 10),
-                                      child: InputField(
-                                        title:"Password",controller: _password,isPassword:true,obscureText: true,leading: Icon(Icons.password),)),
-                                  Container(
-                                    padding: EdgeInsets.only(left: 40,right: 40,top: 30),
-                                    child: IntlPhoneField(
-                                      initialCountryCode: "IN",
-                                      showCountryFlag: false,
-                                      dropdownIcon: const Icon(Icons.arrow_drop_down,color: Colors.white,),
-                                      style: TextStyle(color: Colors.white),
-                                      dropdownTextStyle: TextStyle(color: Colors.white),
-                                      decoration: InputDecoration(
-                                        label: Text("Phone Number",
-                                          style: TextStyle(color: Colors.white),),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(10.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(10.0),
-                                          borderSide: BorderSide(
-                                            color: Colors.white,
-                                            width: 1.0,
-                                          ),
-                                        ),
-                                      ),
-                                      validator: (text){
-                                        if(text==null || text.completeNumber.isEmpty){
-                                          return "Required field";
-                                        }
-                                        if(text.completeNumber.length<12 || text.completeNumber.length>15){
-                                          return "Please enter a valid number";
-                                        }
-                                      },
-                                      onChanged: (number){
-                                        _mobileNo.text = number.completeNumber;
-                                      },
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
-                                    child: CSCPicker(
-
-                                      disabledDropdownDecoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: Colors.white,width: 1),
-                                        color: Colors.transparent,
-                                      ),
-
-                                      selectedItemStyle: TextStyle(color: Colors.white),
-                                      dropdownDecoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: Colors.white,width: 1),
-                                        color: Colors.transparent,
-                                      ),
-                                      onCountryChanged: (country){
-
-                                      },
-                                      onStateChanged: (state){
-
-                                      },
-                                      onCityChanged: (city){
-                                        setState(() {
-                                          _address.text=city??"";
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  // Padding(
-                                  //   padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
-                                  //   child: DropdownSearch<String>(
-                                  //     items: DefaultCities,
-                                  //     selectedItem: _address.text,
-                                  //     validator: (text){
-                                  //       if(text==null) return "Required";
-                                  //     },
-                                  //     dropdownDecoratorProps: DropDownDecoratorProps(
-                                  //       baseStyle: TextStyle(color: Colors.white),
-                                  //       dropdownSearchDecoration: InputDecoration(
-                                  //         suffixIconColor: Colors.white,
-                                  //         prefixIcon: Icon(Icons.home,color: Colors.white,),
-                                  //         label: Text("City",style: TextStyle(color: Colors.white),),
-                                  //         focusedBorder: OutlineInputBorder(
-                                  //           borderRadius: BorderRadius.circular(10.0),
-                                  //           borderSide: BorderSide(
-                                  //             color: Colors.blue,
-                                  //           ),
-                                  //         ),
-                                  //         enabledBorder: OutlineInputBorder(
-                                  //           borderRadius: BorderRadius.circular(10.0),
-                                  //           borderSide: BorderSide(
-                                  //             color: Colors.white,
-                                  //             width: 1.0,
-                                  //           ),
-                                  //         ),
-                                  //       )
-                                  //     ),
-                                  //     onChanged: (text){
-                                  //       setState(() {
-                                  //         _address.text = text!;
-                                  //       });
-                                  //     },
-                                  //   ),
-                                  // ),
-                                  // if(showLocationList&&mapState.locations.isNotEmpty)
-                                  //   ListView.builder(
-                                  //       physics: ClampingScrollPhysics(),
-                                  //       shrinkWrap: true,itemCount: min(6, mapState.locations.length),itemBuilder: (context,index)=>ListTile(leading: Icon(Icons.location_on),title: Text(mapState.locations[index]),onTap: (){
-                                  //     _address.text = mapState.locations[index];
-                                  //     setState(() {
-                                  //       showLocationList=false;
-                                  //     });
-                                  //   },)),
-                                  if(isLoading)Container(alignment: Alignment.center,child: CircularProgressIndicator(),)
-                                  else SignUpButton(context,mapState,registerState),
-                                ],
-                              ),
-                            ),
-                          ],),
-                        )
+    return FutureBuilder(
+      future: _getLocation,
+      builder: (context, snapshot) {
+        if(snapshot.connectionState == ConnectionState.waiting){
+          return Scaffold(
+            body: Container(
+              alignment: Alignment.center,
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        return SafeArea(
+          child: ListenableProvider(create: (_)=>MapProvider(),
+            child: Consumer2<MapProvider,AuthProvider>(
+              builder:(context,mapState,registerState,child)=>GestureDetector(
+                onTap: (){
+                  FocusManager.instance.primaryFocus!.unfocus();
+                },
+                child: Stack(
+                  children: [
+                    Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: AssetImage("assets/images/signup5bg.jpg"),
+                              fit: BoxFit.fitHeight
+                          )
+                      ),
                     ),
-                  ),
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                      child: Container(
+                        height: double.infinity,
+                        width: double.infinity,
+                        color: Colors.black.withOpacity(0.6),
+                      ),
+                    ),
+                    Scaffold(
+                      extendBodyBehindAppBar: true,
+                      backgroundColor: Colors.transparent,
+                      appBar: AppBar(
+                        backgroundColor: Colors.transparent,
+                        leading: IconButton(color: Colors.white,onPressed: (){
+                          registerState.logout();
+                          Navigator.pushReplacementNamed(context, MainPage.routeName);
+                        },icon: Icon(Icons.arrow_back_ios),),
+                        elevation: 0,
+                        title: Text("Basic Information",style: TextStyle(fontWeight: FontWeight.w400),),
+                        iconTheme: IconThemeData(color: Colors.black),
+                      ),
+                      body: Form(
+                        key: _formKey,
+                        child: SingleChildScrollView(
+                            child:Container(
+                              child: Column(children: [
+                               Container(
+                                 margin: EdgeInsets.only(left: 20,right: 20),
+                                 child: Column(
+                                   children: [
+                                     Container(
+                                         height:200,
+                                         width: 200,
+                                         child: Image.asset("assets/images/logo/logo.png")),
+                                     Container(
+                                       alignment: Alignment.center,
+                                       margin:const EdgeInsets.only(bottom: 10),
+                                       child: Text("Welcome",style: Theme.of(context).textTheme.headlineSmall!.copyWith(color:Colors.white),),
+                                     ),
+                                   ],
+                                 ),
+                               ),
+                                Container(
+                                  margin: EdgeInsets.symmetric(vertical: 10),
+                                  child: Column(
+                                    children: [
+                                      //SizedBox(height: 40,),
+                                      CustomInputField("Full Name", _name),
+                                      CustomInputField("Email", _email,leading: Icon(Icons.email,color: Colors.white,)),
+                                      Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 20,),
+                                          margin: EdgeInsets.only(top: 10),
+                                          child: InputField(
+                                            title:"Password",controller: _password,isPassword:true,obscureText: true,leading: Icon(Icons.password),)),
+                                      Container(
+                                        padding: EdgeInsets.only(left: 40,right: 40,top: 30),
+                                        child: IntlPhoneField(
+                                          initialCountryCode: "IN",
+                                          showCountryFlag: false,
+                                          dropdownIcon: const Icon(Icons.arrow_drop_down,color: Colors.white,),
+                                          style: TextStyle(color: Colors.white),
+                                          dropdownTextStyle: TextStyle(color: Colors.white),
+                                          decoration: InputDecoration(
+                                            label: Text("Phone Number",
+                                              style: TextStyle(color: Colors.white),),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(10.0),
+                                              borderSide: BorderSide(
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(10.0),
+                                              borderSide: BorderSide(
+                                                color: Colors.white,
+                                                width: 1.0,
+                                              ),
+                                            ),
+                                          ),
+                                          validator: (text){
+                                            if(text==null || text.completeNumber.isEmpty){
+                                              return "Required field";
+                                            }
+                                            if(text.completeNumber.length<12 || text.completeNumber.length>15){
+                                              return "Please enter a valid number";
+                                            }
+                                          },
+                                          onChanged: (number){
+                                            _mobileNo.text = number.completeNumber;
+                                          },
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
+                                        child: CSCPicker(
+
+                                          disabledDropdownDecoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(10),
+                                            border: Border.all(color: Colors.white,width: 1),
+                                            color: Colors.transparent,
+                                          ),
+
+                                          selectedItemStyle: TextStyle(color: Colors.white),
+                                          dropdownDecoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(10),
+                                            border: Border.all(color: Colors.white,width: 1),
+                                            color: Colors.transparent,
+                                          ),
+                                          currentCountry: selectedCountry,
+                                          currentState: selectedState,
+                                          currentCity: selectedCity,
+                                          onCountryChanged: (country){
+                                            selectedCountry = country??"";
+
+                                          },
+                                          onStateChanged: (state){
+                                              selectedState = state??"";
+                                          },
+                                          onCityChanged: (city){
+                                            setState(() {
+                                              selectedCity = city??"";
+                                              _address.text=city??"";
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      // Padding(
+                                      //   padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
+                                      //   child: DropdownSearch<String>(
+                                      //     items: DefaultCities,
+                                      //     selectedItem: _address.text,
+                                      //     validator: (text){
+                                      //       if(text==null) return "Required";
+                                      //     },
+                                      //     dropdownDecoratorProps: DropDownDecoratorProps(
+                                      //       baseStyle: TextStyle(color: Colors.white),
+                                      //       dropdownSearchDecoration: InputDecoration(
+                                      //         suffixIconColor: Colors.white,
+                                      //         prefixIcon: Icon(Icons.home,color: Colors.white,),
+                                      //         label: Text("City",style: TextStyle(color: Colors.white),),
+                                      //         focusedBorder: OutlineInputBorder(
+                                      //           borderRadius: BorderRadius.circular(10.0),
+                                      //           borderSide: BorderSide(
+                                      //             color: Colors.blue,
+                                      //           ),
+                                      //         ),
+                                      //         enabledBorder: OutlineInputBorder(
+                                      //           borderRadius: BorderRadius.circular(10.0),
+                                      //           borderSide: BorderSide(
+                                      //             color: Colors.white,
+                                      //             width: 1.0,
+                                      //           ),
+                                      //         ),
+                                      //       )
+                                      //     ),
+                                      //     onChanged: (text){
+                                      //       setState(() {
+                                      //         _address.text = text!;
+                                      //       });
+                                      //     },
+                                      //   ),
+                                      // ),
+                                      // if(showLocationList&&mapState.locations.isNotEmpty)
+                                      //   ListView.builder(
+                                      //       physics: ClampingScrollPhysics(),
+                                      //       shrinkWrap: true,itemCount: min(6, mapState.locations.length),itemBuilder: (context,index)=>ListTile(leading: Icon(Icons.location_on),title: Text(mapState.locations[index]),onTap: (){
+                                      //     _address.text = mapState.locations[index];
+                                      //     setState(() {
+                                      //       showLocationList=false;
+                                      //     });
+                                      //   },)),
+                                      if(isLoading)Container(alignment: Alignment.center,child: CircularProgressIndicator(),)
+                                      else SignUpButton(context,mapState,registerState),
+                                    ],
+                                  ),
+                                ),
+                              ],),
+                            )
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      }
     );
   }
   Future<void> submit(AuthProvider registerState,MapProvider mapState)async{
@@ -436,6 +468,7 @@ class _SignUp2State extends State<SignUp2> {
     DropDownField(title: "Driving License",value: "DL"),
     DropDownField(title: "Other Govt. Id",value: "OT"),
   ];
+  final _scrollKey = PageStorageKey("scroll");
   TextEditingController _pancard = TextEditingController();
   TextEditingController _kycType = TextEditingController();
   TextEditingController _kycNo = TextEditingController();
@@ -450,6 +483,7 @@ class _SignUp2State extends State<SignUp2> {
   late DropDownField selectedKyc=kyctypes[0];
   bool isLoading = false;
   late Future _getCacheData ;
+  Future _getLocationData = Future.value({});
   List<String> dataKeys = [
     "pan_card","kyc_type","kyc_no","pin_code","house_no","area","landmark","city","state","country"
   ];
@@ -458,6 +492,21 @@ class _SignUp2State extends State<SignUp2> {
   void initState() {
     super.initState();
     _getCacheData = getDataFromCache();
+    _pinCode.addListener(() async{
+      if(_pinCode.text.length>=6){
+        _getLocationData = _getLocationfromPinCode();
+      }
+    });
+  }
+
+  Future _getLocationfromPinCode()async{
+    var data =await getCountryStateCityfromZip(_pinCode.text);
+    CustomLogger.debug(data);
+    setState(() {
+      _country.text=data["country"]!;
+      _state.text=data["state"]!;
+      _city.text=data["city"]!;
+    });
   }
   Future<void> getDataFromCache()async{
     _kycType.text = selectedKyc.value;
@@ -474,7 +523,7 @@ class _SignUp2State extends State<SignUp2> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _getCacheData,
+      future: Future.wait([_getCacheData,_getLocationData]),
       builder: (context,snapshot) {
         return Consumer<AuthProvider>(
             builder:(context,state,child){
@@ -516,13 +565,15 @@ class _SignUp2State extends State<SignUp2> {
                       key: _formKey,
                       child: Container(
                         child: SingleChildScrollView(
+                          //key: PageStorageKey<String>("try"),
                             child:Column(children: [
+                              const SizedBox(height: 100,),
                               Container(
                                 margin: EdgeInsets.only(left: 20,right: 20),
                                 child: Column(
                                   children: [
                                     Container(
-                                        height:200,
+                                        height:100,
                                         width: 200,
                                         child: Image.asset("assets/images/logo/logo.png")),
                                   ],
@@ -590,10 +641,19 @@ class _SignUp2State extends State<SignUp2> {
                               InputField("Flat / House / Building Number", _houseNo,validator: null,leading: Icon(Icons.home_filled,color: Colors.white,)),
                               InputField("Street/Sector/Village/Area", _area,leading: Icon(Icons.home_filled,color: Colors.white,)),
                               InputField("Landmark", _landmark,leading: Icon(Icons.home_filled,color: Colors.white,)),
+                              InputField("Pin code", _pinCode,
+                                  leading: Icon(Icons.pin_drop,color: Colors.white,),keyboardType: TextInputType.phone,validator: (text){
+                                    if(text==null || text.isEmpty){
+                                      return "Required Field";
+                                    }
+                                    if (text.length!=6){
+                                      return "Please enter a 6 digit valid pincode";
+                                    }
+                                  }),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
-                                child: CSCPicker(
-                                  defaultCountry: CscCountry.India,
+                                child:snapshot.connectionState == ConnectionState.waiting?Container(height: 80,):CSCPicker(
+                                  flagState: CountryFlag.DISABLE,
                                   showStates: true,
                                   showCities: true,
                                   disabledDropdownDecoration: BoxDecoration(
@@ -601,7 +661,7 @@ class _SignUp2State extends State<SignUp2> {
                                     border: Border.all(color: Colors.white,width: 1),
                                     color: Colors.transparent,
                                         ),
-                                  currentCountry: selectedCountry.name,
+                                  currentCountry: _country.text,
                                   currentCity: _city.text,
                                   currentState: _state.text,
                                   selectedItemStyle: TextStyle(color: Colors.white),
@@ -627,14 +687,6 @@ class _SignUp2State extends State<SignUp2> {
                                   },
                                 ),
                               ),
-                              InputField("Pin code", _pinCode,leading: Icon(Icons.pin_drop,color: Colors.white,),keyboardType: TextInputType.phone,validator: (text){
-                                if(text==null || text.isEmpty){
-                                  return "Required Field";
-                                }
-                                if (text.length!=6){
-                                  return "Please enter a 6 digit valid pincode";
-                                }
-                              }),
                               if(isLoading)Container(alignment: Alignment.center,child: CircularProgressIndicator(),)
                               else SignUpButton(context,state),
                             ],)
@@ -681,31 +733,31 @@ class _SignUp2State extends State<SignUp2> {
   }
 
   Widget SignUpButton(BuildContext context,AuthProvider state){
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 20,horizontal: 40),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Expanded(
-      child:ElevatedButton(
-            onPressed: ()async{
-              try{
-                setState(() {
-                  isLoading = true;
-                });
-                await submit(state);
-              }catch(e){
-                setState(() {
-                  isLoading = false;
-                });
-                CustomLogger.error(e);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
-              }
-            },
-            child: const Text("Save and Continue"),
-          )),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(onPressed: (){
+          state.setRegisterProgress(RegisterProgress.three);
+        }, child: Text("Skip")),
+        const SizedBox(width: 40,),
+        ElevatedButton(
+          onPressed: ()async{
+            try{
+              setState(() {
+                isLoading = true;
+              });
+              await submit(state);
+            }catch(e){
+              setState(() {
+                isLoading = false;
+              });
+              CustomLogger.error(e);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+            }
+          },
+          child: const Text("Save and Continue"),
+        )
+      ],
     );
   }
   Widget InputField(String title,TextEditingController controller,{Icon leading = const Icon(Icons.person,color: Colors.white,),TextInputType keyboardType=TextInputType.text,bool hide=false,bool autocomplete=true,bool uppercase = false,String? Function(String? text)? validator}){
@@ -1138,7 +1190,7 @@ class _SignUp4State extends State<SignUp4> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("Pan Card",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,),),
+                                    Text("Pan Card (optional)",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,),),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
@@ -1227,7 +1279,7 @@ class _SignUp4State extends State<SignUp4> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("KYC",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,),),
+                                    Text("KYC (optional)",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,),),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
@@ -1272,7 +1324,7 @@ class _SignUp4State extends State<SignUp4> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("Vendor Picture",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,),),
+                                    Text("Vendor Picture (optional)",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,),),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
@@ -1294,13 +1346,13 @@ class _SignUp4State extends State<SignUp4> {
                                         ElevatedButton(onPressed: ()async{
                                           XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
                                           if(file!=null){
-                                            int size = await file!.length()~/1024;
+                                            int size = await file.length()~/1024;
                                             if(size>2048){
                                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Image too big. Please select an image below 2mb")));
                                             }
                                             else{
                                               setState(() {
-                                                imgPath["Vendor"]=file?.path;
+                                                imgPath["Vendor"]=file.path;
                                                 vendor=null;
                                               });
                                             }
@@ -1327,16 +1379,6 @@ class _SignUp4State extends State<SignUp4> {
   }
 
   Future<void> submit(AuthProvider state)async{
-    if(imgPath["Pan Card"]==null && prev==false){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please provide a pan card image")));
-      return;
-    }  if(imgPath["KYC"]==null && prev==false){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please provide a KYC image")));
-      return;
-    }  if(imgPath["Vendor"]==null && prev==false){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please provide a Vendor image")));
-      return;
-    }
     Map<String,dynamic> data = {
       "vendor_reg_part":6,
     };
@@ -1350,7 +1392,6 @@ class _SignUp4State extends State<SignUp4> {
     CustomLogger.debug(data);
     await completeRegistration3(state,data);
       state.setRegisterProgress(RegisterProgress.six);
-      //Navigator.push(context, MaterialPageRoute(builder: (context)=>TermsAndConditionsPage(registerState:state)));
         setState(() {
         isLoading=false;
       });
@@ -1363,6 +1404,18 @@ class _SignUp4State extends State<SignUp4> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Expanded(
+            child: ElevatedButton(
+              onPressed: ()async{
+                state.setRegisterProgress(RegisterProgress.six);
+              },
+              style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Theme.of(context).primaryColor,width: 1,)
+              ),
+              child: const Text("Skip"),
+            ),
+          ),
+          const SizedBox(width: 40,),
           Expanded(
             child: ElevatedButton(
               onPressed: ()async{
@@ -1424,8 +1477,9 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
   TextEditingController _driverLandmark = TextEditingController();
   TextEditingController _driverCity = TextEditingController();
   TextEditingController _driverState = TextEditingController();
-  late DropDownField selectedKyc;
+  late DropDownField selectedKyc=DropDownField(title: "Aadhar",value: "AD");
   late Future _getCacheData;
+  Future _getLocation = Future.value({});
   List<AddProductPhoto> productImages = [];
   String? driverImage,drivingLicenseImage;
   String? videoPath;
@@ -1470,7 +1524,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
 
       }
      _serviceDescription.text = auth.user!.service?.serviceDescription??"";
-      _price.text = auth.user!.service?.price ?? "";
+     _price.text = auth.user!.service?.price ?? "";
      _materialDescription.text = auth.user!.service?.materialDescription??"";
      _driverName.text = auth.user!.service?.driverDetails.name??"";
      _driverMob.text = auth.user!.service?.driverDetails.mobileNumber??"";
@@ -1481,7 +1535,21 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
      _driverLandmark.text = auth.user!.service?.driverDetails.landmark??"";
      _driverCity.text = auth.user!.service?.driverDetails.landmark??"";
      _driverState.text = auth.user!.service?.driverDetails.state??"";
-
+     _officePinCode.addListener(() {
+       if(_officePinCode.text.length>=6){
+         setState(() {
+           _getLocation=_getLocationfromPinCode();
+         });
+       }
+     });
+  }
+  Future _getLocationfromPinCode()async{
+    var data =await getCountryStateCityfromZip(_officePinCode.text);
+    setState(() {
+      _officeCountry.text=data["country"]!;
+      _officeState.text=data["state"]!;
+      _officeCity.text=data["city"]!;
+    });
   }
   @override
   void initState() {
@@ -1502,7 +1570,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
             }
 
             return FutureBuilder(
-              future: _getCacheData,
+              future: Future.wait([_getCacheData,_getLocation]),
               builder: (context, snapshot) {
                 return Consumer<MapProvider>(
                   builder:(context,mapState,child)=>Stack(
@@ -1599,10 +1667,11 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                     InputField("Flat / House / Building Number", _officeNo,leading: Icon(Icons.home_filled,color: Colors.white,)),
                                     InputField("Street/Sector/Village/Area", _officeArea,leading: Icon(Icons.home_filled,color: Colors.white,)),
                                     InputField("Landmark", _officeLandmark,leading: Icon(Icons.home_filled,color: Colors.white,)),
+                                    InputField("PinCode", _officePinCode,leading: Icon(Icons.pin_drop,color: Colors.white,),isPin:true),
+
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
-                                      child: CSCPicker(
-                                        defaultCountry: CscCountry.India,
+                                      child: snapshot.connectionState==ConnectionState.waiting?Container(height: 80,):CSCPicker(
                                         showStates: true,
                                         showCities: true,
                                         disabledDropdownDecoration: BoxDecoration(
@@ -1636,7 +1705,6 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                         },
                                       ),
                                     ),
-                                    InputField("PinCode", _officePinCode,leading: Icon(Icons.pin_drop,color: Colors.white,),isPin:true),
                                     Container(
                                       alignment: Alignment.centerLeft,
                                       margin: EdgeInsets.symmetric(vertical: 20,horizontal: 20),
@@ -1731,7 +1799,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                           ),
                                           InputField("Name", _driverName),
                                           Container(
-                                            padding: EdgeInsets.only(left: 40,right: 40,top: 30),
+                                            padding: EdgeInsets.only(left: 20,right: 20,top: 30),
                                             child: IntlPhoneField(
                                               initialCountryCode: "IN",
                                               showCountryFlag: false,
@@ -1810,7 +1878,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                               ),
                                             ),
                                           ),
-                                          InputField("${selectedKyc.title} Number", _driverKycNo),
+                                          InputField("${selectedKyc.title} Number", _driverKycNo,isAadhar: true),
                                           InputField("License", _driverLicense),
                                           InputField("House Number", _driverhouseNo),
                                           InputField("Street/Sector/Village/Area", _driverArea),
@@ -1910,7 +1978,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
       ),
     );
   }
-  Widget InputField(String title,TextEditingController controller,{Icon leading=const Icon(Icons.person,color: Colors.white,),bool required=true,MapProvider? state,bool hide=false,bool autoComplete = false,bool validatePhone=false,bool isCapital= false,bool isPin=false,bool isPrice=false}){
+  Widget InputField(String title,TextEditingController controller,{Icon leading=const Icon(Icons.person,color: Colors.white,),bool required=true,MapProvider? state,bool isAadhar=false,bool hide=false,bool autoComplete = false,bool validatePhone=false,bool isCapital= false,bool isPin=false,bool isPrice=false}){
     if(validatePhone){
       if(!controller.text.startsWith("+91"))
         controller.text="+91"+controller.text;
@@ -1950,6 +2018,11 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
         validator: required?(text){
           if(text==null || text.length==0){
             return "Required field";
+          }
+          if(isAadhar){
+            if(text.length<12){
+              return "Please enter a valid Aadhar number";
+            }
           }
           if(validatePhone){
             if(text.length<10 || text.length>15){
@@ -2132,7 +2205,6 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
                         onPressed: !_agreedToTerms ? null : ()async{
                           await submit(registerState);
                           registerState.setRegisterProgress(RegisterProgress.completed);
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Congratulations!You have successfully completed your registration process, Please wait for 24-48 working hours for the verification process.")));
                           registerState.clear();
                           if(Navigator.canPop(context)){
                             Navigator.popUntil(context,(route)=>route.isFirst);
