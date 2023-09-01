@@ -44,7 +44,7 @@ void main() {
                 return LoadingWidget();
               }
               return ShowCaseWidget(
-              enableShowcase: state.show,
+              enableShowcase: false,
               onFinish: (){
                 state.setState();
               },

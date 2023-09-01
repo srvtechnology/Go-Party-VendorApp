@@ -73,6 +73,7 @@ class AccountPage extends StatelessWidget {
                 await state.getUser();
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Account Deactivated")));
                 Navigator.of(context).pop();
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -100,6 +101,7 @@ void _showActivateConfirmation(BuildContext context,AuthProvider state) {
                 await activateAccount(context.read<AuthProvider>());
                 await state.getUser();
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Account Activated")));
+                Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
             ),
