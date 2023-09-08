@@ -2044,6 +2044,11 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select a service")));
         return;
       }
+      if(_officePhone.text.isEmpty){
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please enter office number")));
+        return;
+
+      }
       Map<String,dynamic> data = {
         "service_id":serviceId,
         "service_desc":_serviceDescription.text,

@@ -162,7 +162,9 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Maximum 5 photos allowed")));
                                   return;
                                 }
-                                List<XFile?> images = await ImagePicker().pickMultiImage();
+                                List<XFile?> images = await ImagePicker().pickMultiImage(maxHeight: 480,
+                                    maxWidth: 640,
+                                    imageQuality: 50);
                                 setState(() {
                                   if(images.length>5){
                                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Maximum 5 photos allowed")));
@@ -450,7 +452,7 @@ class _AddProductPhotoState extends State<AddProductPhoto> {
           },child: Text("Change Image"),),),
           Container(child: IconButton(onPressed: (){
             widget.onDelete(widget.id);
-          },icon: Icon(Icons.delete),),)
+          },icon: Icon(Icons.delete,color: Colors.red,),),)
         ],
       ),
     );
