@@ -51,7 +51,7 @@ dependencies:
   connectivity_plus: ^3.0.4
   flutter_localizations:
     sdk: flutter
-  flutter_launcher_name: ^0.0.1
+#  flutter_launcher_name: ^0.0.1
   video_player: ^2.6.1
   dropdown_search: ^5.0.6
   showcaseview: ^2.0.3
@@ -65,8 +65,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-flutter_launcher_name:
-  name: "Utsavlife"
+#flutter_launcher_name:
+#  name: "Utsavlife"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

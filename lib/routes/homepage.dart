@@ -1010,7 +1010,7 @@ class _ProfileState extends State<Profile> {
                     )
                   else Container(
                     height: 25.h,
-                    child: CircleAvatar(backgroundColor: Colors.black,backgroundImage: CachedNetworkImageProvider(profileImage??"",errorListener: ()=>Icon(Icons.account_box))),
+                    child: CircleAvatar(backgroundColor: Colors.black,backgroundImage: CachedNetworkImageProvider(profileImage??"",errorListener: (error)=>Icon(Icons.account_box))),
                   ),
                   SizedBox(height: 20,),
                   if (profileImageloading)
