@@ -853,14 +853,14 @@ class _SignUp2State extends State<SignUp2> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ElevatedButton(
+/*        ElevatedButton(
             onPressed: () {
               state.setRegisterProgress(RegisterProgress.three);
             },
             child: Text("Skip")),
         const SizedBox(
           width: 40,
-        ),
+        ),*/
         ElevatedButton(
           style: ElevatedButton.styleFrom(backgroundColor: UIColor.theme_color),
           onPressed: () async {
@@ -1006,7 +1006,7 @@ class _SignUp3State extends State<SignUp3> {
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
                 leading: IconButton(
-                  color: Colors.white,
+                  color: UIColor.black_text_color,
                   onPressed: () {
                     state.setRegisterProgress(RegisterProgress.three);
                   },
@@ -1407,7 +1407,7 @@ class _SignUp4State extends State<SignUp4> {
                                             return Icon(
                                               Icons.file_copy,
                                               size: 60,
-                                              color: Colors.white,
+                                              color: UIColor.black_text_color,
                                             );
                                           },
                                         )
@@ -1534,7 +1534,7 @@ class _SignUp4State extends State<SignUp4> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "KYC (optional)",
+                              "KYC",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: UIColor.black_text_color,
@@ -1686,25 +1686,46 @@ class _SignUp4State extends State<SignUp4> {
     });
   }
 
+  bool isImageUrl(String url) {
+    // Get the last segment of the URL (i.e., the filename)
+    List<String> segments = Uri.parse(url).pathSegments;
+    String filename = segments.isNotEmpty ? segments.last : '';
+
+    // List of image file extensions
+    List<String> imageExtensions = [
+      '.jpg',
+      '.jpeg',
+      '.png',
+      '.gif',
+      '.bmp',
+      '.webp',
+      '.svg',
+      // Add more image extensions if needed
+    ];
+
+    // Check if the filename's extension is in the list of image extensions
+    return imageExtensions.any((extension) => filename.toLowerCase().endsWith(extension));
+  }
+
   Future<void> submit(AuthProvider state) async {
 
-    if (imgPath["Pan Card"] == null) {
+    if (imgPath["Pan Card"] == null && !isImageUrl(panUrl??'')) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Please provide PAN")));
       return;
     }
 
-    if (imgPath["KYC"] == null) {
+    if (imgPath["KYC"] == null && !isImageUrl(kyc??'')) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Please provide KYC")));
       return;
     }
-    if (imgPath["Vendor"] == null) {
+    if (imgPath["Vendor"] == null && !isImageUrl(vendor??'')) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Please provide Vendor")));
       return;
     }
- if (state.user?.gstNumber != null && imgPath["GST"] == null) {
+ if (state.user?.gstNumber != null && (imgPath["GST"] == null &&  !isImageUrl(gst??''))) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Please provide GST")));
       return;
@@ -1915,6 +1936,12 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
         });
       }
     });
+    
+    /*added by me*/
+
+    _companyName.text=auth.user!.service?.companyName ?? "";
+    _videoLink.text=auth.user!.service?.videoUrl ?? "";
+    //serviceId=auth.user!.service?.id ?? "";
   }
 
   Future _getLocationfromPinCode() async {
@@ -2411,6 +2438,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                             padding: EdgeInsets.symmetric(horizontal: 20),
                             margin: EdgeInsets.only(top: 20),
                             child: IntlPhoneField(
+                              initialValue: _officePhone.text,
                               initialCountryCode: "IN",
                               showCountryFlag: false,
                               dropdownIcon: const Icon(
@@ -2451,6 +2479,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                 }
                                 return null;
                               },
+
                               onChanged: (number) {
                                 _officePhone.text = number.completeNumber;
                               },
