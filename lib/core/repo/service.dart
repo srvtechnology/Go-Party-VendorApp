@@ -105,7 +105,7 @@ Future<ServiceDropDownOptions> getServiceOptions(dynamic auth)async{
       ),
     );
     List<ServiceOptionModel> serviceOptions=[];
-    CustomLogger.debug(response.data);
+  //  CustomLogger.debug(response.data);
     for(var i in response.data["services"]){
       try{
         serviceOptions.add(ServiceOptionModel.fromJson(i));

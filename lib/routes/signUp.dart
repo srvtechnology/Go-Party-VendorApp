@@ -4,8 +4,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:csc_picker/csc_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +19,7 @@ import 'package:utsavlife/core/provider/RegisterProvider.dart';
 import 'package:utsavlife/core/provider/mapProvider.dart';
 import 'package:utsavlife/core/repo/auth.dart';
 import 'package:utsavlife/core/repo/maps.dart';
+import 'package:utsavlife/core/utils/UIColor.dart';
 import 'package:utsavlife/core/utils/geolocator.dart';
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/core/utils/textformatters.dart';
@@ -29,6 +33,7 @@ import '../core/provider/ServiceProvider.dart';
 class SignUp extends StatefulWidget {
   bool dialogShow = false;
   static const routeName = "signup";
+
   SignUp({Key? key, this.dialogShow = false}) : super(key: key);
 
   @override
@@ -55,6 +60,7 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(context) {
     return Consumer<AuthProvider>(builder: (context, auth, child) {
+      CustomLogger.debug("progress is ${auth.user?.progress}");
       if (auth.isLoading) {
         return LoadingWidget();
       }
@@ -111,6 +117,7 @@ class _SignUp1State extends State<SignUp1> {
     "address_latitude",
     "address_longitude"
   ];
+
   @override
   void initState() {
     _controllers = [_name, _email, _mobileNo, _password, _address, _area];
@@ -150,253 +157,228 @@ class _SignUp1State extends State<SignUp1> {
                   onTap: () {
                     FocusManager.instance.primaryFocus!.unfocus();
                   },
-                  child: Stack(
-                    children: [
-                      Container(
-                        height: double.infinity,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image:
-                                    AssetImage("assets/images/signup5bg.jpg"),
-                                fit: BoxFit.fitHeight)),
+                  child: Scaffold(
+                    extendBodyBehindAppBar: true,
+                    backgroundColor: UIColor.screen_bg,
+                    appBar: AppBar(
+                      backgroundColor: Colors.transparent,
+                      leading: IconButton(
+                        color: UIColor.black_text_color,
+                        onPressed: () {
+                          registerState.logout();
+                          Navigator.pushReplacementNamed(
+                              context, MainPage.routeName);
+                        },
+                        icon: Icon(Icons.arrow_back_ios),
                       ),
-                      BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                        child: Container(
-                          height: double.infinity,
-                          width: double.infinity,
-                          color: Colors.black.withOpacity(0.6),
-                        ),
+                      elevation: 0,
+                      title: Text(
+                        "Basic Information",
+                        style: TextStyle(fontWeight: FontWeight.w400),
                       ),
-                      Scaffold(
-                        extendBodyBehindAppBar: true,
-                        backgroundColor: Colors.transparent,
-                        appBar: AppBar(
-                          backgroundColor: Colors.transparent,
-                          leading: IconButton(
-                            color: Colors.white,
-                            onPressed: () {
-                              registerState.logout();
-                              Navigator.pushReplacementNamed(
-                                  context, MainPage.routeName);
-                            },
-                            icon: Icon(Icons.arrow_back_ios),
-                          ),
-                          elevation: 0,
-                          title: Text(
-                            "Basic Information",
-                            style: TextStyle(fontWeight: FontWeight.w400),
-                          ),
-                          iconTheme: IconThemeData(color: Colors.black),
-                        ),
-                        body: Form(
-                          key: _formKey,
-                          child: SingleChildScrollView(
-                              child: Container(
-                            child: Column(
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(left: 20, right: 20),
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                          height: 200,
-                                          width: 200,
-                                          child: Image.asset(
-                                              "assets/images/logo/logo.png")),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        margin:
-                                            const EdgeInsets.only(bottom: 10),
-                                        child: Text(
-                                          "Welcome",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineSmall!
-                                              .copyWith(color: Colors.white),
-                                        ),
-                                      ),
-                                    ],
+                      iconTheme: IconThemeData(color: Colors.black),
+                    ),
+                    body: Form(
+                      key: _formKey,
+                      child: SingleChildScrollView(
+                          child: Container(
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(left: 20, right: 20),
+                              child: Column(
+                                children: [
+                                  Container(
+                                      height: 200,
+                                      width: 200,
+                                      child: Image.asset(
+                                          "assets/images/logo/logo.png")),
+                                  Container(
+                                    alignment: Alignment.center,
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    child: Text(
+                                      "Welcome",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall!
+                                          .copyWith(color: Colors.white),
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.symmetric(vertical: 10),
-                                  child: Column(
-                                    children: [
-                                      //SizedBox(height: 40,),
-                                      CustomInputField("Full Name", _name),
-                                      CustomInputField("Email", _email,
-                                          leading: Icon(
-                                            Icons.email,
-                                            color: Colors.white,
-                                          )),
-                                      Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 20,
-                                          ),
-                                          margin: EdgeInsets.only(top: 10),
-                                          child: InputField(
-                                            title: "Password",
-                                            controller: _password,
-                                            isPassword: true,
-                                            obscureText: true,
-                                            leading: Icon(Icons.password),
-                                          )),
-                                      Container(
-                                        padding: EdgeInsets.only(
-                                            left: 40, right: 40, top: 30),
-                                        child: IntlPhoneField(
-                                          initialCountryCode: "IN",
-                                          showCountryFlag: false,
-                                          dropdownIcon: const Icon(
-                                            Icons.arrow_drop_down,
-                                            color: Colors.white,
-                                          ),
-                                          style: TextStyle(color: Colors.white),
-                                          dropdownTextStyle:
-                                              TextStyle(color: Colors.white),
-                                          decoration: InputDecoration(
-                                            label: Text(
-                                              "Phone Number",
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              borderSide: BorderSide(
-                                                color: Colors.blue,
-                                              ),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              borderSide: BorderSide(
-                                                color: Colors.white,
-                                                width: 1.0,
-                                              ),
-                                            ),
-                                          ),
-                                          validator: (text) {
-                                            if (text == null ||
-                                                text.completeNumber.isEmpty) {
-                                              return "Required field";
-                                            }
-                                            if (text.completeNumber.length <
-                                                    12 ||
-                                                text.completeNumber.length >
-                                                    15) {
-                                              return "Please enter a valid number";
-                                            }
-                                            return null;
-                                          },
-                                          onChanged: (number) {
-                                            _mobileNo.text =
-                                                number.completeNumber;
-                                          },
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 40, vertical: 20),
-                                        child: CSCPicker(
-                                          disabledDropdownDecoration:
-                                              BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            border: Border.all(
-                                                color: Colors.white, width: 1),
-                                            color: Colors.transparent,
-                                          ),
-                                          selectedItemStyle:
-                                              TextStyle(color: Colors.white),
-                                          dropdownDecoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            border: Border.all(
-                                                color: Colors.white, width: 1),
-                                            color: Colors.transparent,
-                                          ),
-                                          currentCountry: selectedCountry,
-                                          currentState: selectedState,
-                                          currentCity: selectedCity,
-                                          onCountryChanged: (country) {
-                                            selectedCountry = country ?? "";
-                                          },
-                                          onStateChanged: (state) {
-                                            selectedState = state ?? "";
-                                          },
-                                          onCityChanged: (city) {
-                                            setState(() {
-                                              selectedCity = city ?? "";
-                                              _address.text = city ?? "";
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                      // Padding(
-                                      //   padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
-                                      //   child: DropdownSearch<String>(
-                                      //     items: DefaultCities,
-                                      //     selectedItem: _address.text,
-                                      //     validator: (text){
-                                      //       if(text==null) return "Required";
-                                      //     },
-                                      //     dropdownDecoratorProps: DropDownDecoratorProps(
-                                      //       baseStyle: TextStyle(color: Colors.white),
-                                      //       dropdownSearchDecoration: InputDecoration(
-                                      //         suffixIconColor: Colors.white,
-                                      //         prefixIcon: Icon(Icons.home,color: Colors.white,),
-                                      //         label: Text("City",style: TextStyle(color: Colors.white),),
-                                      //         focusedBorder: OutlineInputBorder(
-                                      //           borderRadius: BorderRadius.circular(10.0),
-                                      //           borderSide: BorderSide(
-                                      //             color: Colors.blue,
-                                      //           ),
-                                      //         ),
-                                      //         enabledBorder: OutlineInputBorder(
-                                      //           borderRadius: BorderRadius.circular(10.0),
-                                      //           borderSide: BorderSide(
-                                      //             color: Colors.white,
-                                      //             width: 1.0,
-                                      //           ),
-                                      //         ),
-                                      //       )
-                                      //     ),
-                                      //     onChanged: (text){
-                                      //       setState(() {
-                                      //         _address.text = text!;
-                                      //       });
-                                      //     },
-                                      //   ),
-                                      // ),
-                                      // if(showLocationList&&mapState.locations.isNotEmpty)
-                                      //   ListView.builder(
-                                      //       physics: ClampingScrollPhysics(),
-                                      //       shrinkWrap: true,itemCount: min(6, mapState.locations.length),itemBuilder: (context,index)=>ListTile(leading: Icon(Icons.location_on),title: Text(mapState.locations[index]),onTap: (){
-                                      //     _address.text = mapState.locations[index];
-                                      //     setState(() {
-                                      //       showLocationList=false;
-                                      //     });
-                                      //   },)),
-                                      if (isLoading)
-                                        Container(
-                                          alignment: Alignment.center,
-                                          child: CircularProgressIndicator(),
-                                        )
-                                      else
-                                        SignUpButton(
-                                            context, mapState, registerState),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          )),
+                            Container(
+                              margin: EdgeInsets.symmetric(vertical: 10),
+                              child: Column(
+                                children: [
+                                  //SizedBox(height: 40,),
+                                  CustomInputField("Full Name", _name),
+                                  CustomInputField("Email", _email,
+                                      leading: Icon(
+                                        Icons.email,
+                                        color: UIColor.black_text_color,
+                                      )),
+                                  Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                      ),
+                                      margin: EdgeInsets.only(top: 10),
+                                      child: InputField(
+                                        title: "Password",
+                                        controller: _password,
+                                        isPassword: true,
+                                        obscureText: true,
+                                        leading: Icon(Icons.password),
+                                      )),
+                                  Container(
+                                    padding: EdgeInsets.only(
+                                        left: 40, right: 40, top: 30),
+                                    child: IntlPhoneField(
+                                      initialCountryCode: "IN",
+                                      showCountryFlag: false,
+                                      dropdownIcon: const Icon(
+                                        Icons.arrow_drop_down,
+                                        color: UIColor.theme_color,
+                                      ),
+                                      style: TextStyle(
+                                          color: UIColor.black_text_color),
+                                      dropdownTextStyle: TextStyle(
+                                          color: UIColor.black_text_color),
+                                      decoration: InputDecoration(
+                                        label: Text(
+                                          "Phone Number",
+                                          style: TextStyle(
+                                              color: UIColor.black_text_color),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: UIColor.theme_color,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: UIColor.black_text_color,
+                                            width: 1.0,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (text) {
+                                        if (text == null ||
+                                            text.completeNumber.isEmpty) {
+                                          return "Required field";
+                                        }
+                                        if (text.completeNumber.length < 12 ||
+                                            text.completeNumber.length > 15) {
+                                          return "Please enter a valid number";
+                                        }
+                                        return null;
+                                      },
+                                      onChanged: (number) {
+                                        _mobileNo.text = number.completeNumber;
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 40, vertical: 20),
+                                    child: CSCPicker(
+                                      disabledDropdownDecoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: UIColor.black_text_color,
+                                            width: 1),
+                                        color: Colors.transparent,
+                                      ),
+                                      selectedItemStyle: TextStyle(
+                                          color: UIColor.black_text_color),
+                                      dropdownDecoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: UIColor.black_text_color,
+                                            width: 1),
+                                        color: Colors.transparent,
+                                      ),
+                                      currentCountry: selectedCountry,
+                                      currentState: selectedState,
+                                      currentCity: selectedCity,
+                                      onCountryChanged: (country) {
+                                        selectedCountry = country ?? "";
+                                      },
+                                      onStateChanged: (state) {
+                                        selectedState = state ?? "";
+                                      },
+                                      onCityChanged: (city) {
+                                        setState(() {
+                                          selectedCity = city ?? "";
+                                          _address.text = city ?? "";
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  // Padding(
+                                  //   padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
+                                  //   child: DropdownSearch<String>(
+                                  //     items: DefaultCities,
+                                  //     selectedItem: _address.text,
+                                  //     validator: (text){
+                                  //       if(text==null) return "Required";
+                                  //     },
+                                  //     dropdownDecoratorProps: DropDownDecoratorProps(
+                                  //       baseStyle: TextStyle(color: Colors.white),
+                                  //       dropdownSearchDecoration: InputDecoration(
+                                  //         suffixIconColor: Colors.white,
+                                  //         prefixIcon: Icon(Icons.home,color: Colors.white,),
+                                  //         label: Text("City",style: TextStyle(color: Colors.white),),
+                                  //         focusedBorder: OutlineInputBorder(
+                                  //           borderRadius: BorderRadius.circular(10.0),
+                                  //           borderSide: BorderSide(
+                                  //             color: Colors.blue,
+                                  //           ),
+                                  //         ),
+                                  //         enabledBorder: OutlineInputBorder(
+                                  //           borderRadius: BorderRadius.circular(10.0),
+                                  //           borderSide: BorderSide(
+                                  //             color: Colors.white,
+                                  //             width: 1.0,
+                                  //           ),
+                                  //         ),
+                                  //       )
+                                  //     ),
+                                  //     onChanged: (text){
+                                  //       setState(() {
+                                  //         _address.text = text!;
+                                  //       });
+                                  //     },
+                                  //   ),
+                                  // ),
+                                  // if(showLocationList&&mapState.locations.isNotEmpty)
+                                  //   ListView.builder(
+                                  //       physics: ClampingScrollPhysics(),
+                                  //       shrinkWrap: true,itemCount: min(6, mapState.locations.length),itemBuilder: (context,index)=>ListTile(leading: Icon(Icons.location_on),title: Text(mapState.locations[index]),onTap: (){
+                                  //     _address.text = mapState.locations[index];
+                                  //     setState(() {
+                                  //       showLocationList=false;
+                                  //     });
+                                  //   },)),
+                                  if (isLoading)
+                                    Container(
+                                      alignment: Alignment.center,
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  else
+                                    SignUpButton(
+                                        context, mapState, registerState),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                      )),
+                    ),
                   ),
                 ),
               ),
@@ -438,6 +420,8 @@ class _SignUp1State extends State<SignUp1> {
         children: [
           Expanded(
             child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: UIColor.theme_color),
               onPressed: () async {
                 try {
                   setState(() {
@@ -453,7 +437,10 @@ class _SignUp1State extends State<SignUp1> {
                       .showSnackBar(SnackBar(content: Text(e.toString())));
                 }
               },
-              child: const Text("Save and Continue"),
+              child: const Text(
+                "Save and Continue",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ),
         ],
@@ -464,7 +451,7 @@ class _SignUp1State extends State<SignUp1> {
   Widget CustomInputField(String title, TextEditingController controller,
       {Icon leading = const Icon(
         Icons.person,
-        color: Colors.white,
+        color: UIColor.black_text_color,
       ),
       bool hide = false,
       bool autocomplete = true,
@@ -477,7 +464,7 @@ class _SignUp1State extends State<SignUp1> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
       child: TextFormField(
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: UIColor.black_text_color),
           keyboardType:
               validatePhone ? TextInputType.phone : TextInputType.text,
           obscureText: hide,
@@ -504,18 +491,18 @@ class _SignUp1State extends State<SignUp1> {
             prefixIcon: leading,
             label: Text(
               title,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: UIColor.hint_text_color),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
-                color: Colors.blue,
+                color: UIColor.theme_color,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
-                color: Colors.white,
+                color: UIColor.black_text_color,
                 width: 1.0,
               ),
             ),
@@ -609,243 +596,224 @@ class _SignUp2State extends State<SignUp2> {
         future: Future.wait([_getCacheData, _getLocationData]),
         builder: (context, snapshot) {
           return Consumer<AuthProvider>(builder: (context, state, child) {
-            return Stack(
-              children: [
-                Container(
-                  height: double.infinity,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage("assets/images/signup2bg.jpg"),
-                          fit: BoxFit.fitHeight)),
+            return Scaffold(
+              extendBodyBehindAppBar: true,
+              backgroundColor: UIColor.screen_bg,
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                leading: IconButton(
+                  color: UIColor.black_text_color,
+                  onPressed: () {
+                    state.logout();
+                    if (Navigator.canPop(context)) Navigator.pop(context);
+                    CustomLogger.debug(state.authState);
+                  },
+                  icon: Icon(Icons.arrow_back_ios),
                 ),
-                BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                  child: Container(
-                    height: double.infinity,
-                    width: double.infinity,
-                    color: Colors.black.withOpacity(0.6),
-                  ),
+                elevation: 0,
+                title: Text(
+                  "Personal Information",
+                  style: TextStyle(fontWeight: FontWeight.w400),
                 ),
-                Scaffold(
-                  extendBodyBehindAppBar: true,
-                  backgroundColor: Colors.transparent,
-                  appBar: AppBar(
-                    backgroundColor: Colors.transparent,
-                    leading: IconButton(
-                      color: Colors.white,
-                      onPressed: () {
-                        state.logout();
-                        if (Navigator.canPop(context)) Navigator.pop(context);
-                        CustomLogger.debug(state.authState);
-                      },
-                      icon: Icon(Icons.arrow_back_ios),
-                    ),
-                    elevation: 0,
-                    title: Text(
-                      "Personal Information",
-                      style: TextStyle(fontWeight: FontWeight.w400),
-                    ),
-                    iconTheme: IconThemeData(color: Colors.black),
-                  ),
-                  body: Form(
-                    key: _formKey,
-                    child: Container(
-                      child: SingleChildScrollView(
-                          //key: PageStorageKey<String>("try"),
-                          child: Column(
-                        children: [
-                          const SizedBox(
-                            height: 100,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(left: 20, right: 20),
-                            child: Column(
-                              children: [
-                                Container(
-                                    height: 100,
-                                    width: 200,
-                                    child: Image.asset(
-                                        "assets/images/logo/logo.png")),
-                              ],
-                            ),
-                          ),
-                          InputField("Pan Number", _pancard,
-                              uppercase: true,
-                              leading: Icon(
-                                Icons.numbers,
-                                color: Colors.white,
-                              ), validator: (text) {
-                            if (text == null || text.isEmpty)
-                              return 'Pan is Required';
-                            if (text.length != 10 ||
-                                (isNumeric(text.substring(0, 5))) ||
-                                (!isNumeric(text.substring(5, 9))) ||
-                                (isNumeric(text.substring(9, 10))))
-                              return "Please enter a valid Pan Number";
-                            return null;
-                          }),
-                          // Container(
-                          //   margin: EdgeInsets.symmetric(
-                          //       horizontal: 40, vertical: 10),
-                          //   child: InputDecorator(
-                          //     decoration: InputDecoration(
-                          //       contentPadding:
-                          //           EdgeInsets.symmetric(horizontal: 20),
-                          //       prefixIcon: Icon(
-                          //         Icons.person,
-                          //         color: Colors.white,
-                          //       ),
-                          //       label: Text(
-                          //         "Kyc Type (optional)",
-                          //         style: TextStyle(color: Colors.white),
-                          //       ),
-                          //       focusedBorder: OutlineInputBorder(
-                          //         borderRadius: BorderRadius.circular(10.0),
-                          //         borderSide: BorderSide(
-                          //           color: Colors.blue,
-                          //         ),
-                          //       ),
-                          //       enabledBorder: OutlineInputBorder(
-                          //         borderRadius: BorderRadius.circular(10.0),
-                          //         borderSide: BorderSide(
-                          //           color: Colors.white,
-                          //           width: 1.0,
-                          //         ),
-                          //       ),
-                          //     ),
-                          //     child: Row(
-                          //       children: [
-                          //         Expanded(
-                          //             child: ExpansionTile(
-                          //           collapsedTextColor: Colors.white,
-                          //           trailing: Text(""),
-                          //           key: GlobalKey(),
-                          //           title: Text(
-                          //             selectedKyc.title,
-                          //             style: TextStyle(color: Colors.white),
-                          //           ),
-                          //           children: kyctypes
-                          //               .map((e) => ListTile(
-                          //                     onTap: () {
-                          //                       setState(() {
-                          //                         _kycType.text = e.value;
-                          //                         selectedKyc = e;
-                          //                       });
-                          //                     },
-                          //                     title: Text(
-                          //                       e.title,
-                          //                       style: TextStyle(
-                          //                           color: Colors.white),
-                          //                     ),
-                          //                   ))
-                          //               .toList(),
-                          //         ))
-                          //       ],
-                          //     ),
-                          //   ),
-                          // ),
-                          // InputField(
-                          //     "${selectedKyc.title} Number (optional)", _kycNo,
-                          //     validator: (text) {
-                          //   if (text == null || text.isEmpty) return null;
-                          //   if (selectedKyc.value == "AD" && text.length != 12)
-                          //     return "Please enter a valid number";
-                          //   if (text.length < 12)
-                          //     return "Please enter a valid number";
-                          //   return null;
-                          // }),
-                          InputField("Pin code", _pinCode,
-                              leading: Icon(
-                                Icons.pin_drop,
-                                color: Colors.white,
-                              ),
-                              keyboardType: TextInputType.phone,
-                              validator: (text) {
-                            if (text == null || text.isEmpty) {
-                              return "Required Field";
-                            }
-                            if (text.length != 6) {
-                              return "Please enter a 6 digit valid pincode";
-                            }
-                            return null;
-                          }),
-                          InputField("Flat / House / Building Number", _houseNo,
-                              validator: null,
-                              leading: Icon(
-                                Icons.home_filled,
-                                color: Colors.white,
-                              )),
-                          InputField("Street/Sector/Village/Area", _area,
-                              leading: Icon(
-                                Icons.home_filled,
-                                color: Colors.white,
-                              )),
-                          InputField("Landmark", _landmark,
-                              leading: Icon(
-                                Icons.home_filled,
-                                color: Colors.white,
-                              )),
-
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 20),
-                            child: snapshot.connectionState ==
-                                    ConnectionState.waiting
-                                ? Container(
-                                    height: 80,
-                                  )
-                                : CSCPicker(
-                                    flagState: CountryFlag.DISABLE,
-                                    showStates: true,
-                                    showCities: true,
-                                    disabledDropdownDecoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          color: Colors.white, width: 1),
-                                      color: Colors.transparent,
-                                    ),
-                                    currentCountry: _country.text,
-                                    currentCity: _city.text,
-                                    currentState: _state.text,
-                                    selectedItemStyle:
-                                        TextStyle(color: Colors.white),
-                                    dropdownDecoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          color: Colors.white, width: 1),
-                                      color: Colors.transparent,
-                                    ),
-                                    onCountryChanged: (country) {
-                                      setState(() {
-                                        _country.text = country;
-                                      });
-                                    },
-                                    onStateChanged: (state) {
-                                      setState(() {
-                                        _state.text = state ?? "";
-                                      });
-                                    },
-                                    onCityChanged: (city) {
-                                      setState(() {
-                                        _city.text = city ?? "";
-                                      });
-                                    },
-                                  ),
-                          ),
-                          if (isLoading)
+                iconTheme: IconThemeData(color: Colors.black),
+              ),
+              body: Form(
+                key: _formKey,
+                child: Container(
+                  child: SingleChildScrollView(
+                      //key: PageStorageKey<String>("try"),
+                      child: Column(
+                    children: [
+                      const SizedBox(
+                        height: 100,
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 20, right: 20),
+                        child: Column(
+                          children: [
                             Container(
-                              alignment: Alignment.center,
-                              child: CircularProgressIndicator(),
-                            )
-                          else
-                            SignUpButton(context, state),
-                        ],
-                      )),
-                    ),
-                  ),
+                                height: 100,
+                                width: 200,
+                                child:
+                                    Image.asset("assets/images/logo/logo.png")),
+                          ],
+                        ),
+                      ),
+                      InputField("Pan Number", _pancard,
+                          uppercase: true,
+                          leading: Icon(
+                            Icons.numbers,
+                            color: UIColor.black_text_color,
+                          ), validator: (text) {
+                        if (text == null || text.isEmpty)
+                          return 'Pan is Required';
+                        if (text.length != 10 ||
+                            (isNumeric(text.substring(0, 5))) ||
+                            (!isNumeric(text.substring(5, 9))) ||
+                            (isNumeric(text.substring(9, 10))))
+                          return "Please enter a valid Pan Number";
+                        return null;
+                      }),
+                      // Container(
+                      //   margin: EdgeInsets.symmetric(
+                      //       horizontal: 40, vertical: 10),
+                      //   child: InputDecorator(
+                      //     decoration: InputDecoration(
+                      //       contentPadding:
+                      //           EdgeInsets.symmetric(horizontal: 20),
+                      //       prefixIcon: Icon(
+                      //         Icons.person,
+                      //         color: Colors.white,
+                      //       ),
+                      //       label: Text(
+                      //         "Kyc Type (optional)",
+                      //         style: TextStyle(color: Colors.white),
+                      //       ),
+                      //       focusedBorder: OutlineInputBorder(
+                      //         borderRadius: BorderRadius.circular(10.0),
+                      //         borderSide: BorderSide(
+                      //           color: Colors.blue,
+                      //         ),
+                      //       ),
+                      //       enabledBorder: OutlineInputBorder(
+                      //         borderRadius: BorderRadius.circular(10.0),
+                      //         borderSide: BorderSide(
+                      //           color: Colors.white,
+                      //           width: 1.0,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     child: Row(
+                      //       children: [
+                      //         Expanded(
+                      //             child: ExpansionTile(
+                      //           collapsedTextColor: Colors.white,
+                      //           trailing: Text(""),
+                      //           key: GlobalKey(),
+                      //           title: Text(
+                      //             selectedKyc.title,
+                      //             style: TextStyle(color: Colors.white),
+                      //           ),
+                      //           children: kyctypes
+                      //               .map((e) => ListTile(
+                      //                     onTap: () {
+                      //                       setState(() {
+                      //                         _kycType.text = e.value;
+                      //                         selectedKyc = e;
+                      //                       });
+                      //                     },
+                      //                     title: Text(
+                      //                       e.title,
+                      //                       style: TextStyle(
+                      //                           color: Colors.white),
+                      //                     ),
+                      //                   ))
+                      //               .toList(),
+                      //         ))
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
+                      // InputField(
+                      //     "${selectedKyc.title} Number (optional)", _kycNo,
+                      //     validator: (text) {
+                      //   if (text == null || text.isEmpty) return null;
+                      //   if (selectedKyc.value == "AD" && text.length != 12)
+                      //     return "Please enter a valid number";
+                      //   if (text.length < 12)
+                      //     return "Please enter a valid number";
+                      //   return null;
+                      // }),
+                      InputField("Pin code", _pinCode,
+                          leading: Icon(
+                            Icons.pin_drop,
+                            color: UIColor.black_text_color,
+                          ),
+                          keyboardType: TextInputType.phone, validator: (text) {
+                        if (text == null || text.isEmpty) {
+                          return "Required Field";
+                        }
+                        if (text.length != 6) {
+                          return "Please enter a 6 digit valid pincode";
+                        }
+                        return null;
+                      }),
+                      InputField("Flat / House / Building Number", _houseNo,
+                          validator: null,
+                          leading: Icon(
+                            Icons.home_filled,
+                            color: UIColor.black_text_color,
+                          )),
+                      InputField("Street/Sector/Village/Area", _area,
+                          leading: Icon(
+                            Icons.home_filled,
+                            color: UIColor.black_text_color,
+                          )),
+                      InputField("Landmark", _landmark,
+                          leading: Icon(
+                            Icons.home_filled,
+                            color: UIColor.black_text_color,
+                          )),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 20),
+                        child: snapshot.connectionState ==
+                                ConnectionState.waiting
+                            ? Container(
+                                height: 80,
+                              )
+                            : CSCPicker(
+                                flagState: CountryFlag.DISABLE,
+                                showStates: true,
+                                showCities: true,
+                                disabledDropdownDecoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                      color: UIColor.black_text_color,
+                                      width: 1),
+                                  color: Colors.transparent,
+                                ),
+                                currentCountry: _country.text,
+                                currentCity: _city.text,
+                                currentState: _state.text,
+                                selectedItemStyle:
+                                    TextStyle(color: UIColor.black_text_color),
+                                dropdownDecoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                      color: UIColor.black_text_color,
+                                      width: 1),
+                                  color: Colors.transparent,
+                                ),
+                                onCountryChanged: (country) {
+                                  setState(() {
+                                    _country.text = country;
+                                  });
+                                },
+                                onStateChanged: (state) {
+                                  setState(() {
+                                    _state.text = state ?? "";
+                                  });
+                                },
+                                onCityChanged: (city) {
+                                  setState(() {
+                                    _city.text = city ?? "";
+                                  });
+                                },
+                              ),
+                      ),
+                      if (isLoading)
+                        Container(
+                          alignment: Alignment.center,
+                          child: CircularProgressIndicator(),
+                        )
+                      else
+                        SignUpButton(context, state),
+                    ],
+                  )),
                 ),
-              ],
+              ),
             );
           });
         });
@@ -894,6 +862,7 @@ class _SignUp2State extends State<SignUp2> {
           width: 40,
         ),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: UIColor.theme_color),
           onPressed: () async {
             try {
               setState(() {
@@ -909,7 +878,10 @@ class _SignUp2State extends State<SignUp2> {
                   .showSnackBar(SnackBar(content: Text(e.toString())));
             }
           },
-          child: const Text("Save and Continue"),
+          child: const Text(
+            "Save and Continue",
+            style: TextStyle(color: Colors.white),
+          ),
         )
       ],
     );
@@ -918,7 +890,7 @@ class _SignUp2State extends State<SignUp2> {
   Widget InputField(String title, TextEditingController controller,
       {Icon leading = const Icon(
         Icons.person,
-        color: Colors.white,
+        color: UIColor.black_text_color,
       ),
       TextInputType keyboardType = TextInputType.text,
       bool hide = false,
@@ -941,23 +913,23 @@ class _SignUp2State extends State<SignUp2> {
                   if (text?.length == 0) return "Required field";
                   return null;
                 },
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: UIColor.black_text_color),
           decoration: InputDecoration(
             prefixIcon: leading,
             label: Text(
               title,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: UIColor.hint_text_color),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
-                color: Colors.blue,
+                color: UIColor.theme_color,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
-                color: Colors.white,
+                color: UIColor.black_text_color,
                 width: 1.0,
               ),
             ),
@@ -1028,189 +1000,167 @@ class _SignUp3State extends State<SignUp3> {
       return FutureBuilder(
           future: _getCacheData,
           builder: (context, snapshot) {
-            return Stack(
-              children: [
-                Container(
-                  height: double.infinity,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage("assets/images/signup3bg.jpg"),
-                          fit: BoxFit.fitHeight)),
+            return Scaffold(
+              extendBodyBehindAppBar: true,
+              backgroundColor: UIColor.screen_bg,
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                leading: IconButton(
+                  color: Colors.white,
+                  onPressed: () {
+                    state.setRegisterProgress(RegisterProgress.three);
+                  },
+                  icon: Icon(Icons.arrow_back_ios),
                 ),
-                BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                  child: Container(
-                    height: double.infinity,
-                    width: double.infinity,
-                    color: Colors.black.withOpacity(0.6),
-                  ),
+                elevation: 0,
+                title: Text(
+                  "Bank details",
+                  style: TextStyle(fontWeight: FontWeight.w400),
                 ),
-                Scaffold(
-                  extendBodyBehindAppBar: true,
-                  backgroundColor: Colors.transparent,
-                  appBar: AppBar(
-                    backgroundColor: Colors.transparent,
-                    leading: IconButton(
-                      color: Colors.white,
-                      onPressed: () {
-                        state.setRegisterProgress(RegisterProgress.three);
-                      },
-                      icon: Icon(Icons.arrow_back_ios),
-                    ),
-                    elevation: 0,
-                    title: Text(
-                      "Bank details",
-                      style: TextStyle(fontWeight: FontWeight.w400),
-                    ),
-                    iconTheme: IconThemeData(color: Colors.black),
-                  ),
-                  body: Form(
-                    key: _formKey,
-                    child: Container(
-                      child: SingleChildScrollView(
-                          child: Column(
-                        children: [
-                          if (kDebugMode)
-                            TextButton(
-                                onPressed: () {
-                                  state.setRegisterProgress(
-                                      RegisterProgress.one);
-                                },
-                                child: Text("Reset")),
-                          Container(
-                            margin: EdgeInsets.only(left: 20, right: 20),
-                            child: Column(
-                              children: [
-                                Container(
-                                    height: 200,
-                                    width: 200,
-                                    child: Image.asset(
-                                        "assets/images/logo/logo.png")),
-                              ],
-                            ),
-                          ),
-                          InputField("Bank Name", _bankName,
-                              leading: Icon(
-                                Icons.currency_rupee,
-                                color: Colors.white,
-                              )),
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 10),
-                            child: InputDecorator(
-                              decoration: InputDecoration(
-                                prefixIcon:
-                                    Icon(Icons.person, color: Colors.white),
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 20),
-                                label: Text(
-                                  "Kyc Type (optional)",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(
-                                    color: Colors.white,
-                                    width: 1.0,
-                                  ),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                      child: ExpansionTile(
-                                    collapsedTextColor: Colors.white,
-                                    trailing: Text(""),
-                                    key: GlobalKey(),
-                                    title: Text(selectedAccount.title),
-                                    children: AccountTypes.map((e) => ListTile(
-                                          onTap: () {
-                                            setState(() {
-                                              _AccountType.text = e.value;
-                                              selectedAccount = e;
-                                            });
-                                          },
-                                          title: Text(
-                                            e.title,
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                        )).toList(),
-                                  ))
-                                ],
-                              ),
-                            ),
-                          ),
-                          InputField("Account Number", _AccountNo,
-                              accountConfirm: true),
-                          InputField(
-                              "Re-Enter Account Number", _AccountNoConfirm,
-                              accountConfirm: true),
-                          InputField("IFSC Code", _IFSCNo),
-                          InputField("Holder Name", _HolderName),
-                          InputField("Branch Name", _BranchName,
-                              leading: Icon(
-                                Icons.home_outlined,
-                                color: Colors.white,
-                              )),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 10),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                    child: passbookPath == null
-                                        ? Text(
-                                            "Cancelled Checkbook / Passbook Front page",
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          )
-                                        : Container(
-                                            alignment: Alignment.centerLeft,
-                                            height: 80,
-                                            width: 80,
-                                            child: Image.file(
-                                                File(passbookPath!)))),
-                                SizedBox(
-                                  width: 40,
-                                ),
-                                OutlinedButton(
-                                    onPressed: () async {
-                                      XFile? file = await ImagePicker()
-                                          .pickImage(
-                                              source: ImageSource.gallery);
-                                      if (file != null) {
-                                        setState(() {
-                                          passbookPath = file.path;
-                                        });
-                                      }
-                                    },
-                                    child: Text(passbookPath == null
-                                        ? "Choose"
-                                        : "Change"))
-                              ],
-                            ),
-                          ),
-                          if (isLoading)
+                iconTheme: IconThemeData(color: Colors.black),
+              ),
+              body: Form(
+                key: _formKey,
+                child: Container(
+                  child: SingleChildScrollView(
+                      child: Column(
+                    children: [
+                      if (kDebugMode)
+                        TextButton(
+                            onPressed: () {
+                              state.setRegisterProgress(RegisterProgress.one);
+                            },
+                            child: Text(
+                              "Reset",
+                              style: TextStyle(color: UIColor.black_text_color),
+                            )),
+                      Container(
+                        margin: EdgeInsets.only(left: 20, right: 20),
+                        child: Column(
+                          children: [
                             Container(
-                              alignment: Alignment.center,
-                              child: CircularProgressIndicator(),
-                            )
-                          else
-                            SignUpButton(context, state),
-                        ],
-                      )),
-                    ),
-                  ),
+                                height: 200,
+                                width: 200,
+                                child:
+                                    Image.asset("assets/images/logo/logo.png")),
+                          ],
+                        ),
+                      ),
+                      InputField("Bank Name", _bankName,
+                          leading: Icon(
+                            Icons.currency_rupee,
+                            color: UIColor.black_text_color,
+                          )),
+                      Container(
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.person,
+                                color: UIColor.black_text_color),
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 20),
+                            label: Text(
+                              "Kyc Type (optional)",
+                              style: TextStyle(color: UIColor.black_text_color),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide(
+                                color: UIColor.theme_color,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide(
+                                color: UIColor.black_text_color,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  child: ExpansionTile(
+                                collapsedTextColor: UIColor.black_text_color,
+                                trailing: Text(""),
+                                key: GlobalKey(),
+                                title: Text(selectedAccount.title),
+                                children: AccountTypes.map((e) => ListTile(
+                                      onTap: () {
+                                        setState(() {
+                                          _AccountType.text = e.value;
+                                          selectedAccount = e;
+                                        });
+                                      },
+                                      title: Text(
+                                        e.title,
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    )).toList(),
+                              ))
+                            ],
+                          ),
+                        ),
+                      ),
+                      InputField("Account Number", _AccountNo,
+                          accountConfirm: true),
+                      InputField("Re-Enter Account Number", _AccountNoConfirm,
+                          accountConfirm: true),
+                      InputField("IFSC Code", _IFSCNo),
+                      InputField("Holder Name", _HolderName),
+                      InputField("Branch Name", _BranchName,
+                          leading: Icon(
+                            Icons.home_outlined,
+                            color: UIColor.black_text_color,
+                          )),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: passbookPath == null
+                                    ? Text(
+                                        "Cancelled Checkbook / Passbook Front page",
+                                        style: TextStyle(
+                                            color: UIColor.black_text_color),
+                                      )
+                                    : Container(
+                                        alignment: Alignment.centerLeft,
+                                        height: 80,
+                                        width: 80,
+                                        child:
+                                            Image.file(File(passbookPath!)))),
+                            SizedBox(
+                              width: 40,
+                            ),
+                            OutlinedButton(
+                                onPressed: () async {
+                                  XFile? file = await ImagePicker()
+                                      .pickImage(source: ImageSource.gallery);
+                                  if (file != null) {
+                                    setState(() {
+                                      passbookPath = file.path;
+                                    });
+                                  }
+                                },
+                                child: Text(
+                                    passbookPath == null ? "Choose" : "Change"))
+                          ],
+                        ),
+                      ),
+                      if (isLoading)
+                        Container(
+                          alignment: Alignment.center,
+                          child: CircularProgressIndicator(),
+                        )
+                      else
+                        SignUpButton(context, state),
+                    ],
+                  )),
                 ),
-              ],
+              ),
             );
           });
     });
@@ -1297,7 +1247,7 @@ class _SignUp3State extends State<SignUp3> {
   Widget InputField(String title, TextEditingController controller,
       {Icon leading = const Icon(
         Icons.person,
-        color: Colors.white,
+        color: UIColor.black_text_color,
       ),
       bool hide = false,
       bool autocomplete = true,
@@ -1319,23 +1269,23 @@ class _SignUp3State extends State<SignUp3> {
             }
             return null;
           },
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: UIColor.black_text_color),
           decoration: InputDecoration(
             prefixIcon: leading,
             label: Text(
               title,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: UIColor.hint_text_color),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
-                color: Colors.blue,
+                color: UIColor.theme_color,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
-                color: Colors.white,
+                color: UIColor.black_text_color,
                 width: 1.0,
               ),
             ),
@@ -1363,6 +1313,7 @@ class _SignUp4State extends State<SignUp4> {
     "GST": null,
     "Vendor": null
   };
+
   @override
   void initState() {
     super.initState();
@@ -1382,387 +1333,383 @@ class _SignUp4State extends State<SignUp4> {
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(builder: (context, state, child) {
-      return Stack(
-        children: [
-          Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage("assets/images/signup4bg.jpg"),
-                    fit: BoxFit.fitHeight)),
-          ),
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-            child: Container(
-              height: double.infinity,
-              width: double.infinity,
-              color: Colors.black.withOpacity(0.6),
-            ),
-          ),
-          FutureBuilder(
-              future: _cache,
-              builder: (context, snapshot) {
-                return Scaffold(
-                  extendBodyBehindAppBar: true,
-                  backgroundColor: Colors.transparent,
-                  appBar: AppBar(
-                    backgroundColor: Colors.transparent,
-                    leading: IconButton(
-                      color: Colors.white,
-                      onPressed: () {
-                        state.setRegisterProgress(RegisterProgress.four);
-                      },
-                      icon: Icon(Icons.arrow_back_ios),
-                    ),
-                    elevation: 0,
-                    title: Text(
-                      "KYC documents",
-                      style: TextStyle(fontWeight: FontWeight.w400),
-                    ),
-                    iconTheme: IconThemeData(color: Colors.black),
-                  ),
-                  body: Form(
-                    key: _formKey,
-                    child: Container(
-                      child: SingleChildScrollView(
-                          child: Column(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(left: 20, right: 20),
-                            child: Column(
-                              children: [
-                                Container(
-                                    height: 200,
-                                    width: 200,
-                                    child: Image.asset(
-                                        "assets/images/logo/logo.png")),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 80),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Pan Card (optional)",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    SizedBox(
-                                      height: 100,
-                                      width: 100,
-                                      child: panUrl != null
-                                          ? CachedNetworkImage(
-                                              imageUrl: panUrl!,
-                                              placeholder: (context, url) {
-                                                return Container(
-                                                  alignment: Alignment.center,
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                );
-                                              },
-                                              errorWidget: (context, url, err) {
-                                                return Icon(
-                                                  Icons.file_copy,
-                                                  size: 60,
-                                                  color: Colors.white,
-                                                );
-                                              },
-                                            )
-                                          : imgPath["Pan Card"] == null
-                                              ? Icon(
-                                                  Icons.file_copy,
-                                                  size: 60,
-                                                  color: Colors.white,
-                                                )
-                                              : Image.file(
-                                                  File(imgPath["Pan Card"]!)),
-                                    ),
-                                    ElevatedButton(
-                                        onPressed: () async {
-                                          XFile? file = await ImagePicker()
-                                              .pickImage(
-                                                  source: ImageSource.gallery);
-                                          if (file != null) {
-                                            int size =
-                                                await file.length() ~/ 1024;
-                                            if (size > 2048) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          "Image too big. Please select an image below 2mb")));
-                                            } else {
-                                              setState(() {
-                                                imgPath["Pan Card"] = file.path;
-                                                panUrl = null;
-                                              });
-                                            }
-                                          }
-                                        },
-                                        child: Text("Choose File")),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 80),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "GST (optional)",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    SizedBox(
-                                      height: 100,
-                                      width: 100,
-                                      child: gst != null
-                                          ? CachedNetworkImage(
-                                              imageUrl: gst!,
-                                              placeholder: (context, url) {
-                                                return Container(
-                                                  alignment: Alignment.center,
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                );
-                                              },
-                                              errorWidget: (context, str, err) {
-                                                return Icon(
-                                                  Icons.file_copy,
-                                                  size: 60,
-                                                  color: Colors.white,
-                                                );
-                                              },
-                                            )
-                                          : imgPath["GST"] == null
-                                              ? Icon(
-                                                  Icons.file_copy,
-                                                  size: 60,
-                                                  color: Colors.white,
-                                                )
-                                              : Image.file(
-                                                  File(imgPath["GST"]!)),
-                                    ),
-                                    ElevatedButton(
-                                        onPressed: () async {
-                                          FilePickerResult? file =
-                                              await FilePicker.platform
-                                                  .pickFiles(
-                                                      allowedExtensions: [
-                                                "pdf",
-                                                "jpg",
-                                                "jpeg"
-                                              ],
-                                                      type: FileType.custom);
-                                          if (file != null) {
-                                            int size =
-                                                await file.files.single.size ~/
-                                                    1024;
-                                            if (size > 2048) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          "Image too big. Please select an image below 2mb")));
-                                            } else {
-                                              setState(() {
-                                                imgPath["GST"] =
-                                                    file.files.single.path;
-                                                gst = null;
-                                              });
-                                            }
-                                          }
-                                        },
-                                        child: Text("Choose File")),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 80),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "KYC (optional)",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    SizedBox(
-                                      height: 100,
-                                      width: 100,
-                                      child: kyc != null
-                                          ? CachedNetworkImage(
-                                              imageUrl: kyc!,
-                                              placeholder: (context, url) {
-                                                return Container(
-                                                  alignment: Alignment.center,
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                );
-                                              },
-                                              errorWidget: (context, str, err) {
-                                                return Icon(
-                                                  Icons.file_copy,
-                                                  size: 60,
-                                                  color: Colors.white,
-                                                );
-                                              },
-                                            )
-                                          : imgPath["KYC"] == null
-                                              ? Icon(
-                                                  Icons.file_copy,
-                                                  size: 60,
-                                                  color: Colors.white,
-                                                )
-                                              : Image.file(
-                                                  File(imgPath["KYC"]!)),
-                                    ),
-                                    ElevatedButton(
-                                        onPressed: () async {
-                                          XFile? file = await ImagePicker()
-                                              .pickImage(
-                                                  source: ImageSource.gallery);
-                                          if (file != null) {
-                                            int size =
-                                                await file.length() ~/ 1024;
-                                            if (size > 2048) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          "Image too big. Please select an image below 2mb")));
-                                            } else {
-                                              setState(() {
-                                                imgPath["KYC"] = file.path;
-                                                kyc = null;
-                                              });
-                                            }
-                                          }
-                                        },
-                                        child: Text("Choose File")),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 80),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Vendor Picture (optional)",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    SizedBox(
-                                      height: 100,
-                                      width: 100,
-                                      child: vendor != null
-                                          ? CachedNetworkImage(
-                                              imageUrl: vendor!,
-                                              placeholder: (context, url) {
-                                                return Container(
-                                                  alignment: Alignment.center,
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                );
-                                              },
-                                              errorWidget: (context, str, err) {
-                                                return Icon(
-                                                  Icons.file_copy,
-                                                  size: 60,
-                                                  color: Colors.white,
-                                                );
-                                              },
-                                            )
-                                          : imgPath["Vendor"] == null
-                                              ? Icon(
-                                                  Icons.file_copy,
-                                                  size: 60,
-                                                  color: Colors.white,
-                                                )
-                                              : Image.file(
-                                                  File(imgPath["Vendor"]!)),
-                                    ),
-                                    ElevatedButton(
-                                        onPressed: () async {
-                                          XFile? file = await ImagePicker()
-                                              .pickImage(
-                                                  source: ImageSource.gallery);
-                                          if (file != null) {
-                                            int size =
-                                                await file.length() ~/ 1024;
-                                            if (size > 2048) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          "Image too big. Please select an image below 2mb")));
-                                            } else {
-                                              setState(() {
-                                                imgPath["Vendor"] = file.path;
-                                                vendor = null;
-                                              });
-                                            }
-                                          }
-                                        },
-                                        child: Text("Choose File")),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (isLoading)
+      CustomLogger.debug(state.user?.gstNumber ?? "gst number is not provided");
+      return FutureBuilder(
+          future: _cache,
+          builder: (context, snapshot) {
+            return Scaffold(
+              extendBodyBehindAppBar: true,
+              backgroundColor: UIColor.screen_bg,
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                leading: IconButton(
+                  color: UIColor.black_text_color,
+                  onPressed: () {
+                    state.setRegisterProgress(RegisterProgress.four);
+                  },
+                  icon: Icon(Icons.arrow_back_ios),
+                ),
+                elevation: 0,
+                title: Text(
+                  "KYC documents",
+                  style: TextStyle(fontWeight: FontWeight.w400),
+                ),
+                iconTheme: IconThemeData(color: Colors.black),
+              ),
+              body: Form(
+                key: _formKey,
+                child: Container(
+                  child: SingleChildScrollView(
+                      child: Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(left: 20, right: 20),
+                        child: Column(
+                          children: [
                             Container(
-                              alignment: Alignment.center,
-                              child: CircularProgressIndicator(),
-                            )
-                          else
-                            SignUpButton(context, state),
-                        ],
-                      )),
-                    ),
-                  ),
-                );
-              }),
-        ],
-      );
+                                height: 200,
+                                width: 200,
+                                child:
+                                    Image.asset("assets/images/logo/logo.png")),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin:
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 80),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Pan Card",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: UIColor.black_text_color,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  height: 100,
+                                  width: 100,
+                                  child: panUrl != null
+                                      ? CachedNetworkImage(
+                                          imageUrl: panUrl!,
+                                          placeholder: (context, url) {
+                                            return Container(
+                                              alignment: Alignment.center,
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            );
+                                          },
+                                          errorWidget: (context, url, err) {
+                                            return Icon(
+                                              Icons.file_copy,
+                                              size: 60,
+                                              color: Colors.white,
+                                            );
+                                          },
+                                        )
+                                      : imgPath["Pan Card"] == null
+                                          ? Icon(
+                                              Icons.file_copy,
+                                              size: 60,
+                                              color: UIColor.black_text_color,
+                                            )
+                                          : Image.file(
+                                              File(imgPath["Pan Card"]!)),
+                                ),
+                                ElevatedButton(
+                                    onPressed: () async {
+                                      XFile? file = await ImagePicker()
+                                          .pickImage(
+                                              source: ImageSource.gallery);
+                                      if (file != null) {
+                                        int size = await file.length() ~/ 1024;
+                                        if (size > 2048) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content: Text(
+                                                      "Image too big. Please select an image below 2mb")));
+                                        } else {
+                                          setState(() {
+                                            imgPath["Pan Card"] = file.path;
+                                            panUrl = null;
+                                          });
+                                        }
+                                      }
+                                    },
+                                    child: Text("Choose File")),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (state.user?.gstNumber != null)
+                        Container(
+                          margin: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 80),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "GST (optional)",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: UIColor.black_text_color,
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SizedBox(
+                                    height: 100,
+                                    width: 100,
+                                    child: gst != null
+                                        ? CachedNetworkImage(
+                                            imageUrl: gst!,
+                                            placeholder: (context, url) {
+                                              return Container(
+                                                alignment: Alignment.center,
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            },
+                                            errorWidget: (context, str, err) {
+                                              return Icon(
+                                                Icons.file_copy,
+                                                size: 60,
+                                                color: UIColor.black_text_color,
+                                              );
+                                            },
+                                          )
+                                        : imgPath["GST"] == null
+                                            ? Icon(
+                                                Icons.file_copy,
+                                                size: 60,
+                                                color: UIColor.black_text_color,
+                                              )
+                                            : Image.file(File(imgPath["GST"]!)),
+                                  ),
+                                  ElevatedButton(
+                                      onPressed: () async {
+                                        FilePickerResult? file =
+                                            await FilePicker.platform.pickFiles(
+                                                allowedExtensions: [
+                                              "pdf",
+                                              "jpg",
+                                              "jpeg"
+                                            ],
+                                                type: FileType.custom);
+                                        if (file != null) {
+                                          int size =
+                                              await file.files.single.size ~/
+                                                  1024;
+                                          if (size > 2048) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                        "Image too big. Please select an image below 2mb")));
+                                          } else {
+                                            setState(() {
+                                              imgPath["GST"] =
+                                                  file.files.single.path;
+                                              gst = null;
+                                            });
+                                          }
+                                        }
+                                      },
+                                      child: Text("Choose File")),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      Container(
+                        margin:
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 80),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "KYC (optional)",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: UIColor.black_text_color,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  height: 100,
+                                  width: 100,
+                                  child: kyc != null
+                                      ? CachedNetworkImage(
+                                          imageUrl: kyc!,
+                                          placeholder: (context, url) {
+                                            return Container(
+                                              alignment: Alignment.center,
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            );
+                                          },
+                                          errorWidget: (context, str, err) {
+                                            return Icon(
+                                              Icons.file_copy,
+                                              size: 60,
+                                              color: UIColor.black_text_color,
+                                            );
+                                          },
+                                        )
+                                      : imgPath["KYC"] == null
+                                          ? Icon(
+                                              Icons.file_copy,
+                                              size: 60,
+                                              color: UIColor.black_text_color,
+                                            )
+                                          : Image.file(File(imgPath["KYC"]!)),
+                                ),
+                                ElevatedButton(
+                                    onPressed: () async {
+                                      XFile? file = await ImagePicker()
+                                          .pickImage(
+                                              source: ImageSource.gallery);
+                                      if (file != null) {
+                                        int size = await file.length() ~/ 1024;
+                                        if (size > 2048) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content: Text(
+                                                      "Image too big. Please select an image below 2mb")));
+                                        } else {
+                                          setState(() {
+                                            imgPath["KYC"] = file.path;
+                                            kyc = null;
+                                          });
+                                        }
+                                      }
+                                    },
+                                    child: Text("Choose File")),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin:
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 80),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Vendor Picture (optional)",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: UIColor.black_text_color,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  height: 100,
+                                  width: 100,
+                                  child: vendor != null
+                                      ? CachedNetworkImage(
+                                          imageUrl: vendor!,
+                                          placeholder: (context, url) {
+                                            return Container(
+                                              alignment: Alignment.center,
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            );
+                                          },
+                                          errorWidget: (context, str, err) {
+                                            return Icon(
+                                              Icons.file_copy,
+                                              size: 60,
+                                              color: UIColor.black_text_color,
+                                            );
+                                          },
+                                        )
+                                      : imgPath["Vendor"] == null
+                                          ? Icon(
+                                              Icons.file_copy,
+                                              size: 60,
+                                              color: UIColor.black_text_color,
+                                            )
+                                          : Image.file(
+                                              File(imgPath["Vendor"]!)),
+                                ),
+                                ElevatedButton(
+                                    onPressed: () async {
+                                      XFile? file = await ImagePicker()
+                                          .pickImage(
+                                              source: ImageSource.gallery);
+                                      if (file != null) {
+                                        int size = await file.length() ~/ 1024;
+                                        if (size > 2048) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content: Text(
+                                                      "Image too big. Please select an image below 2mb")));
+                                        } else {
+                                          setState(() {
+                                            imgPath["Vendor"] = file.path;
+                                            vendor = null;
+                                          });
+                                        }
+                                      }
+                                    },
+                                    child: Text("Choose File")),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (isLoading)
+                        Container(
+                          alignment: Alignment.center,
+                          child: CircularProgressIndicator(),
+                        )
+                      else
+                        SignUpButton(context, state),
+                    ],
+                  )),
+                ),
+              ),
+            );
+          });
     });
   }
 
   Future<void> submit(AuthProvider state) async {
+
+    if (imgPath["Pan Card"] == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Please provide PAN")));
+      return;
+    }
+
+    if (imgPath["KYC"] == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Please provide KYC")));
+      return;
+    }
+    if (imgPath["Vendor"] == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Please provide Vendor")));
+      return;
+    }
+ if (state.user?.gstNumber != null && imgPath["GST"] == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Please provide GST")));
+      return;
+    }
+
     Map<String, dynamic> data = {
       "vendor_reg_part": 6,
     };
@@ -1795,7 +1742,7 @@ class _SignUp4State extends State<SignUp4> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
+/*          Expanded(
             child: ElevatedButton(
               onPressed: () async {
                 state.setRegisterProgress(RegisterProgress.six);
@@ -1810,7 +1757,7 @@ class _SignUp4State extends State<SignUp4> {
           ),
           const SizedBox(
             width: 40,
-          ),
+          ),*/
           Expanded(
             child: ElevatedButton(
               onPressed: () async {
@@ -1854,6 +1801,8 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
   bool isLoading = false;
   TextEditingController _serviceDescription = TextEditingController();
   TextEditingController _materialDescription = TextEditingController();
+  TextEditingController _companyName = TextEditingController();
+  TextEditingController _videoLink = TextEditingController();
   TextEditingController _officePinCode = TextEditingController();
   TextEditingController _officeNo = TextEditingController();
   TextEditingController _officePhone = TextEditingController();
@@ -1917,8 +1866,10 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
   ];
 
   late Country selectedOfficeCountry;
+
   Future<void> getDataFromCache() async {
     AuthProvider auth = context.read<AuthProvider>();
+    CustomLogger.debug(auth.user);
     selectedOfficeCountry = Country(id: "101", name: "India");
     Map country = {"id": "101", "name": "India"};
     try {
@@ -2001,606 +1952,608 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
             future: Future.wait([_getCacheData, _getLocation]),
             builder: (context, snapshot) {
               return Consumer<MapProvider>(
-                builder: (context, mapState, child) => Stack(
-                  children: [
-                    Container(
+                builder: (context, mapState, child) => Scaffold(
+                  extendBodyBehindAppBar: true,
+                  backgroundColor: UIColor.screen_bg,
+                  appBar: AppBar(
+                    backgroundColor: Colors.transparent,
+                    leading: IconButton(
+                      color: UIColor.black_text_color,
+                      onPressed: () {
+                        regState.setRegisterProgress(RegisterProgress.two);
+                      },
+                      icon: Icon(Icons.arrow_back_ios),
+                    ),
+                    elevation: 0,
+                    title: Text(
+                      "Office Details",
+                      style: TextStyle(fontWeight: FontWeight.w400),
+                    ),
+                    iconTheme: IconThemeData(color: Colors.black),
+                  ),
+                  body: Form(
+                    key: _formKey,
+                    child: Container(
+                      padding: EdgeInsets.all(11),
                       height: double.infinity,
                       width: double.infinity,
-                      decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: AssetImage("assets/images/signup1bg.jpg"),
-                              fit: BoxFit.fitHeight)),
-                    ),
-                    BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                      child: Container(
-                        height: double.infinity,
-                        width: double.infinity,
-                        color: Colors.black.withOpacity(0.6),
-                      ),
-                    ),
-                    Scaffold(
-                      extendBodyBehindAppBar: true,
-                      backgroundColor: Colors.transparent,
-                      appBar: AppBar(
-                        backgroundColor: Colors.transparent,
-                        leading: IconButton(
-                          color: Colors.white,
-                          onPressed: () {
-                            regState.setRegisterProgress(RegisterProgress.two);
-                          },
-                          icon: Icon(Icons.arrow_back_ios),
-                        ),
-                        elevation: 0,
-                        title: Text(
-                          "Office Details",
-                          style: TextStyle(fontWeight: FontWeight.w400),
-                        ),
-                        iconTheme: IconThemeData(color: Colors.black),
-                      ),
-                      body: Form(
-                        key: _formKey,
-                        child: Container(
-                          padding: EdgeInsets.all(11),
-                          height: double.infinity,
-                          width: double.infinity,
-                          child: SingleChildScrollView(
-                            child: Column(children: <Widget>[
-                              Container(
-                                margin: EdgeInsets.only(left: 20, right: 20),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                        height: 200,
-                                        width: 200,
-                                        child: Image.asset(
-                                            "assets/images/logo/logo.png")),
-                                  ],
-                                ),
+                      child: SingleChildScrollView(
+                        child: Column(children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Column(
+                              children: [
+                                Container(
+                                    height: 200,
+                                    width: 200,
+                                    child: Image.asset(
+                                        "assets/images/logo/logo.png")),
+                              ],
+                            ),
+                          ),
+
+                          /*start of service details*/
+
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            margin: EdgeInsets.symmetric(
+                                vertical: 20, horizontal: 20),
+                            child: Text(
+                              "Service details",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: UIColor.black_text_color),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            child: ExpansionTile(
+                              collapsedShape: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      width: 1,
+                                      color: UIColor.black_text_color),
+                                  borderRadius: BorderRadius.circular(5)),
+                              shape: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      width: 1,
+                                      color: UIColor.black_text_color),
+                                  borderRadius: BorderRadius.circular(5)),
+                              textColor: Colors.white,
+                              iconColor: Colors.white,
+                              collapsedTextColor: Colors.white,
+                              key: GlobalKey(),
+                              title: Text(
+                                serviceOption,
+                                style:
+                                    TextStyle(color: UIColor.black_text_color),
                               ),
-                              InputField("GST Number", _GST,
-                                  isCapital: true,
-                                  required: false,
-                                  leading: Icon(
-                                    Icons.numbers,
-                                    color: Colors.white,
-                                  )),
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 20),
-                                margin: EdgeInsets.only(top: 20),
-                                child: IntlPhoneField(
-                                  initialCountryCode: "IN",
-                                  showCountryFlag: false,
-                                  dropdownIcon: const Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.white,
-                                  ),
-                                  style: TextStyle(color: Colors.white),
-                                  dropdownTextStyle:
-                                      TextStyle(color: Colors.white),
-                                  decoration: InputDecoration(
-                                    label: Text(
-                                      "Phone Number",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide: BorderSide(
-                                        color: Colors.blue,
+                              children: state.options!.serviceOptions
+                                  .map(
+                                    (e) => ListTile(
+                                      title: Text(
+                                        e.service,
+                                        style: TextStyle(
+                                            color: UIColor.black_text_color),
                                       ),
+                                      onTap: () {
+                                        setState(() {
+                                          serviceOption = e.service;
+                                          serviceId = e.id;
+                                        });
+                                      },
                                     ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      borderSide: BorderSide(
-                                        color: Colors.white,
-                                        width: 1.0,
-                                      ),
-                                    ),
-                                  ),
-                                  validator: (text) {
-                                    if (text == null ||
-                                        text.completeNumber.isEmpty) {
-                                      return "Required field";
-                                    }
-                                    if (text.completeNumber.length < 12 ||
-                                        text.completeNumber.length > 15) {
-                                      return "Please enter a valid number";
-                                    }
-                                    return null;
-                                  },
-                                  onChanged: (number) {
-                                    _officePhone.text = number.completeNumber;
-                                  },
-                                ),
-                              ),
-                              InputField(
-                                  "Flat / House / Building Number", _officeNo,
-                                  leading: Icon(
-                                    Icons.home_filled,
-                                    color: Colors.white,
-                                  )),
-                              InputField(
-                                  "Street/Sector/Village/Area", _officeArea,
-                                  leading: Icon(
-                                    Icons.home_filled,
-                                    color: Colors.white,
-                                  )),
-                              InputField("Landmark", _officeLandmark,
-                                  leading: Icon(
-                                    Icons.home_filled,
-                                    color: Colors.white,
-                                  )),
-                              InputField("PinCode", _officePinCode,
-                                  leading: Icon(
-                                    Icons.pin_drop,
-                                    color: Colors.white,
-                                  ),
-                                  isPin: true),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 20),
-                                child: snapshot.connectionState ==
-                                        ConnectionState.waiting
-                                    ? Container(
-                                        height: 80,
-                                      )
-                                    : CSCPicker(
-                                        showStates: true,
-                                        showCities: true,
-                                        disabledDropdownDecoration:
-                                            BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border: Border.all(
-                                              color: Colors.white, width: 1),
-                                          color: Colors.transparent,
-                                        ),
-                                        currentCountry:
-                                            selectedOfficeCountry.name,
-                                        currentCity: _officeCity.text,
-                                        currentState: _officeState.text,
-                                        selectedItemStyle:
-                                            TextStyle(color: Colors.white),
-                                        dropdownDecoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border: Border.all(
-                                              color: Colors.white, width: 1),
-                                          color: Colors.transparent,
-                                        ),
-                                        onCountryChanged: (country) {
-                                          setState(() {
-                                            _officeCountry.text = country;
-                                          });
-                                        },
-                                        onStateChanged: (state) {
-                                          setState(() {
-                                            _officeState.text = state ?? "";
-                                          });
-                                        },
-                                        onCityChanged: (city) {
-                                          setState(() {
-                                            _officeCity.text = city ?? "";
-                                          });
-                                        },
-                                      ),
-                              ),
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                margin: EdgeInsets.symmetric(
-                                    vertical: 20, horizontal: 20),
-                                child: Text(
-                                  "Service details",
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                          InputField("Service Description", _serviceDescription,
+                              leading: Icon(
+                                Icons.description,
+                                color: UIColor.black_text_color,
+                              )),
+                          InputField(
+                              "Material Description", _materialDescription,
+                              leading: Icon(
+                                Icons.description_outlined,
+                                color: UIColor.black_text_color,
+                              )),
+                          InputField("Company Name (optional)", _companyName,
+                              required: false,
+                              leading: Icon(
+                                Icons.description_outlined,
+                                color: UIColor.black_text_color,
+                              )),
+                          InputField("Video Link", _videoLink,
+                              required: false,
+                              leading: Icon(
+                                Icons.description_outlined,
+                                color: UIColor.black_text_color,
+                              )),
+                          InputField("Price", _price,
+                              isPrice: true,
+                              leading: Icon(
+                                Icons.currency_rupee,
+                                color: UIColor.black_text_color,
+                              )),
+                          Container(
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            alignment: Alignment.centerLeft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Product photos. Max 5",
                                   style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white),
+                                      fontWeight: FontWeight.bold,
+                                      color: UIColor.black_text_color),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                child: ExpansionTile(
-                                  collapsedShape: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          width: 1, color: Colors.white),
-                                      borderRadius: BorderRadius.circular(5)),
-                                  shape: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          width: 1, color: Colors.white),
-                                      borderRadius: BorderRadius.circular(5)),
-                                  textColor: Colors.white,
-                                  iconColor: Colors.white,
-                                  collapsedTextColor: Colors.white,
-                                  key: GlobalKey(),
-                                  title: Text(
-                                    serviceOption,
-                                    style: TextStyle(color: Colors.white),
+                                ElevatedButton(
+                                    onPressed: () async {
+                                      if (productImages.length >= 5) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content: Text(
+                                                    "Maximum 5 photos allowed")));
+                                        return;
+                                      }
+                                      List<XFile?> images =
+                                          await ImagePicker().pickMultiImage();
+                                      setState(() {
+                                        if (images.length > 5) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content: Text(
+                                                      "Maximum 5 photos allowed")));
+                                        }
+                                        images.forEach((element) {
+                                          if (productImages.length == 5) return;
+                                          productImages.add(AddProductPhoto(
+                                              filePath: element?.path,
+                                              id: productImages.length,
+                                              onDelete: (id) {
+                                                setState(() {
+                                                  productImages.removeWhere(
+                                                      (element) =>
+                                                          element.id == id);
+                                                });
+                                              }));
+                                        });
+                                      });
+                                    },
+                                    child: const Text("Add"))
+                              ],
+                            ),
+                          ),
+                          ...productImages,
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            margin: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 20),
+                            child: Text(
+                              "Add a video",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: UIColor.black_text_color),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 25),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  alignment: Alignment.center,
+                                  width: 80,
+                                  height: 60,
+                                  child: videoPath != null
+                                      ? Container(
+                                          child: Text("Video Selected"),
+                                        )
+                                      : Container(
+                                          color: Colors.grey,
+                                        ),
+                                ),
+                                Container(
+                                  child: ElevatedButton(
+                                    child: const Text("Choose"),
+                                    onPressed: () async {
+                                      XFile? video = await ImagePicker()
+                                          .pickVideo(
+                                              source: ImageSource.gallery);
+                                      setState(() {
+                                        videoPath = video?.path;
+                                      });
+                                    },
                                   ),
-                                  children: state.options!.serviceOptions
-                                      .map(
-                                        (e) => ListTile(
+                                )
+                              ],
+                            ),
+                          ),
+                          if (serviceOption.toLowerCase().endsWith("car"))
+                            Column(
+                              children: [
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 20, horizontal: 20),
+                                  child: Text(
+                                    "Driver details",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: UIColor.black_text_color),
+                                  ),
+                                ),
+                                InputField("Name", _driverName),
+                                Container(
+                                  padding: EdgeInsets.only(
+                                      left: 20, right: 20, top: 30),
+                                  child: IntlPhoneField(
+                                    initialCountryCode: "IN",
+                                    showCountryFlag: false,
+                                    dropdownIcon: const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: UIColor.black_text_color,
+                                    ),
+                                    style: TextStyle(
+                                        color: UIColor.black_text_color),
+                                    dropdownTextStyle: TextStyle(
+                                        color: UIColor.black_text_color),
+                                    decoration: InputDecoration(
+                                      label: Text(
+                                        "Phone Number",
+                                        style: TextStyle(
+                                            color: UIColor.black_text_color),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: BorderSide(
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: BorderSide(
+                                          color: UIColor.black_text_color,
+                                          width: 1.0,
+                                        ),
+                                      ),
+                                    ),
+                                    validator: (text) {
+                                      if (text == null ||
+                                          text.completeNumber.isEmpty) {
+                                        return "Required field";
+                                      }
+                                      if (text.completeNumber.length < 12 ||
+                                          text.completeNumber.length > 15) {
+                                        return "Please enter a valid number";
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (number) {
+                                      _driverMob.text = number.completeNumber;
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  child: InputDecorator(
+                                    decoration: InputDecoration(
+                                      prefixIcon: Icon(Icons.person,
+                                          color: UIColor.black_text_color),
+                                      contentPadding:
+                                          EdgeInsets.symmetric(horizontal: 20),
+                                      label: Text(
+                                        "Kyc Type",
+                                        style: TextStyle(
+                                            color: UIColor.black_text_color),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: BorderSide(
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: BorderSide(
+                                          color: UIColor.black_text_color,
+                                          width: 1.0,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                            child: ExpansionTile(
+                                          trailing: Text(""),
+                                          key: GlobalKey(),
                                           title: Text(
-                                            e.service,
-                                            style:
-                                                TextStyle(color: Colors.white),
+                                            selectedKyc.title,
+                                            style: TextStyle(
+                                                color:
+                                                    UIColor.black_text_color),
                                           ),
-                                          onTap: () {
+                                          children: kyctypes
+                                              .map((e) => ListTile(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        _driverKycType.text =
+                                                            e.value;
+                                                        selectedKyc = e;
+                                                      });
+                                                    },
+                                                    title: Text(
+                                                      e.title,
+                                                      style: TextStyle(
+                                                          color: UIColor
+                                                              .black_text_color),
+                                                    ),
+                                                  ))
+                                              .toList(),
+                                        ))
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                InputField(
+                                    "${selectedKyc.title} Number", _driverKycNo,
+                                    isAadhar: true),
+                                InputField("License", _driverLicense),
+                                InputField("House Number", _driverhouseNo),
+                                InputField(
+                                    "Street/Sector/Village/Area", _driverArea),
+                                InputField("Landmark", _driverLandmark),
+                                InputField("City", _driverCity),
+                                InputField("PinCode", _driverpinCode,
+                                    isPin: true),
+                                InputField("State", _driverState),
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 20),
+                                  child: Text(
+                                    "Choose Driver Image",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: UIColor.black_text_color),
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 25),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        width: 80,
+                                        height: 60,
+                                        child: driverImage != null
+                                            ? Image.file(File(driverImage!))
+                                            : Container(
+                                                color: Colors.grey,
+                                              ),
+                                      ),
+                                      Container(
+                                        child: ElevatedButton(
+                                          child: const Text("Choose"),
+                                          onPressed: () async {
+                                            XFile? image = await ImagePicker()
+                                                .pickImage(
+                                                    source:
+                                                        ImageSource.gallery);
                                             setState(() {
-                                              serviceOption = e.service;
-                                              serviceId = e.id;
+                                              driverImage = image?.path;
                                             });
                                           },
                                         ),
                                       )
-                                      .toList(),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              InputField(
-                                  "Service Description", _serviceDescription,
-                                  leading: Icon(
-                                    Icons.description,
-                                    color: Colors.white,
-                                  )),
-                              InputField(
-                                  "Material Description", _materialDescription,
-                                  leading: Icon(
-                                    Icons.description_outlined,
-                                    color: Colors.white,
-                                  )),
-                              InputField("Price", _price,
-                                  isPrice: true,
-                                  leading: Icon(
-                                    Icons.currency_rupee,
-                                    color: Colors.white,
-                                  )),
-                              Container(
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                alignment: Alignment.centerLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Product photos. Max 5",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white),
-                                    ),
-                                    ElevatedButton(
-                                        onPressed: () async {
-                                          if (productImages.length >= 5) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                                    content: Text(
-                                                        "Maximum 5 photos allowed")));
-                                            return;
-                                          }
-                                          List<XFile?> images =
-                                              await ImagePicker()
-                                                  .pickMultiImage();
-                                          setState(() {
-                                            if (images.length > 5) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                      content: Text(
-                                                          "Maximum 5 photos allowed")));
-                                            }
-                                            images.forEach((element) {
-                                              if (productImages.length == 5)
-                                                return;
-                                              productImages.add(AddProductPhoto(
-                                                  filePath: element?.path,
-                                                  id: productImages.length,
-                                                  onDelete: (id) {
-                                                    setState(() {
-                                                      productImages.removeWhere(
-                                                          (element) =>
-                                                              element.id == id);
-                                                    });
-                                                  }));
-                                            });
-                                          });
-                                        },
-                                        child: const Text("Add"))
-                                  ],
-                                ),
-                              ),
-                              ...productImages,
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                margin: EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 20),
-                                child: Text(
-                                  "Add a video",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 25),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      alignment: Alignment.center,
-                                      width: 80,
-                                      height: 60,
-                                      child: videoPath != null
-                                          ? Container(
-                                              child: Text("Video Selected"),
-                                            )
-                                          : Container(
-                                              color: Colors.grey,
-                                            ),
-                                    ),
-                                    Container(
-                                      child: ElevatedButton(
-                                        child: const Text("Choose"),
-                                        onPressed: () async {
-                                          XFile? video = await ImagePicker()
-                                              .pickVideo(
-                                                  source: ImageSource.gallery);
-                                          setState(() {
-                                            videoPath = video?.path;
-                                          });
-                                        },
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              if (serviceOption.toLowerCase().endsWith("car"))
-                                Column(
-                                  children: [
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      margin: EdgeInsets.symmetric(
-                                          vertical: 20, horizontal: 20),
-                                      child: Text(
-                                        "Driver details",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.white),
-                                      ),
-                                    ),
-                                    InputField("Name", _driverName),
-                                    Container(
-                                      padding: EdgeInsets.only(
-                                          left: 20, right: 20, top: 30),
-                                      child: IntlPhoneField(
-                                        initialCountryCode: "IN",
-                                        showCountryFlag: false,
-                                        dropdownIcon: const Icon(
-                                          Icons.arrow_drop_down,
-                                          color: Colors.white,
-                                        ),
-                                        style: TextStyle(color: Colors.white),
-                                        dropdownTextStyle:
-                                            TextStyle(color: Colors.white),
-                                        decoration: InputDecoration(
-                                          label: Text(
-                                            "Phone Number",
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            borderSide: BorderSide(
-                                              color: Colors.blue,
-                                            ),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            borderSide: BorderSide(
-                                              color: Colors.white,
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                        ),
-                                        validator: (text) {
-                                          if (text == null ||
-                                              text.completeNumber.isEmpty) {
-                                            return "Required field";
-                                          }
-                                          if (text.completeNumber.length < 12 ||
-                                              text.completeNumber.length > 15) {
-                                            return "Please enter a valid number";
-                                          }
-                                          return null;
-                                        },
-                                        onChanged: (number) {
-                                          _driverMob.text =
-                                              number.completeNumber;
-                                        },
-                                      ),
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 10),
-                                      child: InputDecorator(
-                                        decoration: InputDecoration(
-                                          prefixIcon: Icon(Icons.person,
-                                              color: Colors.white),
-                                          contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 20),
-                                          label: Text(
-                                            "Kyc Type",
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            borderSide: BorderSide(
-                                              color: Colors.blue,
-                                            ),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            borderSide: BorderSide(
-                                              color: Colors.white,
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                                child: ExpansionTile(
-                                              trailing: Text(""),
-                                              key: GlobalKey(),
-                                              title: Text(
-                                                selectedKyc.title,
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                              children: kyctypes
-                                                  .map((e) => ListTile(
-                                                        onTap: () {
-                                                          setState(() {
-                                                            _driverKycType
-                                                                .text = e.value;
-                                                            selectedKyc = e;
-                                                          });
-                                                        },
-                                                        title: Text(
-                                                          e.title,
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white),
-                                                        ),
-                                                      ))
-                                                  .toList(),
-                                            ))
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    InputField("${selectedKyc.title} Number",
-                                        _driverKycNo,
-                                        isAadhar: true),
-                                    InputField("License", _driverLicense),
-                                    InputField("House Number", _driverhouseNo),
-                                    InputField("Street/Sector/Village/Area",
-                                        _driverArea),
-                                    InputField("Landmark", _driverLandmark),
-                                    InputField("City", _driverCity),
-                                    InputField("PinCode", _driverpinCode,
-                                        isPin: true),
-                                    InputField("State", _driverState),
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      margin: EdgeInsets.symmetric(
-                                          vertical: 10, horizontal: 20),
-                                      child: Text(
-                                        "Choose Driver Image",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 25),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Container(
-                                            width: 80,
-                                            height: 60,
-                                            child: driverImage != null
-                                                ? Image.file(File(driverImage!))
-                                                : Container(
-                                                    color: Colors.grey,
-                                                  ),
-                                          ),
-                                          Container(
-                                            child: ElevatedButton(
-                                              child: const Text("Choose"),
-                                              onPressed: () async {
-                                                XFile? image =
-                                                    await ImagePicker()
-                                                        .pickImage(
-                                                            source: ImageSource
-                                                                .gallery);
-                                                setState(() {
-                                                  driverImage = image?.path;
-                                                });
-                                              },
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      alignment: Alignment.centerLeft,
-                                      margin: EdgeInsets.symmetric(
-                                          vertical: 10, horizontal: 20),
-                                      child: Text(
-                                        "Choose Driving License Image",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 25),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Container(
-                                            alignment: Alignment.center,
-                                            width: 80,
-                                            height: 60,
-                                            child: drivingLicenseImage != null
-                                                ? Image.file(
-                                                    File(drivingLicenseImage!))
-                                                : Container(
-                                                    color: Colors.grey,
-                                                  ),
-                                          ),
-                                          Container(
-                                            child: ElevatedButton(
-                                              child: const Text("Choose"),
-                                              onPressed: () async {
-                                                XFile? image =
-                                                    await ImagePicker()
-                                                        .pickImage(
-                                                            source: ImageSource
-                                                                .gallery);
-                                                setState(() {
-                                                  drivingLicenseImage =
-                                                      image?.path;
-                                                });
-                                              },
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              if (isLoading)
                                 Container(
-                                  alignment: Alignment.center,
-                                  child: CircularProgressIndicator(),
+                                  alignment: Alignment.centerLeft,
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 20),
+                                  child: Text(
+                                    "Choose Driving License Image",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: UIColor.black_text_color),
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 25),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        alignment: Alignment.center,
+                                        width: 80,
+                                        height: 60,
+                                        child: drivingLicenseImage != null
+                                            ? Image.file(
+                                                File(drivingLicenseImage!))
+                                            : Container(
+                                                color: Colors.grey,
+                                              ),
+                                      ),
+                                      Container(
+                                        child: ElevatedButton(
+                                          child: const Text("Choose"),
+                                          onPressed: () async {
+                                            XFile? image = await ImagePicker()
+                                                .pickImage(
+                                                    source:
+                                                        ImageSource.gallery);
+                                            setState(() {
+                                              drivingLicenseImage = image?.path;
+                                            });
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 )
-                              else
-                                CreateButton(context, regState),
-                            ]),
+                              ],
+                            ),
+
+                          /*end of service details*/
+
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            margin: EdgeInsets.only(top: 20),
+                            child: IntlPhoneField(
+                              initialCountryCode: "IN",
+                              showCountryFlag: false,
+                              dropdownIcon: const Icon(
+                                Icons.arrow_drop_down,
+                                color: UIColor.black_text_color,
+                              ),
+                              style: TextStyle(color: UIColor.black_text_color),
+                              dropdownTextStyle:
+                                  TextStyle(color: UIColor.black_text_color),
+                              decoration: InputDecoration(
+                                label: Text(
+                                  "Phone Number",
+                                  style: TextStyle(
+                                      color: UIColor.black_text_color),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: BorderSide(
+                                    color: UIColor.black_text_color,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                              validator: (text) {
+                                if (text == null ||
+                                    text.completeNumber.isEmpty) {
+                                  return "Required field";
+                                }
+                                if (text.completeNumber.length < 12 ||
+                                    text.completeNumber.length > 15) {
+                                  return "Please enter a valid number";
+                                }
+                                return null;
+                              },
+                              onChanged: (number) {
+                                _officePhone.text = number.completeNumber;
+                              },
+                            ),
                           ),
-                        ),
+                          InputField("GST Number", _GST,
+                              isCapital: true,
+                              required: false,
+                              leading: Icon(
+                                Icons.numbers,
+                                color: UIColor.black_text_color,
+                              )),
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            margin: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 20),
+                            child: Text(
+                              "Office Address",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: UIColor.black_text_color),
+                            ),
+                          ),
+                          InputField("PinCode", _officePinCode,
+                              leading: Icon(
+                                Icons.pin_drop,
+                                color: UIColor.black_text_color,
+                              ),
+                              isPin: true),
+                          InputField(
+                              "Flat / House / Building Number", _officeNo,
+                              leading: Icon(
+                                Icons.home_filled,
+                                color: UIColor.black_text_color,
+                              )),
+                          InputField("Street/Sector/Village/Area", _officeArea,
+                              leading: Icon(
+                                Icons.home_filled,
+                                color: UIColor.black_text_color,
+                              )),
+                          InputField("Landmark", _officeLandmark,
+                              leading: Icon(
+                                Icons.home_filled,
+                                color: UIColor.black_text_color,
+                              )),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 20),
+                            child: snapshot.connectionState ==
+                                    ConnectionState.waiting
+                                ? Container(
+                                    height: 80,
+                                  )
+                                : CSCPicker(
+                                    showStates: true,
+                                    showCities: true,
+                                    disabledDropdownDecoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          color: UIColor.black_text_color,
+                                          width: 1),
+                                      color: Colors.transparent,
+                                    ),
+                                    currentCountry: selectedOfficeCountry.name,
+                                    currentCity: _officeCity.text,
+                                    currentState: _officeState.text,
+                                    selectedItemStyle: TextStyle(
+                                        color: UIColor.black_text_color),
+                                    dropdownDecoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          color: UIColor.black_text_color,
+                                          width: 1),
+                                      color: Colors.transparent,
+                                    ),
+                                    onCountryChanged: (country) {
+                                      setState(() {
+                                        _officeCountry.text = country;
+                                      });
+                                    },
+                                    onStateChanged: (state) {
+                                      setState(() {
+                                        _officeState.text = state ?? "";
+                                      });
+                                    },
+                                    onCityChanged: (city) {
+                                      setState(() {
+                                        _officeCity.text = city ?? "";
+                                      });
+                                    },
+                                  ),
+                          ),
+                          if (isLoading)
+                            Container(
+                              alignment: Alignment.center,
+                              child: CircularProgressIndicator(),
+                            )
+                          else
+                            CreateButton(context, regState),
+                        ]),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               );
             });
@@ -2625,7 +2578,12 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                   isLoading = false;
                 });
               },
-              child: const Text("Save and Continue"),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: UIColor.theme_color),
+              child: const Text(
+                "Save and Continue",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ),
         ],
@@ -2636,7 +2594,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
   Widget InputField(String title, TextEditingController controller,
       {Icon leading = const Icon(
         Icons.person,
-        color: Colors.white,
+        color: UIColor.black_text_color,
       ),
       bool required = true,
       MapProvider? state,
@@ -2669,23 +2627,23 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                 });
               }
             : null,
-        style: TextStyle(color: Colors.white),
+        style: TextStyle(color: UIColor.black_text_color),
         decoration: InputDecoration(
           prefixIcon: leading,
           label: Text(
             title,
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: UIColor.hint_text_color),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
-              color: Colors.blue,
+              color: UIColor.theme_color,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(
-              color: Colors.white,
+              color: UIColor.black_text_color,
               width: 1.0,
             ),
           ),
@@ -2762,7 +2720,9 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
             ? null
             : await MultipartFile.fromFile(drivingLicenseImage!),
         "video":
-            videoPath == null ? null : await MultipartFile.fromFile(videoPath!)
+            videoPath == null ? null : await MultipartFile.fromFile(videoPath!),
+        "company_name": _companyName.text,
+        "video_url": _videoLink.text,
       };
       for (int i = 0; i < productImages.length; i++) {
         data['pmg${i + 1}'] = productImages[i].filePath == null
@@ -2785,16 +2745,23 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
 
 class TermsAndConditionsPage extends StatefulWidget {
   TermsAndConditionsPage({Key? key});
+
   @override
   _TermsAndConditionsPageState createState() => _TermsAndConditionsPageState();
 }
 
 class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
   bool _agreedToTerms = false;
+  bool _agreedPrivacy = false;
 
   void _toggleTermsAgreement(bool? value) {
     setState(() {
       _agreedToTerms = value!;
+    });
+  }
+  void _togglePrivacy(bool? value) {
+    setState(() {
+      _agreedPrivacy = value!;
     });
   }
 
@@ -2809,121 +2776,116 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(builder: (context, registerState, child) {
-      return Stack(
-        children: [
-          Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage("assets/images/signup1bg.jpg"),
-                    fit: BoxFit.fitHeight)),
+      return Scaffold(
+        extendBodyBehindAppBar: true,
+        backgroundColor: UIColor.screen_bg,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            color: UIColor.black_text_color,
+            onPressed: () {
+              registerState.setRegisterProgress(RegisterProgress.five);
+            },
+            icon: Icon(Icons.arrow_back_ios),
           ),
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-            child: Container(
-              height: double.infinity,
-              width: double.infinity,
-              color: Colors.black.withOpacity(0.6),
-            ),
+          elevation: 0,
+          title: Text(
+            "Terms and Conditions",
+            style: TextStyle(fontWeight: FontWeight.w400),
           ),
-          Scaffold(
-            extendBodyBehindAppBar: true,
-            backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              leading: IconButton(
-                color: Colors.white,
-                onPressed: () {
-                  registerState.setRegisterProgress(RegisterProgress.five);
-                },
-                icon: Icon(Icons.arrow_back_ios),
+          iconTheme: IconThemeData(color: Colors.black),
+        ),
+        body: DefaultTextStyle(
+          style: TextStyle(color: Colors.white),
+          child: ListView(
+            padding: EdgeInsets.all(16.0),
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.only(left: 20, right: 20),
+                child: Column(
+                  children: [
+                    Container(
+                        height: 200,
+                        width: 200,
+                        child: Image.asset("assets/images/logo/logo.png")),
+                  ],
+                ),
               ),
-              elevation: 0,
-              title: Text(
-                "Terms and Conditions",
-                style: TextStyle(fontWeight: FontWeight.w400),
+              // Text(
+              //   'Terms and Conditions',
+              //   style: TextStyle(
+              //     fontSize: 18.0,
+              //     fontWeight: FontWeight.bold,
+              //   ),
+              // ),
+              SizedBox(height: 16.0),
+              Text(
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
+                style: TextStyle(fontSize: 16.0),
               ),
-              iconTheme: IconThemeData(color: Colors.black),
-            ),
-            body: DefaultTextStyle(
-              style: TextStyle(color: Colors.white),
-              child: ListView(
-                padding: EdgeInsets.all(16.0),
-                children: <Widget>[
-                  Container(
-                    margin: EdgeInsets.only(left: 20, right: 20),
-                    child: Column(
-                      children: [
-                        Container(
-                            height: 200,
-                            width: 200,
-                            child: Image.asset("assets/images/logo/logo.png")),
-                      ],
-                    ),
-                  ),
-                  // Text(
-                  //   'Terms and Conditions',
-                  //   style: TextStyle(
-                  //     fontSize: 18.0,
-                  //     fontWeight: FontWeight.bold,
-                  //   ),
-                  // ),
-                  SizedBox(height: 16.0),
-                  Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                  SizedBox(height: 16.0),
-                  Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                  SizedBox(height: 16.0),
-                  Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                  SizedBox(height: 16.0),
-                  Theme(
-                    data: ThemeData(unselectedWidgetColor: Colors.white),
-                    child: CheckboxListTile(
-                      checkColor: Colors.white,
-                      checkboxShape: RoundedRectangleBorder(
-                          side: BorderSide(color: Colors.white, width: 0.5)),
-                      value: _agreedToTerms,
-                      onChanged: _toggleTermsAgreement,
-                      title: Text(
-                        'I agree to the terms and conditions',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: !_agreedToTerms
-                        ? null
-                        : () async {
-                            await submit(registerState);
-                            registerState.setRegisterProgress(
-                                RegisterProgress.completed);
-                            registerState.clear();
-                            if (Navigator.canPop(context)) {
-                              Navigator.popUntil(
-                                  context, (route) => route.isFirst);
-                            } else {
-                              Navigator.pushReplacementNamed(
-                                  context, MainPage.routeName,
-                                  arguments: true);
-                            }
-                          },
-                    child: Text('Submit'),
-                  ),
-                ],
+              SizedBox(height: 16.0),
+              Text(
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
+                style: TextStyle(fontSize: 16.0),
               ),
-            ),
+              SizedBox(height: 16.0),
+              Text(
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
+                style: TextStyle(fontSize: 16.0),
+              ),
+              SizedBox(height: 16.0),
+              Theme(
+                data:
+                    ThemeData(unselectedWidgetColor: UIColor.black_text_color),
+                child: CheckboxListTile(
+                  checkColor: UIColor.black_text_color,
+                  checkboxShape: RoundedRectangleBorder(
+                      side: BorderSide(color: Colors.white, width: 0.5)),
+                  value: _agreedToTerms,
+                  onChanged: _toggleTermsAgreement,
+                  title: Text(
+                    'I agree to the terms and conditions',
+                    style: TextStyle(color: UIColor.black_text_color),
+                  ),
+                ),
+              ),
+              Theme(
+                data:
+                    ThemeData(unselectedWidgetColor: UIColor.black_text_color),
+                child: CheckboxListTile(
+                  checkColor: UIColor.black_text_color,
+                  checkboxShape: RoundedRectangleBorder(
+                      side: BorderSide(color: Colors.white, width: 0.5)),
+                  value: _agreedPrivacy,
+                  onChanged: _togglePrivacy,
+                  title: Text(
+                    'I agree to the Privacy Policy',
+                    style: TextStyle(color: UIColor.black_text_color),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: (!_agreedToTerms || !_agreedPrivacy)
+                    ? null
+                    : () async {
+                        await submit(registerState);
+                        registerState
+                            .setRegisterProgress(RegisterProgress.completed);
+                        registerState.clear();
+                        if (Navigator.canPop(context)) {
+                          Navigator.popUntil(context, (route) => route.isFirst);
+                        } else {
+                          Navigator.pushReplacementNamed(
+                              context, MainPage.routeName,
+                              arguments: true);
+                        }
+                      },
+                child: Text('Submit'),
+              ),
+            ],
           ),
-        ],
+        ),
       );
     });
   }

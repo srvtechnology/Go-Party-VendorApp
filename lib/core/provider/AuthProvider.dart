@@ -60,7 +60,7 @@ class AuthProvider with ChangeNotifier {
      stopLoading();
   }
   Future<void> getUser()async{
-    print("Getting user data");
+    print("Getting user data token $token");
     _user = await userRepo.get_UserData(_token!); // from repo
   }
   void saveTokenToStorage(String tempToken){
