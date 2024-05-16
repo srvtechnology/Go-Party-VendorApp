@@ -105,7 +105,7 @@ class _HomepageState extends State<Homepage> {
                   ListTile(title:Text( "Settings"), leading:Icon( Icons.settings), onTap: (){
                     Navigator.pushNamed(context, SettingsPage.routeName);
                   }),
-                  ListTile(title:Text( "Wallet"), leading:Icon( Icons.wallet), onTap: (){
+                  ListTile(title:Text( "Your Money"), leading:Icon( Icons.wallet), onTap: (){
                     Navigator.pushNamed(context, WalletPage.routeName);
                   }),
                   ListTile(title:Text( "Logout"), leading:Icon( Icons.logout), onTap: (){

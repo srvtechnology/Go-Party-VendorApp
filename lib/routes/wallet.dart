@@ -92,7 +92,7 @@ class _WalletPageState extends State<WalletPage> {
           return Scaffold(
             appBar: AppBar(
               elevation: 0,
-              title: Text("Wallet"),
+              title: Text("Your Money"),
             ),
             body: Stack(
               children: [

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
+import 'package:utsavlife/core/utils/UIColor.dart';
 
 class errorScreenRoute extends StatefulWidget {
   IconData icon;
@@ -28,7 +29,9 @@ class _errorScreenRouteState extends State<errorScreenRoute> {
         actions: [
           IconButton(onPressed: (){
             context.read<AuthProvider>().logout();
-          }, icon: Icon(Icons.logout)),
+          }, icon: Icon(Icons.logout),
+            color: UIColor.toolbar_content_color,
+          ),
         ],
       ):AppBar(automaticallyImplyLeading: false,),
       body:Container(
