@@ -9,6 +9,7 @@ import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/core/provider/ServiceProvider.dart';
 import 'package:utsavlife/core/repo/order.dart';
+import 'package:utsavlife/core/utils/UIColor.dart';
 import 'package:utsavlife/routes/partialPaymentPage.dart';
 import '../../routes/singleService.dart';
 import '../models/order.dart';
@@ -35,7 +36,7 @@ class CustomOrderItem extends StatefulWidget {
 class _CustomOrderItemState extends State<CustomOrderItem> {
   late Color _statusColor;
   late String _statusText;
-  late Color _statusTextColor;
+  late Color _statusTextColor = UIColor.toolbar_content_color;
   bool showReason = false , ShowReasonField = false;
   String selectedReason = "";
   @override
@@ -46,20 +47,26 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
   void choose_status(){
     switch(widget.order.vendorOrderStatus){
       case VendorOrderStatus.rejected:
-        _statusColor = Colors.red[700]!;
+        _statusColor = Colors.red;
         _statusText="Rejected";
-        _statusTextColor=Colors.red[100]!;
+       // _statusTextColor=Colors.red[100]!;
         break;
       case VendorOrderStatus.approved:
-        _statusColor = Colors.greenAccent;
-        _statusText="Accepted";
-        _statusTextColor=Colors.green[900]!;
+        _statusColor = UIColor.success_color;
+
+        bool isCurrentDateWithinEndDate = false;
+        if(widget.order.end_date!=null) {
+          DateTime endDate = DateTime.parse(widget.order.end_date!);
+          isCurrentDateWithinEndDate = DateTime.now().isBefore(endDate);
+        }
+        _statusText= isCurrentDateWithinEndDate? "Accepted" : "Delivered";
+      //  _statusTextColor=UIColor.toolbar_content_color;
 
         break;
       default:
-        _statusColor = Colors.yellowAccent;
+        _statusColor = UIColor.theme_color;
         _statusText="Pending";
-        _statusTextColor=Colors.yellow[900]!;
+     //   _statusTextColor=UIColor.toolbar_content_color;
     }
   }
   @override
@@ -126,7 +133,7 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
                      if(widget.order.paymentStatus==OrderPaymentStatus.partial)
                      FittedBox(child: Text("Partial Payment",style: TextStyle(color: Colors.red,fontSize: 12),))
                      else
-                       FittedBox(child: Text("Payment Completed",style: TextStyle(color: Colors.greenAccent,fontSize: 10),),)
+                       FittedBox(child: Text("Payment Completed",style: TextStyle(color: Colors.green,fontSize: 10),),)
                    ],
                  ),
                ],

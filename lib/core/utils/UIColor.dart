@@ -10,5 +10,6 @@ class UIColor{
   static const Color screen_bg = Color(0xFFFFFFFF);
   static const Color black_text_color = Color(0xFF000000);
   static const Color hint_text_color = Color(0xFF737272);
+  static const Color success_color = Color(0xFF4BB543);
 
 }
