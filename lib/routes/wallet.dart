@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -23,6 +25,7 @@ class _WalletPageState extends State<WalletPage> {
 
   void _withdraw(BuildContext context, double withdrawAmount,
       WalletProvider walletProvider) {
+    _withdrawAmount.text="";
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -33,79 +36,92 @@ class _WalletPageState extends State<WalletPage> {
           return Padding(
             padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: Container(
-              height: 250,
-              padding: EdgeInsets.all(30),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Available to withdraw",
-                        style:
-                        TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "₹ $withdrawAmount",
-                        style:
-                        TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Form(
-                    key: _formKey,
-                    child: TextFormField(
-                      keyboardType:
-                      TextInputType.numberWithOptions(signed: false),
-                      controller: _withdrawAmount,
-                      decoration: InputDecoration(
-                          labelText: "Enter Amount",
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15))),
+            child:  Padding(
+              padding: const EdgeInsets.all(25.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Available to withdraw",
+                      style: TextStyle(
+                          fontWeight: FontWeight.w400, fontSize: 16),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                          onPressed: () async {
-                            // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Some error occurred, Please try again.")));
-                            if (_formKey.currentState!.validate()) {
-                              try {
-                                await withdrawAmountFromWallet(
-                                    context.read<AuthProvider>(),
-                                    _withdrawAmount.text);
-                                walletProvider.getDetails(context.read<
-                                    AuthProvider>());
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            "Your withdrawal request has been successfully placed and forwarded to admin for approval")));
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "₹ $withdrawAmount",
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 20),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Form(
+                      key: _formKey,
+                      child: TextFormField(
+                        keyboardType:
+                        TextInputType.numberWithOptions(signed: false),
+                        controller: _withdrawAmount,
+                        decoration: InputDecoration(
+                            labelText: "Enter Amount",
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(15))),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if(value==null || value.isEmpty){
+                            return "Please enter the amount";
+                          }
+                          if(double.parse(value)>walletProvider.walletData.availableToWithdraw){
+                            return "The amount should be either ${walletProvider.walletData.availableToWithdraw} or less than ${walletProvider.walletData.availableToWithdraw}.";
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                            onPressed: () async {
+                              // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Some error occurred, Please try again.")));
+                              if (_formKey.currentState!.validate()) {
+                                try {
+                                  String? status = await withdrawAmountFromWallet(
+                                      context.read<AuthProvider>(),
+                                      _withdrawAmount.text);
+
+                                  if (status != null) {
+                                    walletProvider
+                                        .getDetails(context.read<AuthProvider>());
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(status)));
+                                  } else
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                "Some error occurred, Please try again.")));
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              "Some error occurred, Please try again.")));
+                                }
+
                                 Navigator.pop(context);
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            "Some error occurred, Please try again.")));
                               }
-                            }
-                          },
-                          child: Text("Withdraw"))
-                    ],
-                  )
-                ],
+                            },
+                            child: Text("Withdraw",style: TextStyle(color: UIColor.toolbar_content_color),),
+                        style: ElevatedButton.styleFrom(backgroundColor: UIColor.theme_color),
+                        )
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           );
@@ -158,7 +174,7 @@ class _WalletPageState extends State<WalletPage> {
                       width: double.infinity,
                       margin: EdgeInsets.symmetric(horizontal: 40, vertical: 5),
                       padding:
-                      EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(15),
@@ -227,7 +243,7 @@ class _WalletPageState extends State<WalletPage> {
                     ),
                     Container(
                         margin:
-                        EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                            EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                         child: Text(
                           "Latest Transactions",
                           style: TextStyle(
@@ -235,37 +251,36 @@ class _WalletPageState extends State<WalletPage> {
                         )),
                     Expanded(
                         child: Container(
-                          padding: EdgeInsets.all(20),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(50),
-                                  topRight: Radius.circular(50)),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Colors.grey[300]!,
-                                    offset: Offset(0, 1),
-                                    spreadRadius: 1,
-                                    blurRadius: 1)
-                              ]),
-                          child: state.transactionData.isNotEmpty
-                              ? SingleChildScrollView(
-                            child: Column(
-                                children: state.transactionData
-                                    .map((e) =>
-                                    TransactionTile(
-                                      transaction: e,
-                                    ))
-                                    .toList()),
-                          )
-                              : Text(
-                            "Looks like you do not have any Transactions !",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontSize: 16.sp, fontWeight: FontWeight.w500),
-                          ),
-                        )),
+                      padding: EdgeInsets.all(20),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(50),
+                              topRight: Radius.circular(50)),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.grey[300]!,
+                                offset: Offset(0, 1),
+                                spreadRadius: 1,
+                                blurRadius: 1)
+                          ]),
+                      child: state.transactionData.isNotEmpty
+                          ? SingleChildScrollView(
+                              child: Column(
+                                  children: state.transactionData
+                                      .map((e) => TransactionTile(
+                                            transaction: e,
+                                          ))
+                                      .toList()),
+                            )
+                          : Text(
+                              "Looks like you do not have any Transactions !",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 16.sp, fontWeight: FontWeight.w500),
+                            ),
+                    )),
                   ],
                 ),
               ),
@@ -301,24 +316,24 @@ class TransactionTile extends StatelessWidget {
         children: [
           Expanded(
               child: CircleAvatar(
-                backgroundColor: Colors.redAccent,
-                radius: 15,
-                child: Text("D"),
-              )),
+            backgroundColor: Colors.redAccent,
+            radius: 15,
+            child: Text("D"),
+          )),
           Expanded(
               flex: 2,
               child: Center(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(transaction.transactionType),
-                      Text(
-                        transaction.transactionDate.toString().substring(0, 10),
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                    ],
-                  ))),
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(transaction.transactionType),
+                  Text(
+                    transaction.transactionDate.toString().substring(0, 10),
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                ],
+              ))),
           Expanded(
               flex: 4,
               child: Container(

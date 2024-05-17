@@ -32,11 +32,6 @@ class WalletProvider with ChangeNotifier{
   }
 
 
-  void getTransactionList(AuthProvider auth) async{
-    startLoading();
-    _walletData=await getWalletDetails(auth);
-    _transactionData= await getTransactionDetails(auth);
-    stopLoading();
-  }
+
 
 }
