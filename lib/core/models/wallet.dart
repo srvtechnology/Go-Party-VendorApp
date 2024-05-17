@@ -4,6 +4,7 @@ class Transaction {
   final String transactionType;
   final double amount;
   final DateTime transactionDate;
+  final String? transaction_status;
 
   Transaction({
     required this.id,
@@ -11,6 +12,7 @@ class Transaction {
     required this.transactionType,
     required this.amount,
     required this.transactionDate,
+    required this.transaction_status,
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) {
@@ -20,8 +22,14 @@ class Transaction {
       transactionType: json['transaction_type'] as String,
       amount: double.parse(json['amount']),
       transactionDate: DateTime.parse(json['transaction_date']),
+      transaction_status: json['transaction_status']  as String? ,
     );
   }
+}
+
+enum TransactionStatus{
+  debit,
+  credit
 }
 
 class WalletModel {
@@ -38,3 +46,4 @@ class WalletModel {
     );
   }
 }
+

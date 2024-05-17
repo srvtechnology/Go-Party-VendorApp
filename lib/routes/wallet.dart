@@ -300,8 +300,8 @@ class TransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+      padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
@@ -316,9 +316,9 @@ class TransactionTile extends StatelessWidget {
         children: [
           Expanded(
               child: CircleAvatar(
-            backgroundColor: Colors.redAccent,
+            backgroundColor: UIColor.theme_color,
             radius: 15,
-            child: Text("D"),
+            child: Text(transaction.transaction_status?.substring(0,1).toUpperCase() ??"",style: TextStyle(color: UIColor.toolbar_content_color),),
           )),
           Expanded(
               flex: 2,
@@ -328,6 +328,11 @@ class TransactionTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(transaction.transactionType),
+                 SizedBox(height: 5,),
+                  Text(transaction.transaction_status.toString(),style: TextStyle(
+                    color: transaction.transaction_status.toString().toLowerCase()=='credit' ? UIColor.success_color : UIColor.error_color
+                  ),),
+                  SizedBox(height: 5,),
                   Text(
                     transaction.transactionDate.toString().substring(0, 10),
                     style: TextStyle(color: Colors.grey, fontSize: 12),
@@ -337,10 +342,12 @@ class TransactionTile extends StatelessWidget {
           Expanded(
               flex: 4,
               child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  padding: EdgeInsets.symmetric(horizontal: 15),
                   alignment: Alignment.centerRight,
                   child: FittedBox(
-                      child: Text(" ${transaction.amount.toString()}"))))
+                      child: Text(" ${transaction.amount.toString()}",style: TextStyle(
+                          color: transaction.transaction_status.toString().toLowerCase()=='credit' ? UIColor.success_color : UIColor.error_color
+                      )),)))
         ],
       ),
     );
