@@ -54,6 +54,11 @@ Future withdrawAmountFromWallet(AuthProvider auth,String amount)async{
   try{
     Response response = await Dio().post(
         "${APIConfig.baseUrl}/api/manage-vendor/withdraw",
+        options: Options(
+            headers: {
+              "Authorization":"Bearer ${auth.token}"
+            }
+        ),
         data: {
           "wallet_amount":amount,
     }

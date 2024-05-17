@@ -8,6 +8,8 @@ import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/partialPaymentPage.dart';
 
+import '../core/utils/UIColor.dart';
+
 class SingleOrderPage extends StatefulWidget {
   String id;
   Function? onPop;
@@ -38,7 +40,12 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
       create: (_) => SingleOrderProvider(id: widget.id, auth: auth),
       builder: (context, child) => Scaffold(
         appBar: AppBar(
-          title: Text("Order details"),
+          backgroundColor: UIColor.theme_color,
+          elevation: 0,
+          iconTheme: IconThemeData(color: UIColor.toolbar_content_color),
+          title: Text("Order details", style: TextStyle(
+              fontWeight: FontWeight.w400,
+              color: UIColor.toolbar_content_color)),
         ),
         body: Container(
           height: double.infinity,

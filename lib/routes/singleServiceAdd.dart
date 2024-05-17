@@ -17,6 +17,7 @@ import 'package:utsavlife/core/repo/service.dart' as serviceRepo ;
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/errorScreen.dart';
 import '../core/models/dropdown.dart';
+import '../core/utils/UIColor.dart';
 
 class AddServiceRoute extends StatefulWidget {
   static const routeName = "/addservice";
@@ -86,7 +87,12 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
          CustomLogger.debug(state.options);
           return Scaffold(
               appBar: AppBar(
-                title: Text("Add service"),
+                backgroundColor: UIColor.theme_color,
+                elevation: 0,
+                iconTheme: IconThemeData(color: UIColor.toolbar_content_color),
+                title: Text("Add service", style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: UIColor.toolbar_content_color)),
               ),
               body: Form(
                 key: _formKey,

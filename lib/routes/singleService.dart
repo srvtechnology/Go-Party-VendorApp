@@ -14,6 +14,7 @@ import 'package:utsavlife/routes/VideoPlayer.dart';
 import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
 import '../core/provider/ServiceProvider.dart';
+import '../core/utils/UIColor.dart';
 
 
 class SingleService extends StatefulWidget {
@@ -83,7 +84,13 @@ class _SingleServiceState extends State<SingleService> {
                 FocusManager.instance.primaryFocus!.unfocus();
               },
               child: Scaffold(
-              appBar: AppBar(title: Text("Service details"),),
+              appBar: AppBar(
+                backgroundColor: UIColor.theme_color,
+                elevation: 0,
+                iconTheme: IconThemeData(color: UIColor.toolbar_content_color),
+                title: Text("Service details", style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: UIColor.toolbar_content_color)),),
               body: SingleChildScrollView(
                 child: Container(
                   constraints: BoxConstraints(
