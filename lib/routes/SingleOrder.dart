@@ -43,9 +43,10 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
           backgroundColor: UIColor.theme_color,
           elevation: 0,
           iconTheme: IconThemeData(color: UIColor.toolbar_content_color),
-          title: Text("Order details", style: TextStyle(
-              fontWeight: FontWeight.w400,
-              color: UIColor.toolbar_content_color)),
+          title: Text("Order details",
+              style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  color: UIColor.toolbar_content_color)),
         ),
         body: Container(
           height: double.infinity,
@@ -224,6 +225,8 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                 child: Consumer2<SingleOrderProvider, ReasonProvider>(
                     builder: (context, singleOrderState, reasonState, child) {
                   CustomLogger.debug(showReason);
+                  CustomLogger.debug(
+                      singleOrderState.order?.orderStatus.toString());
                   if (showReason == true) {
                     return ReasonDialog(context, reasonState.reasons ?? []);
                   }
@@ -238,6 +241,22 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
+                        if (singleOrderState.order?.vendorOrderStatus ==
+                                VendorOrderStatus.approved &&
+                            singleOrderState.order?.orderStatus !=
+                                OrderStatus.delivered)
+                          ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Theme.of(context).primaryColorDark),
+                              onPressed: () {
+                                /* call the api for order delivered */
+                                deliverOrder(context);
+                              },
+                              child: Text(
+                                "Deliver",
+                                style: TextStyle(color: Colors.white),
+                              )),
                         if (singleOrderState.order?.paymentStatus ==
                             OrderPaymentStatus.partial)
                           ElevatedButton(
@@ -297,9 +316,10 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
     DateTime edDate = DateTime.parse(endDate);
     DateTime currentDate = DateTime.now();
 
-    if ((currentDate.isBefore(stDate) &&  currentDate.difference(stDate).inDays.abs() < 5)
-       || currentDate.isAfter(stDate) || currentDate.isAtSameMomentAs(stDate)
-       ) {
+    if ((currentDate.isBefore(stDate) &&
+            currentDate.difference(stDate).inDays.abs() < 5) ||
+        currentDate.isAfter(stDate) ||
+        currentDate.isAtSameMomentAs(stDate)) {
       return true;
     }
 
@@ -313,6 +333,20 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
           .change_status(VendorOrderStatus.approved, "");
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Order Accepted")));
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
+  void deliverOrder(BuildContext context) async {
+    try {
+      await context
+          .read<SingleOrderProvider>()
+          .deliverOrder(OrderStatus.delivered);
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Order Delivered")));
     } catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.toString())));
