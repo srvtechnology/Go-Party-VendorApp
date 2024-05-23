@@ -25,7 +25,7 @@ class _WalletPageState extends State<WalletPage> {
 
   void _withdraw(BuildContext context, double withdrawAmount,
       WalletProvider walletProvider) {
-    _withdrawAmount.text="";
+    _withdrawAmount.text = "";
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -36,7 +36,7 @@ class _WalletPageState extends State<WalletPage> {
           return Padding(
             padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom),
-            child:  Padding(
+            child: Padding(
               padding: const EdgeInsets.all(25.0),
               child: SingleChildScrollView(
                 child: Column(
@@ -45,16 +45,16 @@ class _WalletPageState extends State<WalletPage> {
                   children: [
                     Text(
                       "Available to withdraw",
-                      style: TextStyle(
-                          fontWeight: FontWeight.w400, fontSize: 16),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
                     ),
                     const SizedBox(
                       height: 10,
                     ),
                     Text(
                       "₹ $withdrawAmount",
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 20),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
                     ),
                     const SizedBox(
                       height: 20,
@@ -63,7 +63,7 @@ class _WalletPageState extends State<WalletPage> {
                       key: _formKey,
                       child: TextFormField(
                         keyboardType:
-                        TextInputType.numberWithOptions(signed: false),
+                            TextInputType.numberWithOptions(signed: false),
                         controller: _withdrawAmount,
                         decoration: InputDecoration(
                             labelText: "Enter Amount",
@@ -71,10 +71,11 @@ class _WalletPageState extends State<WalletPage> {
                                 borderRadius: BorderRadius.circular(15))),
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
-                          if(value==null || value.isEmpty){
+                          if (value == null || value.isEmpty) {
                             return "Please enter the amount";
                           }
-                          if(double.parse(value)>walletProvider.walletData.availableToWithdraw){
+                          if (double.parse(value) >
+                              walletProvider.walletData.availableToWithdraw) {
                             return "The amount should be either ${walletProvider.walletData.availableToWithdraw} or less than ${walletProvider.walletData.availableToWithdraw}.";
                           }
                         },
@@ -87,36 +88,41 @@ class _WalletPageState extends State<WalletPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
-                            onPressed: () async {
-                              // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Some error occurred, Please try again.")));
-                              if (_formKey.currentState!.validate()) {
-                                try {
-                                  String? status = await withdrawAmountFromWallet(
-                                      context.read<AuthProvider>(),
-                                      _withdrawAmount.text);
+                          onPressed: () async {
+                            // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Some error occurred, Please try again.")));
+                            if (_formKey.currentState!.validate()) {
+                              try {
+                                String? status = await withdrawAmountFromWallet(
+                                    context.read<AuthProvider>(),
+                                    _withdrawAmount.text);
 
-                                  if (status != null) {
-                                    walletProvider
-                                        .getDetails(context.read<AuthProvider>());
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text(status)));
-                                  } else
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                "Some error occurred, Please try again.")));
-                                } catch (e) {
+                                if (status != null) {
+                                  walletProvider
+                                      .getDetails(context.read<AuthProvider>());
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(status)));
+                                } else
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                           content: Text(
                                               "Some error occurred, Please try again.")));
-                                }
-
-                                Navigator.pop(context);
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Some error occurred, Please try again.")));
                               }
-                            },
-                            child: Text("Withdraw",style: TextStyle(color: UIColor.toolbar_content_color),),
-                        style: ElevatedButton.styleFrom(backgroundColor: UIColor.theme_color),
+
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Text(
+                            "Withdraw",
+                            style:
+                                TextStyle(color: UIColor.toolbar_content_color),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: UIColor.theme_color),
                         )
                       ],
                     )
@@ -170,7 +176,7 @@ class _WalletPageState extends State<WalletPage> {
                       height: 20,
                     ),
                     Container(
-                      height: 20.h,
+                      height: null,
                       width: double.infinity,
                       margin: EdgeInsets.symmetric(horizontal: 40, vertical: 5),
                       padding:
@@ -318,7 +324,11 @@ class TransactionTile extends StatelessWidget {
               child: CircleAvatar(
             backgroundColor: UIColor.theme_color,
             radius: 15,
-            child: Text(transaction.transaction_status?.substring(0,1).toUpperCase() ??"",style: TextStyle(color: UIColor.toolbar_content_color),),
+            child: Text(
+              transaction.transaction_status?.substring(0, 1).toUpperCase() ??
+                  "",
+              style: TextStyle(color: UIColor.toolbar_content_color),
+            ),
           )),
           Expanded(
               flex: 2,
@@ -328,11 +338,22 @@ class TransactionTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(transaction.transactionType),
-                 SizedBox(height: 5,),
-                  Text(transaction.transaction_status.toString(),style: TextStyle(
-                    color: transaction.transaction_status.toString().toLowerCase()=='credit' ? UIColor.success_color : UIColor.error_color
-                  ),),
-                  SizedBox(height: 5,),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    transaction.transaction_status.toString(),
+                    style: TextStyle(
+                        color: transaction.transaction_status
+                                    .toString()
+                                    .toLowerCase() ==
+                                'credit'
+                            ? UIColor.success_color
+                            : UIColor.error_color),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
                   Text(
                     transaction.transactionDate.toString().substring(0, 10),
                     style: TextStyle(color: Colors.grey, fontSize: 12),
@@ -345,9 +366,15 @@ class TransactionTile extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 15),
                   alignment: Alignment.centerRight,
                   child: FittedBox(
-                      child: Text(" ${transaction.amount.toString()}",style: TextStyle(
-                          color: transaction.transaction_status.toString().toLowerCase()=='credit' ? UIColor.success_color : UIColor.error_color
-                      )),)))
+                    child: Text(" ${transaction.amount.toString()}",
+                        style: TextStyle(
+                            color: transaction.transaction_status
+                                        .toString()
+                                        .toLowerCase() ==
+                                    'credit'
+                                ? UIColor.success_color
+                                : UIColor.error_color)),
+                  )))
         ],
       ),
     );
