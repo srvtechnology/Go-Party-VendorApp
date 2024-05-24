@@ -288,10 +288,12 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                               onPressed: () => approveOrder(context),
                               text: "Accept",
                               primaryColor: Colors.green),
-                        if (singleOrderState.order?.vendorOrderStatus ==
-                                VendorOrderStatus.approved ||
-                            singleOrderState.order?.vendorOrderStatus ==
-                                VendorOrderStatus.pending)
+                        if ((singleOrderState.order?.vendorOrderStatus ==
+                                    VendorOrderStatus.approved ||
+                                singleOrderState.order?.vendorOrderStatus ==
+                                    VendorOrderStatus.pending) &&
+                            singleOrderState.order?.orderStatus !=
+                                OrderStatus.delivered)
                           BottomButton(
                               context: context,
                               onPressed: () => rejectOrder(
