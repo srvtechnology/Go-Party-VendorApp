@@ -233,8 +233,35 @@ class _WalletPageState extends State<WalletPage> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              _withdraw(context,
-                                  state.walletData.availableToWithdraw, state);
+                              if (context
+                                      .read<AuthProvider>()
+                                      .user
+                                      ?.bankDetails ==
+                                  null) {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                          title: Text('Bank details not found'),
+                                          content: Text(
+                                              "Kindly provide your bank details to complete the withdrawal process."),
+                                          actions: [
+                                            TextButton(
+                                              child: Text('ok'),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                            /*  TextButton(
+                                      child: Text('Deactivate'),
+                                      onPressed: () async {},
+                                    ), */
+                                          ],
+                                        ));
+                              } else
+                                _withdraw(
+                                    context,
+                                    state.walletData.availableToWithdraw,
+                                    state);
                             },
                             child: Text(
                               "Withdraw",
