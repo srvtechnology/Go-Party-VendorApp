@@ -146,7 +146,9 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
                             Text(widget.order.date),
                             Text(widget.order.address.isEmpty
                                 ? "Not set"
-                                : widget.order.address.substring(0, 8)),
+                                : widget.order.address.length > 8
+                                    ? widget.order.address.substring(0, 8)
+                                    : widget.order.address),
                             Text(widget.order.days),
                             if (widget.order.paymentStatus ==
                                 OrderPaymentStatus.partial)

@@ -66,10 +66,51 @@ android {
            storePassword keystoreProperties['storePassword']
        }
    }
-   buildTypes {
-       release {
+
+      buildTypes {
+         release {
            signingConfig signingConfigs.debug
        }
+     /*    release {
+            minifyEnabled false
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    project.ext { appName = rootProject.name }
+                    def formattedDate = new Date().format('E,dd-MMM-yyyy')
+                    def newName = "$appName-release"
+                    variant.outputs.all {
+                        def name = "${newName}-${variant.versionName}_" + formattedDate + ".apk"
+                        output.outputFileName = name
+                    }
+                }
+            }
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    project.ext { appName = rootProject.name }
+                    def formattedDate = new Date().format('E,dd-MMM-yyyy')
+                    def newName = "$appName-debug"
+                    variant.outputs.all {
+                        def name = "${newName}-${variant.versionName}_" + formattedDate + ".apk"
+                        output.outputFileName = name
+                    }
+                }
+            }
+        } */
+
+    
+      /*  release {
+           signingConfig signingConfigs.debug
+       }
+          applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def newApkName = "vendor_app-${variant.name}.apk"
+            outputFileName = new File(output.outputFile.parent, newApkName)
+        }
+    } */
    }
 }
 

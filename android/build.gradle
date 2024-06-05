@@ -16,6 +16,8 @@ allprojects {
         google()
         mavenCentral()
     }
+        setBuildDir("/home/akash/Downloads/AndroidBuilds/${rootProject.name}/${project.name}")
+
 }
 
 rootProject.buildDir = '../build'
