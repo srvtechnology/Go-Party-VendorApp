@@ -44,6 +44,8 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
   void initState() {
     super.initState();
     choose_status();
+    CustomLogger.debug(
+        "vandor_order_status is ${widget.order.vendorOrderStatus}");
   }
 
   void choose_status() {

@@ -1561,13 +1561,17 @@ class _HistoryState extends State<History> {
                 setState(() {
                   searchitem = searchItem;
                 });
-                context.watch<HistoryOrderProvider>().load_history_orders();
+                //  context.watch<HistoryOrderProvider>().load_history_orders();
+                Provider.of<HistoryOrderProvider>(context, listen: false)
+                    .load_history_orders();
               },
               onstatusSelect: (VendorOrderStatus? status) {
                 setState(() {
                   orderStatus = status;
                 });
-                context.watch<HistoryOrderProvider>().load_history_orders();
+                //  context.watch<HistoryOrderProvider>().load_history_orders();
+                Provider.of<HistoryOrderProvider>(context, listen: false)
+                    .load_history_orders();
               },
             ),
             centerTitle: true,

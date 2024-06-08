@@ -52,11 +52,10 @@ Future<String?> withdrawAmountFromWallet(
 
     if (response.statusCode == 200) {
       Map<String, dynamic> res = response.data;
-      String status = res['status'];
+      String status = res['success'];
       return status;
     } else {
       return null;
-
     }
   } catch (e) {
     if (e is DioError) {
@@ -64,6 +63,5 @@ Future<String?> withdrawAmountFromWallet(
     }
     CustomLogger.error(e);
     return null;
-
   }
 }
