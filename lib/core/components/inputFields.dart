@@ -7,14 +7,15 @@ class InputField extends StatefulWidget {
   TextEditingController controller;
   String title;
   Icon? leading;
-  bool obscureText=false,isPassword=false;
-  InputField({Key? key,
-    required this.controller,
-    required this.title,
-    this.obscureText=false,
-    this.isPassword = false,
-    this.leading
-  }) : super(key: key);
+  bool obscureText = false, isPassword = false;
+  InputField(
+      {Key? key,
+      required this.controller,
+      required this.title,
+      this.obscureText = false,
+      this.isPassword = false,
+      this.leading})
+      : super(key: key);
 
   @override
   State<InputField> createState() => _InputFieldState();
@@ -24,16 +25,19 @@ class _InputFieldState extends State<InputField> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: TextFormField(
-        style: TextStyle(color:  UIColor.black_text_color),
+        style: TextStyle(color: UIColor.black_text_color),
         obscureText: widget.obscureText,
         controller: widget.controller,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: InputDecoration(
             prefixIcon: widget.leading,
-            prefixIconColor:  UIColor.black_text_color,
-            label:Text(widget.title,style: TextStyle(color:  UIColor.hint_text_color),),
-
+            prefixIconColor: UIColor.black_text_color,
+            label: Text(
+              widget.title,
+              style: TextStyle(color: UIColor.hint_text_color),
+            ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
@@ -55,21 +59,25 @@ class _InputFieldState extends State<InputField> {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
-                color:  UIColor.black_text_color,
+                color: UIColor.black_text_color,
                 width: 1.0,
               ),
-            ),suffixIcon: widget.isPassword?
-        IconButton(
-          onPressed: (){
-            setState(() {
-              widget.obscureText=!widget.obscureText;
-            });
-          },icon: Icon(Icons.remove_red_eye_outlined,color:  UIColor.black_text_color,),
-        )
-            :
-        null),
-        validator: (value){
-          if(value==null || value.isEmpty){
+            ),
+            suffixIcon: widget.isPassword
+                ? IconButton(
+                    onPressed: () {
+                      setState(() {
+                        widget.obscureText = !widget.obscureText;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.remove_red_eye_outlined,
+                      color: UIColor.black_text_color,
+                    ),
+                  )
+                : null),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
             return "Please enter ${widget.title.toLowerCase()}";
           }
         },

@@ -113,10 +113,10 @@ class _HomepageState extends State<Homepage> {
                               context, serviceListRoute.routeName);
                         }),
                   ),
-                  ListTile(
+          /*        ListTile(
                       title: Text("Notifications"),
                       leading: Icon(Icons.notifications_active),
-                      onTap: () {}),
+                      onTap: () {}),*/
                   ListTile(
                       title: Text("Settings"),
                       leading: Icon(Icons.settings),
@@ -176,12 +176,12 @@ class _HomepageState extends State<Homepage> {
                     Icons.logout,
                     color: Theme.of(context).primaryColorDark,
                   )),
-              IconButton(
+             /* IconButton(
                   onPressed: () {
                     Navigator.pushNamed(context, NotificationPage.routeName);
                   },
                   icon: Icon(Icons.notifications,
-                      color: Theme.of(context).primaryColorDark))
+                      color: Theme.of(context).primaryColorDark))*/
             ],
           ),
           body: items[index],

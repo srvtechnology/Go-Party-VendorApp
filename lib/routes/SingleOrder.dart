@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/core/components/reject_popup.dart';
 import 'package:utsavlife/core/models/order.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
@@ -169,6 +170,17 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                   SizedBox(
                     height: 10,
                   ),
+                  if (singleOrderState.order!.admin_remarks != null &&
+                      singleOrderState.order!.admin_remarks!.isNotEmpty)
+                    Column(
+                      children: [
+                        DetailTile("Admin Remark",
+                            singleOrderState.order!.admin_remarks!),
+                        SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                    ),
                   if (singleOrderState.order?.customer != null &&
                       isDateIn5DaysOrLater(singleOrderState.order?.date ?? "",
                           singleOrderState.order?.end_date ?? ""))
@@ -220,91 +232,85 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
           ),
         ),
         bottomNavigationBar: (!widget.readOnly)
-            ? ListenableProvider(
-                create: (_) => ReasonProvider(auth: auth),
-                child: Consumer2<SingleOrderProvider, ReasonProvider>(
-                    builder: (context, singleOrderState, reasonState, child) {
-                  CustomLogger.debug(showReason);
-                  CustomLogger.debug(
-                      singleOrderState.order?.orderStatus.toString());
-                  if (showReason == true) {
-                    return ReasonDialog(context, reasonState.reasons ?? []);
-                  }
-                  if (singleOrderState.order == null) {
-                    return Container(
-                        alignment: Alignment.center,
-                        child: CircularProgressIndicator());
-                  }
-                  return BottomAppBar(
-                    elevation: 0.5,
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        if (singleOrderState.order?.vendorOrderStatus ==
-                                VendorOrderStatus.approved &&
-                            singleOrderState.order?.orderStatus !=
-                                OrderStatus.delivered)
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Theme.of(context).primaryColorDark),
-                              onPressed: () {
-                                /* call the api for order delivered */
-                                deliverOrder(context);
-                              },
-                              child: Text(
-                                "Deliver",
-                                style: TextStyle(color: Colors.white),
-                              )),
-                        if (singleOrderState.order?.paymentStatus ==
-                            OrderPaymentStatus.partial)
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Theme.of(context).primaryColorDark),
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            PartialPaymentPage(
-                                                order: singleOrderState
-                                                    .order!))).then((value) =>
-                                    widget.onPop != null
-                                        ? widget.onPop!()
-                                        : null);
-                              },
-                              child: Text(
-                                "Pay",
-                                style: TextStyle(color: Colors.white),
-                              )),
-                        if (singleOrderState.order?.vendorOrderStatus ==
-                                VendorOrderStatus.rejected ||
-                            singleOrderState.order?.vendorOrderStatus ==
-                                VendorOrderStatus.pending)
-                          BottomButton(
-                              context: context,
-                              onPressed: () => approveOrder(context),
-                              text: "Accept",
-                              primaryColor: Colors.green),
-                        if ((singleOrderState.order?.vendorOrderStatus ==
-                                    VendorOrderStatus.approved ||
-                                singleOrderState.order?.vendorOrderStatus ==
-                                    VendorOrderStatus.pending) &&
-                            singleOrderState.order?.orderStatus !=
-                                OrderStatus.delivered)
-                          BottomButton(
-                              context: context,
-                              onPressed: () => rejectOrder(
-                                  context, reasonState.reasons ?? []),
-                              text: "Reject",
-                              primaryColor: Colors.red),
-                      ],
-                    ),
-                  );
-                }),
-              )
+            ? Consumer<SingleOrderProvider>(
+                builder: (context, singleOrderState, child) {
+                if (singleOrderState.order == null) {
+                  return Container(
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator());
+                }
+                return BottomAppBar(
+                  elevation: 0.5,
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      if (singleOrderState.order?.vendorOrderStatus ==
+                              VendorOrderStatus.approved &&
+                          singleOrderState.order?.orderStatus !=
+                              OrderStatus.delivered)
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).primaryColorDark),
+                            onPressed: () {
+                              /* call the api for order delivered */
+                              deliverOrder(context);
+                            },
+                            child: Text(
+                              "Deliver",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      if (singleOrderState.order?.paymentStatus ==
+                          OrderPaymentStatus.partial)
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).primaryColorDark),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => PartialPaymentPage(
+                                          order:
+                                              singleOrderState.order!))).then(
+                                  (value) => widget.onPop != null
+                                      ? widget.onPop!()
+                                      : null);
+                            },
+                            child: Text(
+                              "Pay",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      if (singleOrderState.order?.vendorOrderStatus ==
+                              VendorOrderStatus.rejected ||
+                          singleOrderState.order?.vendorOrderStatus ==
+                              VendorOrderStatus.pending)
+                        BottomButton(
+                            context: context,
+                            onPressed: () => approveOrder(context),
+                            text: "Accept",
+                            primaryColor: Colors.green),
+                      if ((singleOrderState.order?.vendorOrderStatus ==
+                                  VendorOrderStatus.approved ||
+                              singleOrderState.order?.vendorOrderStatus ==
+                                  VendorOrderStatus.pending) &&
+                          singleOrderState.order?.orderStatus !=
+                              OrderStatus.delivered)
+                        BottomButton(
+                            context: context,
+                            onPressed: () => showRejectStatus(
+                                  context,
+                                  (reason) => reject(
+                                      context, reason!, singleOrderState),
+                                ),
+                            /*  */
+                            text: "Reject",
+                            primaryColor: Colors.red),
+                    ],
+                  ),
+                );
+              })
             : null,
       ),
     );

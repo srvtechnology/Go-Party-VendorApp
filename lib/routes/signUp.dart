@@ -24,6 +24,7 @@ import 'package:utsavlife/core/utils/UIColor.dart';
 import 'package:utsavlife/core/utils/geolocator.dart';
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/core/utils/textformatters.dart';
+import 'package:utsavlife/core/utils/validator.dart';
 import 'package:utsavlife/routes/mainpage.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
 
@@ -174,172 +175,172 @@ class _SignUp1State extends State<SignUp1> {
                       child: Center(
                         child: SingleChildScrollView(
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(height: 40,),
-                                CustomInputField("Full Name", _name),
-                                CustomInputField("Email", _email,
-                                    leading: Icon(
-                                      Icons.email,
-                                      color: UIColor.black_text_color,
-                                    )),
-                                Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                    ),
-                                    margin: EdgeInsets.only(top: 5),
-                                    child: InputField(
-                                      title: "Password",
-                                      controller: _password,
-                                      isPassword: true,
-                                      obscureText: true,
-                                      leading: Icon(Icons.password),
-                                    )),
-                                Container(
-                                  padding: EdgeInsets.only(
-                                      left: 40, right: 40, top: 15),
-                                  child: IntlPhoneField(
-                                    initialCountryCode: "IN",
-                                    showCountryFlag: false,
-                                    dropdownIcon: const Icon(
-                                      Icons.arrow_drop_down,
-                                      color: UIColor.theme_color,
-                                    ),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 40,
+                            ),
+                            CustomInputField("Full Name", _name),
+                            CustomInputField("Email", _email,
+                                leading: Icon(
+                                  Icons.email,
+                                  color: UIColor.black_text_color,
+                                ),
+                                validateEmail: true),
+                            Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
+                                margin: EdgeInsets.only(top: 5),
+                                child: InputField(
+                                  title: "Password",
+                                  controller: _password,
+                                  isPassword: true,
+                                  obscureText: true,
+                                  leading: Icon(Icons.password),
+                                )),
+                            Container(
+                              padding:
+                                  EdgeInsets.only(left: 40, right: 40, top: 15),
+                              child: IntlPhoneField(
+                                initialCountryCode: "IN",
+                                showCountryFlag: false,
+                                dropdownIcon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: UIColor.theme_color,
+                                ),
+                                style:
+                                    TextStyle(color: UIColor.black_text_color),
+                                dropdownTextStyle:
+                                    TextStyle(color: UIColor.black_text_color),
+                                decoration: InputDecoration(
+                                  label: Text(
+                                    "Phone Number",
                                     style: TextStyle(
                                         color: UIColor.black_text_color),
-                                    dropdownTextStyle: TextStyle(
-                                        color: UIColor.black_text_color),
-                                    decoration: InputDecoration(
-                                      label: Text(
-                                        "Phone Number",
-                                        style: TextStyle(
-                                            color: UIColor.black_text_color),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(10.0),
-                                        borderSide: BorderSide(
-                                          color: UIColor.theme_color,
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius:
-                                        BorderRadius.circular(10.0),
-                                        borderSide: BorderSide(
-                                          color: UIColor.black_text_color,
-                                          width: 1.0,
-                                        ),
-                                      ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(
+                                      color: UIColor.theme_color,
                                     ),
-                                    validator: (text) {
-                                      if (text == null ||
-                                          text.completeNumber.isEmpty) {
-                                        return "Required field";
-                                      }
-                                      if (text.completeNumber.length < 12 ||
-                                          text.completeNumber.length > 15) {
-                                        return "Please enter a valid number";
-                                      }
-                                      return null;
-                                    },
-                                    onChanged: (number) {
-                                      _mobileNo.text = number.completeNumber;
-                                    },
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    borderSide: BorderSide(
+                                      color: UIColor.black_text_color,
+                                      width: 1.0,
+                                    ),
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 40, vertical: 15),
-                                  child: CSCPicker(
-                                    disabledDropdownDecoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          color: UIColor.black_text_color,
-                                          width: 1),
-                                      color: Colors.transparent,
-                                    ),
-                                    selectedItemStyle: TextStyle(
-                                        color: UIColor.black_text_color),
-                                    dropdownDecoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          color: UIColor.black_text_color,
-                                          width: 1),
-                                      color: Colors.transparent,
-                                    ),
-                                    currentCountry: selectedCountry,
-                                    currentState: selectedState,
-                                    currentCity: selectedCity,
-                                    onCountryChanged: (country) {
-                                      selectedCountry = country ?? "";
-                                    },
-                                    onStateChanged: (state) {
-                                      selectedState = state ?? "";
-                                    },
-                                    onCityChanged: (city) {
-                                      setState(() {
-                                        selectedCity = city ?? "";
-                                        _address.text = city ?? "";
-                                      });
-                                    },
-                                  ),
+                                validator: (text) {
+                                  if (text == null ||
+                                      text.completeNumber.isEmpty) {
+                                    return "Required field";
+                                  }
+                                  if (text.completeNumber.length < 12 ||
+                                      text.completeNumber.length > 15) {
+                                    return "Please enter a valid number";
+                                  }
+                                  return null;
+                                },
+                                onChanged: (number) {
+                                  _mobileNo.text = number.completeNumber;
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 40, vertical: 15),
+                              child: CSCPicker(
+                                disabledDropdownDecoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                      color: UIColor.black_text_color,
+                                      width: 1),
+                                  color: Colors.transparent,
                                 ),
-                                // Padding(
-                                //   padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
-                                //   child: DropdownSearch<String>(
-                                //     items: DefaultCities,
-                                //     selectedItem: _address.text,
-                                //     validator: (text){
-                                //       if(text==null) return "Required";
-                                //     },
-                                //     dropdownDecoratorProps: DropDownDecoratorProps(
-                                //       baseStyle: TextStyle(color: Colors.white),
-                                //       dropdownSearchDecoration: InputDecoration(
-                                //         suffixIconColor: Colors.white,
-                                //         prefixIcon: Icon(Icons.home,color: Colors.white,),
-                                //         label: Text("City",style: TextStyle(color: Colors.white),),
-                                //         focusedBorder: OutlineInputBorder(
-                                //           borderRadius: BorderRadius.circular(10.0),
-                                //           borderSide: BorderSide(
-                                //             color: Colors.blue,
-                                //           ),
-                                //         ),
-                                //         enabledBorder: OutlineInputBorder(
-                                //           borderRadius: BorderRadius.circular(10.0),
-                                //           borderSide: BorderSide(
-                                //             color: Colors.white,
-                                //             width: 1.0,
-                                //           ),
-                                //         ),
-                                //       )
-                                //     ),
-                                //     onChanged: (text){
-                                //       setState(() {
-                                //         _address.text = text!;
-                                //       });
-                                //     },
-                                //   ),
-                                // ),
-                                // if(showLocationList&&mapState.locations.isNotEmpty)
-                                //   ListView.builder(
-                                //       physics: ClampingScrollPhysics(),
-                                //       shrinkWrap: true,itemCount: min(6, mapState.locations.length),itemBuilder: (context,index)=>ListTile(leading: Icon(Icons.location_on),title: Text(mapState.locations[index]),onTap: (){
-                                //     _address.text = mapState.locations[index];
-                                //     setState(() {
-                                //       showLocationList=false;
-                                //     });
-                                //   },)),
-                                if (isLoading)
-                                  Container(
-                                    alignment: Alignment.center,
-                                    child: CircularProgressIndicator(),
-                                  )
-                                else
-                                  SignUpButton(
-                                      context, mapState, registerState),
-                              ],
-                            )),
+                                selectedItemStyle:
+                                    TextStyle(color: UIColor.black_text_color),
+                                dropdownDecoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                      color: UIColor.black_text_color,
+                                      width: 1),
+                                  color: Colors.transparent,
+                                ),
+                                currentCountry: selectedCountry,
+                                currentState: selectedState,
+                                currentCity: selectedCity,
+                                onCountryChanged: (country) {
+                                  selectedCountry = country ?? "";
+                                },
+                                onStateChanged: (state) {
+                                  selectedState = state ?? "";
+                                },
+                                onCityChanged: (city) {
+                                  setState(() {
+                                    selectedCity = city ?? "";
+                                    _address.text = city ?? "";
+                                  });
+                                },
+                              ),
+                            ),
+                            // Padding(
+                            //   padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
+                            //   child: DropdownSearch<String>(
+                            //     items: DefaultCities,
+                            //     selectedItem: _address.text,
+                            //     validator: (text){
+                            //       if(text==null) return "Required";
+                            //     },
+                            //     dropdownDecoratorProps: DropDownDecoratorProps(
+                            //       baseStyle: TextStyle(color: Colors.white),
+                            //       dropdownSearchDecoration: InputDecoration(
+                            //         suffixIconColor: Colors.white,
+                            //         prefixIcon: Icon(Icons.home,color: Colors.white,),
+                            //         label: Text("City",style: TextStyle(color: Colors.white),),
+                            //         focusedBorder: OutlineInputBorder(
+                            //           borderRadius: BorderRadius.circular(10.0),
+                            //           borderSide: BorderSide(
+                            //             color: Colors.blue,
+                            //           ),
+                            //         ),
+                            //         enabledBorder: OutlineInputBorder(
+                            //           borderRadius: BorderRadius.circular(10.0),
+                            //           borderSide: BorderSide(
+                            //             color: Colors.white,
+                            //             width: 1.0,
+                            //           ),
+                            //         ),
+                            //       )
+                            //     ),
+                            //     onChanged: (text){
+                            //       setState(() {
+                            //         _address.text = text!;
+                            //       });
+                            //     },
+                            //   ),
+                            // ),
+                            // if(showLocationList&&mapState.locations.isNotEmpty)
+                            //   ListView.builder(
+                            //       physics: ClampingScrollPhysics(),
+                            //       shrinkWrap: true,itemCount: min(6, mapState.locations.length),itemBuilder: (context,index)=>ListTile(leading: Icon(Icons.location_on),title: Text(mapState.locations[index]),onTap: (){
+                            //     _address.text = mapState.locations[index];
+                            //     setState(() {
+                            //       showLocationList=false;
+                            //     });
+                            //   },)),
+                            if (isLoading)
+                              Container(
+                                alignment: Alignment.center,
+                                child: CircularProgressIndicator(),
+                              )
+                            else
+                              SignUpButton(context, mapState, registerState),
+                          ],
+                        )),
                       ),
                     ),
                   ),
@@ -419,6 +420,7 @@ class _SignUp1State extends State<SignUp1> {
       bool hide = false,
       bool autocomplete = true,
       MapProvider? state,
+      validateEmail = false,
       validatePhone = false}) {
     if (validatePhone) {
       if (!controller.text.startsWith("+91"))
@@ -439,9 +441,14 @@ class _SignUp1State extends State<SignUp1> {
                 return "Please enter a valid phone number";
               }
             }
+            if (validateEmail && !isValidEmail(text!)) {
+              return "Please enter a valid email ID";
+            }
             return null;
           },
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           onChanged: (text) {
+            //  _formKey.currentState?.validate();
             if (state != null) {
               setState(() {
                 showLocationList = true;
@@ -562,7 +569,7 @@ class _SignUp2State extends State<SignUp2> {
             return Scaffold(
               extendBodyBehindAppBar: true,
               backgroundColor: UIColor.screen_bg,
-              appBar:   AppToolbar(
+              appBar: AppToolbar(
                 toolbarTitle: "Personal Information",
                 onPressed: () {
                   state.logout();
@@ -570,7 +577,6 @@ class _SignUp2State extends State<SignUp2> {
                   CustomLogger.debug(state.authState);
                 },
               ),
-
               body: Form(
                 key: _formKey,
                 child: Center(
@@ -581,7 +587,7 @@ class _SignUp2State extends State<SignUp2> {
                       const SizedBox(
                         height: 40,
                       ),
-                  /*    Container(
+                      /*    Container(
                         margin: EdgeInsets.only(left: 20, right: 20),
                         child: Column(
                           children: [
@@ -768,7 +774,6 @@ class _SignUp2State extends State<SignUp2> {
                       const SizedBox(
                         height: 40,
                       ),
-
                     ],
                   )),
                 ),
@@ -962,8 +967,8 @@ class _SignUp3State extends State<SignUp3> {
             return Scaffold(
               extendBodyBehindAppBar: false,
               backgroundColor: UIColor.screen_bg,
-              appBar:   AppToolbar(
-                toolbarTitle:     "Bank details",
+              appBar: AppToolbar(
+                toolbarTitle: "Bank details",
                 onPressed: () {
                   state.setRegisterProgress(RegisterProgress.three);
                 },
@@ -983,7 +988,7 @@ class _SignUp3State extends State<SignUp3> {
                               "Reset",
                               style: TextStyle(color: UIColor.black_text_color),
                             )),
-                          /*            Container(
+                      /*            Container(
                         margin: EdgeInsets.only(left: 20, right: 20),
                         child: Column(
                           children: [
@@ -1289,20 +1294,19 @@ class _SignUp4State extends State<SignUp4> {
             return Scaffold(
               extendBodyBehindAppBar: true,
               backgroundColor: UIColor.screen_bg,
-              appBar:   AppToolbar(
-                toolbarTitle:    "KYC documents",
+              appBar: AppToolbar(
+                toolbarTitle: "KYC documents",
                 onPressed: () {
                   state.setRegisterProgress(RegisterProgress.four);
                 },
               ),
-
               body: Form(
                 key: _formKey,
                 child: Center(
                   child: SingleChildScrollView(
                       child: Column(
                     children: [
-                  /*    Container(
+                      /*    Container(
                         margin: EdgeInsets.only(left: 20, right: 20),
                         child: Column(
                           children: [
@@ -1644,28 +1648,29 @@ class _SignUp4State extends State<SignUp4> {
     ];
 
     // Check if the filename's extension is in the list of image extensions
-    return imageExtensions.any((extension) => filename.toLowerCase().endsWith(extension));
+    return imageExtensions
+        .any((extension) => filename.toLowerCase().endsWith(extension));
   }
 
   Future<void> submit(AuthProvider state) async {
-
-    if (imgPath["Pan Card"] == null && !isImageUrl(panUrl??'')) {
+    if (imgPath["Pan Card"] == null && !isImageUrl(panUrl ?? '')) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Please provide PAN")));
       return;
     }
 
-    if (imgPath["KYC"] == null && !isImageUrl(kyc??'')) {
+    if (imgPath["KYC"] == null && !isImageUrl(kyc ?? '')) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Please provide KYC")));
       return;
     }
-    if (imgPath["Vendor"] == null && !isImageUrl(vendor??'')) {
+    if (imgPath["Vendor"] == null && !isImageUrl(vendor ?? '')) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Please provide Vendor")));
       return;
     }
- if (state.user?.gstNumber != null && (imgPath["GST"] == null &&  !isImageUrl(gst??''))) {
+    if (state.user?.gstNumber != null &&
+        (imgPath["GST"] == null && !isImageUrl(gst ?? ''))) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Please provide GST")));
       return;
@@ -1876,11 +1881,11 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
         });
       }
     });
-    
+
     /*added by me*/
 
-    _companyName.text=auth.user!.service?.companyName ?? "";
-    _videoLink.text=auth.user!.service?.videoUrl ?? "";
+    _companyName.text = auth.user!.service?.companyName ?? "";
+    _videoLink.text = auth.user!.service?.videoUrl ?? "";
     //serviceId=auth.user!.service?.id ?? "";
   }
 
@@ -1922,8 +1927,8 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                 builder: (context, mapState, child) => Scaffold(
                   extendBodyBehindAppBar: true,
                   backgroundColor: UIColor.screen_bg,
-                  appBar:   AppToolbar(
-                    toolbarTitle:    "Office Details",
+                  appBar: AppToolbar(
+                    toolbarTitle: "Office Details",
                     onPressed: () {
                       regState.setRegisterProgress(RegisterProgress.two);
                     },
@@ -1936,7 +1941,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                       width: double.infinity,
                       child: SingleChildScrollView(
                         child: Column(children: <Widget>[
-                       /*   Container(
+                          /*   Container(
                             margin: EdgeInsets.only(left: 20, right: 20),
                             child: Column(
                               children: [
@@ -2409,7 +2414,6 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                 }
                                 return null;
                               },
-
                               onChanged: (number) {
                                 _officePhone.text = number.completeNumber;
                               },
@@ -2718,6 +2722,7 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
       _agreedToTerms = value!;
     });
   }
+
   void _togglePrivacy(bool? value) {
     setState(() {
       _agreedPrivacy = value!;
@@ -2738,8 +2743,8 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
       return Scaffold(
         extendBodyBehindAppBar: true,
         backgroundColor: UIColor.screen_bg,
-        appBar:   AppToolbar(
-          toolbarTitle:   "Terms and Conditions",
+        appBar: AppToolbar(
+          toolbarTitle: "Terms and Conditions",
           onPressed: () {
             registerState.setRegisterProgress(RegisterProgress.five);
           },
@@ -2749,7 +2754,7 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
           child: ListView(
             padding: EdgeInsets.all(16.0),
             children: <Widget>[
-          /*    Container(
+              /*    Container(
                 margin: EdgeInsets.only(left: 20, right: 20),
                 child: Column(
                   children: [

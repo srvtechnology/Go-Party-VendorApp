@@ -41,6 +41,7 @@ class OrderModel {
   OrderPaymentStatus paymentStatus;
   VendorOrderStatus vendorOrderStatus;
   OrderStatus orderStatus;
+  String? admin_remarks;
   OrderModel({
     required this.id,
     required this.address,
@@ -57,6 +58,7 @@ class OrderModel {
     this.end_date,
     this.service_name,
     this.timing,
+    this.admin_remarks,
   });
 
   factory OrderModel.fromJson(Map json) {
@@ -113,23 +115,23 @@ class OrderModel {
       }
     } catch (e) {}
     return OrderModel(
-      id: json["id"].toString(),
-      paymentStatus: json["paid_status"] == "partial"
-          ? OrderPaymentStatus.partial
-          : OrderPaymentStatus.completed,
-      address: json["event_address"].toString(),
-      latitude: json["lat"].toString(),
-      longitude: json["long"].toString(),
-      date: json["event_date"].toString(),
-      amount: json["total_price"].toString(),
-      vendorOrderStatus: tempStatus,
-      orderStatus: orderStatus,
-      days: json["days"].toString(),
-      customer: CustomerDetailsModel.fromJson(json["customer_details"]),
-      timing: tempTiming,
-      end_date: json["event_end_date"].toString(),
-      service_name: tempServiceName,
-      category: tempCategoryName,
-    );
+        id: json["id"].toString(),
+        paymentStatus: json["paid_status"] == "partial"
+            ? OrderPaymentStatus.partial
+            : OrderPaymentStatus.completed,
+        address: json["event_address"].toString(),
+        latitude: json["lat"].toString(),
+        longitude: json["long"].toString(),
+        date: json["event_date"].toString(),
+        amount: json["total_price"].toString(),
+        vendorOrderStatus: tempStatus,
+        orderStatus: orderStatus,
+        days: json["days"].toString(),
+        customer: CustomerDetailsModel.fromJson(json["customer_details"]),
+        timing: tempTiming,
+        end_date: json["event_end_date"].toString(),
+        service_name: tempServiceName,
+        category: tempCategoryName,
+        admin_remarks: json["admin_remarks"]);
   }
 }

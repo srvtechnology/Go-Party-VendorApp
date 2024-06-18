@@ -108,17 +108,18 @@ class SingleOrderProvider with ChangeNotifier {
     }
     stopLoading();
   }
+
+  Future<String> rejectOdr(String reason) async {
+    startLoading();
+    try {
+      String res = await rejectOrder(auth, reason, order!.id);
+      stopLoading();
+      return res;
+    } catch (e) {
+      stopLoading();
+      logger.e(e.toString());
+      throw e.toString();
+    }
+  }
 }
 
-class ReasonProvider with ChangeNotifier {
-  late List<String>? _reasons;
-  AuthProvider auth;
-  List<String>? get reasons => _reasons;
-  ReasonProvider({required this.auth}) {
-    getReason();
-  }
-  void getReason() async {
-    _reasons = await getRejectReasons(auth);
-    notifyListeners();
-  }
-}

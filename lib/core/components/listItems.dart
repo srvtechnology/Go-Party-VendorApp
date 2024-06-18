@@ -14,6 +14,7 @@ import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/partialPaymentPage.dart';
 import '../../routes/singleService.dart';
 import '../models/order.dart';
+import 'reject_popup.dart';
 
 typedef Ontap = Function();
 
@@ -22,6 +23,7 @@ class CustomOrderItem extends StatefulWidget {
   OrderModel order;
   bool showButtons;
   UpcomingOrderProvider? state;
+
   CustomOrderItem(
       {Key? key,
       required this.order,
@@ -40,6 +42,7 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
   late Color _statusTextColor = UIColor.toolbar_content_color;
   bool showReason = false, ShowReasonField = false;
   String selectedReason = "";
+
   @override
   void initState() {
     super.initState();
@@ -174,67 +177,81 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
                     ),
                   )),
               Expanded(
-                  child: ListenableProvider(
-                create: (_) =>
-                    ReasonProvider(auth: Provider.of<AuthProvider>(context)),
-                child:
-                    Consumer<ReasonProvider>(builder: (context, state, child) {
-                  if (showReason == true) {
-                    return ReasonDialog(context, state.reasons ?? []);
-                  }
-                  return Container(
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: widget.showButtons
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              if (widget.order.paymentStatus ==
-                                  OrderPaymentStatus.partial)
-                                ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            Theme.of(context).primaryColorDark),
-                                    onPressed: () {
-                                      Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      PartialPaymentPage(
-                                                          order: widget.order)))
-                                          .then((value) => widget.state
-                                              ?.load_upcoming_orders());
+                  child: Container(
+                padding: EdgeInsets.only(bottom: 10),
+                child: widget.showButtons
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          if (widget.order.paymentStatus ==
+                              OrderPaymentStatus.partial)
+                            ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Theme.of(context).primaryColorDark),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              PartialPaymentPage(
+                                                  order: widget.order))).then(
+                                      (value) =>
+                                          widget.state?.load_upcoming_orders());
+                                },
+                                child: Text(
+                                  "Pay",
+                                  style: TextStyle(color: Colors.white),
+                                )),
+                          if (widget.order.vendorOrderStatus ==
+                                  VendorOrderStatus.rejected ||
+                              widget.order.vendorOrderStatus ==
+                                  VendorOrderStatus.pending)
+                            OutlinedButton(
+                                onPressed: () {
+                                  approveOrder(context, widget.order.id);
+                                },
+                                child: Text(
+                                  "Approve",
+                                  style: TextStyle(color: Colors.green),
+                                )),
+                          if (widget.order.vendorOrderStatus ==
+                                  VendorOrderStatus.approved ||
+                              widget.order.vendorOrderStatus ==
+                                  VendorOrderStatus.pending)
+                            OutlinedButton(
+                                /* onPressed: () {
+                                    rejectOrder(context);
+                                  },*/
+                                onPressed: () {
+                                  showRejectStatus(
+                                    context,
+                                    (reason) async {
+                                      try {
+                                        String message = await rejectOrder(
+                                            Provider.of<AuthProvider>(context,
+                                                listen: false),
+                                            reason!,
+                                            widget.order.id);
+                                        widget.state?.load_upcoming_orders();
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content: Text(message)));
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content: Text(e.toString())));
+                                      }
+
+                                      return;
                                     },
-                                    child: Text(
-                                      "Pay",
-                                      style: TextStyle(color: Colors.white),
-                                    )),
-                              if (widget.order.vendorOrderStatus ==
-                                      VendorOrderStatus.rejected ||
-                                  widget.order.vendorOrderStatus ==
-                                      VendorOrderStatus.pending)
-                                OutlinedButton(
-                                    onPressed: () {
-                                      approveOrder(context, widget.order.id);
-                                    },
-                                    child: Text(
-                                      "Approve",
-                                      style: TextStyle(color: Colors.green),
-                                    )),
-                              if (widget.order.vendorOrderStatus ==
-                                      VendorOrderStatus.approved ||
-                                  widget.order.vendorOrderStatus ==
-                                      VendorOrderStatus.pending)
-                                OutlinedButton(
-                                    onPressed: () {
-                                      rejectOrder(context);
-                                    },
-                                    child: Text("Reject",
-                                        style: TextStyle(color: Colors.red))),
-                            ],
-                          )
-                        : Container(),
-                  );
-                }),
+                                  );
+                                },
+                                child: Text("Reject",
+                                    style: TextStyle(color: Colors.red))),
+                        ],
+                      )
+                    : Container(),
               ))
             ],
           )),
@@ -254,93 +271,13 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
           .showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
-
-  void rejectOrder(BuildContext context) async {
-    setState(() {
-      showReason = true;
-    });
-  }
-
-  Widget ReasonDialog(BuildContext context, List<String> rejectReasons) {
-    return Container(
-      height: 40.h,
-      child: SingleChildScrollView(
-        child: Column(children: [
-          ...rejectReasons.map((e) => ListTile(
-                leading: Radio(
-                    value: e,
-                    groupValue: selectedReason,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedReason = value!;
-                        ShowReasonField = false;
-                      });
-                    }),
-                title: Text(e),
-              )),
-          ListTile(
-            title: Text("Other"),
-            leading: Radio(
-              autofocus: true,
-              onChanged: (val) {
-                setState(() {
-                  selectedReason = "";
-                  ShowReasonField = true;
-                });
-              },
-              value: "Other",
-              groupValue: selectedReason,
-            ),
-          ),
-          if (ShowReasonField)
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 40),
-              child: TextField(
-                onChanged: (text) {
-                  setState(() {
-                    selectedReason = text;
-                  });
-                },
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-            ),
-          SizedBox(
-            height: 0,
-          ),
-          OutlinedButton(
-              onPressed: () {
-                try {
-                  if (selectedReason == "") {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please select a Reason")));
-                  } else {
-                    context.read<SingleOrderProvider>().change_status(
-                        VendorOrderStatus.rejected, selectedReason);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Order Rejected")));
-                    setState(() {
-                      showReason = false;
-                    });
-                  }
-                } catch (e) {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text(e.toString())));
-                }
-              },
-              child: Text("Submit"))
-        ]),
-      ),
-    );
-  }
 }
 
 class CustomServiceItem extends StatelessWidget {
   int index;
   ServiceModel service;
   ServiceListProvider state;
+
   CustomServiceItem(
       {Key? key,
       required this.index,

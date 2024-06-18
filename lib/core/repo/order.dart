@@ -56,6 +56,7 @@ Future<List<OrderModel>> get_history_order_list(AuthProvider auth) async {
 }
 
 Future<OrderModel> get_orderById(AuthProvider auth, String id) async {
+  CustomLogger.debug("token is -> ${auth.token}  order id is -> $id");
   Response response;
   List<OrderModel> orders = [];
   try {
@@ -137,6 +138,28 @@ Future<List<String>> getRejectReasons(AuthProvider auth) async {
       reasons.add(i["reason"]);
     }
     return reasons;
+  } catch (e) {
+    if (e is DioError) {
+      CustomLogger.error(e.response?.data);
+    }
+    return Future.error(e);
+  }
+}
+
+Future<String> rejectOrder(
+    AuthProvider auth, String reason, String OrderId) async {
+  try {
+    Response response = await Dio().post(
+        "${APIConfig.baseUrl}/api/customer/cancel-order",
+        options: Options(headers: {"Authorization": "Bearer ${auth.token}"}),
+        data: {"id": OrderId, "reason": reason});
+
+    if (response.statusCode == 200 && response.data['success'] == true) {
+      CustomLogger.debug(response.data['message']);
+      return response.data['message'];
+    }
+
+    return Future.error(response.data['message']);
   } catch (e) {
     if (e is DioError) {
       CustomLogger.error(e.response?.data);
