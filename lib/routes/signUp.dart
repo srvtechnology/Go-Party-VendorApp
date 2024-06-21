@@ -509,7 +509,8 @@ class _SignUp2State extends State<SignUp2> {
   TextEditingController _state = TextEditingController();
   TextEditingController _country = TextEditingController();
   Country selectedCountry = Country(id: "101", name: "India");
-  late DropDownField selectedKyc = kyctypes[0];
+  // late DropDownField selectedKyc = kyctypes[0];
+  late DropDownField? selectedKyc = null;
   bool isLoading = false;
   late Future _getCacheData;
   Future _getLocationData = Future.value({});
@@ -548,7 +549,7 @@ class _SignUp2State extends State<SignUp2> {
   }
 
   Future<void> getDataFromCache() async {
-    _kycType.text = selectedKyc.value;
+    _kycType.text = selectedKyc?.value ?? "";
     _pancard.text = context.read<AuthProvider>().user!.panCardNumber ?? "";
     _kycNo.text = context.read<AuthProvider>().user!.kycNumber ?? "";
     _pinCode.text = context.read<AuthProvider>().user!.zip ?? "";
@@ -558,7 +559,17 @@ class _SignUp2State extends State<SignUp2> {
     _city.text = context.read<AuthProvider>().user!.city ?? "";
     _state.text = context.read<AuthProvider>().user!.state ?? "";
     _country.text = context.read<AuthProvider>().user!.country?.name ?? "";
+
+    String kycType = context.read<AuthProvider>().user!.kycType ?? "";
+    if (kycType != null && kycType.isNotEmpty) {
+      //here we pre selecting the kyc type
+      selectedKyc =
+          kyctypes.where((element) => element.value == kycType).firstOrNull;
+      _kycNo.text = context.read<AuthProvider>().user!.kycNumber ?? "";
+    }
   }
+
+  bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -605,8 +616,7 @@ class _SignUp2State extends State<SignUp2> {
                             Icons.numbers,
                             color: UIColor.black_text_color,
                           ), validator: (text) {
-                        if (text == null || text.isEmpty)
-                          return 'Pan is Required';
+                        if (text == null || text.isEmpty) return null;
                         if (text.length != 10 ||
                             (isNumeric(text.substring(0, 5))) ||
                             (!isNumeric(text.substring(5, 9))) ||
@@ -614,76 +624,111 @@ class _SignUp2State extends State<SignUp2> {
                           return "Please enter a valid Pan Number";
                         return null;
                       }),
-                      // Container(
-                      //   margin: EdgeInsets.symmetric(
-                      //       horizontal: 40, vertical: 10),
-                      //   child: InputDecorator(
-                      //     decoration: InputDecoration(
-                      //       contentPadding:
-                      //           EdgeInsets.symmetric(horizontal: 20),
-                      //       prefixIcon: Icon(
-                      //         Icons.person,
-                      //         color: Colors.white,
-                      //       ),
-                      //       label: Text(
-                      //         "Kyc Type (optional)",
-                      //         style: TextStyle(color: Colors.white),
-                      //       ),
-                      //       focusedBorder: OutlineInputBorder(
-                      //         borderRadius: BorderRadius.circular(10.0),
-                      //         borderSide: BorderSide(
-                      //           color: Colors.blue,
-                      //         ),
-                      //       ),
-                      //       enabledBorder: OutlineInputBorder(
-                      //         borderRadius: BorderRadius.circular(10.0),
-                      //         borderSide: BorderSide(
-                      //           color: Colors.white,
-                      //           width: 1.0,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //     child: Row(
-                      //       children: [
-                      //         Expanded(
-                      //             child: ExpansionTile(
-                      //           collapsedTextColor: Colors.white,
-                      //           trailing: Text(""),
-                      //           key: GlobalKey(),
-                      //           title: Text(
-                      //             selectedKyc.title,
-                      //             style: TextStyle(color: Colors.white),
-                      //           ),
-                      //           children: kyctypes
-                      //               .map((e) => ListTile(
-                      //                     onTap: () {
-                      //                       setState(() {
-                      //                         _kycType.text = e.value;
-                      //                         selectedKyc = e;
-                      //                       });
-                      //                     },
-                      //                     title: Text(
-                      //                       e.title,
-                      //                       style: TextStyle(
-                      //                           color: Colors.white),
-                      //                     ),
-                      //                   ))
-                      //               .toList(),
-                      //         ))
-                      //       ],
-                      //     ),
-                      //   ),
-                      // ),
-                      // InputField(
-                      //     "${selectedKyc.title} Number (optional)", _kycNo,
-                      //     validator: (text) {
-                      //   if (text == null || text.isEmpty) return null;
-                      //   if (selectedKyc.value == "AD" && text.length != 12)
-                      //     return "Please enter a valid number";
-                      //   if (text.length < 12)
-                      //     return "Please enter a valid number";
-                      //   return null;
-                      // }),
+                      Container(
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 20),
+                            prefixIcon: Icon(
+                              Icons.person,
+                              color: UIColor.black_text_color,
+                            ),
+                            label: Text(
+                              "Kyc Type",
+                              style: TextStyle(color: UIColor.black_text_color),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide(
+                                color: Colors.blue,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide(
+                                color: UIColor.black_text_color,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  child: ExpansionTile(
+                                collapsedTextColor: UIColor.black_text_color,
+                                trailing: Icon(Icons.arrow_drop_down),
+                                key: GlobalKey(),
+                                initiallyExpanded: _isExpanded,
+                                onExpansionChanged: (value) {
+                                  setState(() {
+                                    _isExpanded = value;
+                                  });
+                                },
+                                title: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _kycType.clear();
+                                      _kycNo.clear();
+                                      selectedKyc = null;
+                                      _isExpanded =
+                                          !_isExpanded; // Toggle expansion state
+                                    });
+                                  },
+                                  child: Text(
+                                    selectedKyc == null || _isExpanded
+                                        ? "Select KYC type"
+                                        : selectedKyc!.title,
+                                    style: TextStyle(
+                                        color: UIColor.black_text_color),
+                                  ),
+                                ),
+                                children: kyctypes
+                                    .map((e) => ListTile(
+                                          onTap: () {
+                                            setState(() {
+                                              _kycType.text = e.value;
+                                              selectedKyc = e;
+                                              _isExpanded =
+                                                  !_isExpanded; // Toggle expansion state
+                                            });
+                                          },
+                                          title: Text(
+                                            e.title,
+                                            style: TextStyle(
+                                                color:
+                                                    UIColor.black_text_color),
+                                          ),
+                                        ))
+                                    .toList(),
+                              ))
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (selectedKyc != null)
+                        InputField("${selectedKyc?.title} Number", _kycNo,
+                            validator: (text) {
+                          if (selectedKyc == null) return null;
+                          if (text == null || text.isEmpty)
+                            return "Please enter a valid number";
+                          if (selectedKyc?.value == "AD" && text.length != 12)
+                            return "Please enter a valid aadhar number";
+
+                          if (selectedKyc?.value == "DL" &&
+                              (text.length < 15 || text.length > 16)) {
+                            return "Please enter a valid driving licence number (15-16 characters)";
+                          }
+
+                          if (selectedKyc?.value == "PA" && text.length != 8)
+                            return "Please enter a valid passport number";
+
+                          if (selectedKyc?.value == "VO" && text.length != 10)
+                            return "Please enter a valid voter number";
+
+                          return null;
+                        }),
                       InputField("Pin code", _pinCode,
                           leading: Icon(
                             Icons.pin_drop,
@@ -714,7 +759,6 @@ class _SignUp2State extends State<SignUp2> {
                             Icons.home_filled,
                             color: UIColor.black_text_color,
                           )),
-
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 15),
@@ -770,7 +814,6 @@ class _SignUp2State extends State<SignUp2> {
                         )
                       else
                         SignUpButton(context, state),
-
                       const SizedBox(
                         height: 40,
                       ),
@@ -784,6 +827,14 @@ class _SignUp2State extends State<SignUp2> {
   }
 
   Future<void> submit(AuthProvider state) async {
+    /*  if (selectedKyc == null) {
+      setState(() {
+        isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Please select KYC type.")));
+    } else */
     if (_formKey.currentState!.validate()) {
       Map data = {
         "pan_card": _pancard.text,
