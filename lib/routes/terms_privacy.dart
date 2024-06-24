@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:utsavlife/core/components/appToolbar.dart';
+import 'package:utsavlife/routes/webviewPage.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class webViewer extends StatefulWidget {
-  String url;
-  static const routeName = "/webViewPage";
+class TermsPrivacy extends StatefulWidget {
+  static const routeName = "/termsPrivacy";
 
-  webViewer({Key? key, required this.url}) : super(key: key);
+  String urlToLoad = "";
+  String title = "";
+
+  TermsPrivacy({Key? key, required this.title, required this.urlToLoad})
+      : super(key: key);
 
   @override
-  State<webViewer> createState() => _webViewerState();
+  State<TermsPrivacy> createState() => _TermsPrivacyState();
 }
 
-class _webViewerState extends State<webViewer> {
+class _TermsPrivacyState extends State<TermsPrivacy> {
   WebViewController controller = new WebViewController();
   int loadingPercentage = 0;
+
   @override
   void initState() {
     super.initState();
@@ -51,14 +57,17 @@ class _webViewerState extends State<webViewer> {
         },
       ))
       ..loadRequest(
-        Uri.parse("https://utsavlife.com/vandor/registration"),
+        Uri.parse(widget.urlToLoad),
       );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppToolbar(
+          toolbarTitle: widget.title,
+          onPressed: () => Navigator.pop(context),
+        ),
         body: Stack(
           children: [
             WebViewWidget(

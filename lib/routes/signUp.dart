@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
@@ -20,6 +21,7 @@ import 'package:utsavlife/core/provider/RegisterProvider.dart';
 import 'package:utsavlife/core/provider/mapProvider.dart';
 import 'package:utsavlife/core/repo/auth.dart';
 import 'package:utsavlife/core/repo/maps.dart';
+import 'package:utsavlife/core/utils/Constant.dart';
 import 'package:utsavlife/core/utils/UIColor.dart';
 import 'package:utsavlife/core/utils/geolocator.dart';
 import 'package:utsavlife/core/utils/logger.dart';
@@ -27,6 +29,7 @@ import 'package:utsavlife/core/utils/textformatters.dart';
 import 'package:utsavlife/core/utils/validator.dart';
 import 'package:utsavlife/routes/mainpage.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
+import 'package:utsavlife/routes/terms_privacy.dart';
 
 import '../core/components/inputFields.dart';
 import '../core/models/dropdown.dart';
@@ -616,11 +619,11 @@ class _SignUp2State extends State<SignUp2> {
                             Icons.numbers,
                             color: UIColor.black_text_color,
                           ), validator: (text) {
-                        if (text == null || text.isEmpty) return null;
-                        if (text.length != 10 ||
-                            (isNumeric(text.substring(0, 5))) ||
-                            (!isNumeric(text.substring(5, 9))) ||
-                            (isNumeric(text.substring(9, 10))))
+//                        if (text == null || text.isEmpty) return null;
+                        if (text?.length != 10 ||
+                            (isNumeric(text!.substring(0, 5))) ||
+                            (!isNumeric(text!.substring(5, 9))) ||
+                            (isNumeric(text!.substring(9, 10))))
                           return "Please enter a valid Pan Number";
                         return null;
                       }),
@@ -710,7 +713,7 @@ class _SignUp2State extends State<SignUp2> {
                       if (selectedKyc != null)
                         InputField("${selectedKyc?.title} Number", _kycNo,
                             validator: (text) {
-                          if (selectedKyc == null) return null;
+                          //  if (selectedKyc == null) return null;
                           if (text == null || text.isEmpty)
                             return "Please enter a valid number";
                           if (selectedKyc?.value == "AD" && text.length != 12)
@@ -827,15 +830,14 @@ class _SignUp2State extends State<SignUp2> {
   }
 
   Future<void> submit(AuthProvider state) async {
-    /*  if (selectedKyc == null) {
+    if (selectedKyc == null) {
       setState(() {
         isLoading = false;
       });
 
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Please select KYC type.")));
-    } else */
-    if (_formKey.currentState!.validate()) {
+    } else if (_formKey.currentState!.validate()) {
       Map data = {
         "pan_card": _pancard.text,
         "kyc_type": _kycType.text,
@@ -2792,7 +2794,7 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(builder: (context, registerState, child) {
       return Scaffold(
-        extendBodyBehindAppBar: true,
+        extendBodyBehindAppBar: false,
         backgroundColor: UIColor.screen_bg,
         appBar: AppToolbar(
           toolbarTitle: "Terms and Conditions",
@@ -2800,57 +2802,43 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
             registerState.setRegisterProgress(RegisterProgress.five);
           },
         ),
-        body: DefaultTextStyle(
-          style: TextStyle(color: Colors.white),
-          child: ListView(
-            padding: EdgeInsets.all(16.0),
+        body: Center(
+          child: Column(
             children: <Widget>[
-              /*    Container(
-                margin: EdgeInsets.only(left: 20, right: 20),
-                child: Column(
-                  children: [
-                    Container(
-                        height: 200,
-                        width: 200,
-                        child: Image.asset("assets/images/logo/logo.png")),
-                  ],
-                ),
-              ),*/
-              // Text(
-              //   'Terms and Conditions',
-              //   style: TextStyle(
-              //     fontSize: 18.0,
-              //     fontWeight: FontWeight.bold,
-              //   ),
-              // ),
-              SizedBox(height: 16.0),
-              Text(
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
-                style: TextStyle(fontSize: 16.0),
-              ),
-              SizedBox(height: 16.0),
-              Text(
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
-                style: TextStyle(fontSize: 16.0),
-              ),
-              SizedBox(height: 16.0),
-              Text(
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sed urna turpis. Nam fringilla odio id arcu aliquet, in vulputate justo feugiat. Suspendisse potenti. Sed feugiat, ligula vitae aliquam consequat, neque urna efficitur ligula, sit amet iaculis quam nisl ac mi. Donec nec dui luctus, convallis purus sit amet, luctus est. In volutpat eros arcu, ut luctus sem elementum ut. Nulla id leo id mauris vulputate consectetur. Sed cursus ligula id nisi vulputate lacinia. Nullam lacinia pulvinar dui, a ultrices ante vulputate eget.',
-                style: TextStyle(fontSize: 16.0),
-              ),
               SizedBox(height: 16.0),
               Theme(
                 data:
                     ThemeData(unselectedWidgetColor: UIColor.black_text_color),
                 child: CheckboxListTile(
-                  checkColor: UIColor.black_text_color,
+                  activeColor: UIColor.theme_color,
+                  checkColor: Colors.white,
                   checkboxShape: RoundedRectangleBorder(
                       side: BorderSide(color: Colors.white, width: 0.5)),
                   value: _agreedToTerms,
                   onChanged: _toggleTermsAgreement,
-                  title: Text(
-                    'I agree to the terms and conditions',
-                    style: TextStyle(color: UIColor.black_text_color),
+                  title: RichText(
+                    text: TextSpan(children: [
+                      TextSpan(
+                        text: 'I agree to the ',
+                        style: TextStyle(color: UIColor.black_text_color),
+                      ),
+                      TextSpan(
+                        text: Constant.label_terms_condition,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TermsPrivacy(
+                                      title: Constant.label_terms_condition,
+                                      urlToLoad: Constant.link_terms_condition),
+                                ));
+                          },
+                        style: TextStyle(
+                            color: UIColor.theme_color,
+                            decoration: TextDecoration.underline),
+                      ),
+                    ]),
                   ),
                 ),
               ),
@@ -2858,35 +2846,70 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
                 data:
                     ThemeData(unselectedWidgetColor: UIColor.black_text_color),
                 child: CheckboxListTile(
-                  checkColor: UIColor.black_text_color,
+                  activeColor: UIColor.theme_color,
+                  checkColor: Colors.white,
                   checkboxShape: RoundedRectangleBorder(
                       side: BorderSide(color: Colors.white, width: 0.5)),
                   value: _agreedPrivacy,
                   onChanged: _togglePrivacy,
-                  title: Text(
-                    'I agree to the Privacy Policy',
-                    style: TextStyle(color: UIColor.black_text_color),
+                  title: RichText(
+                    text: TextSpan(children: [
+                      TextSpan(
+                        text: 'I agree to the ',
+                        style: TextStyle(color: UIColor.black_text_color),
+                      ),
+                      TextSpan(
+                        text: Constant.label_privacy_policy,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TermsPrivacy(
+                                      title: Constant.label_privacy_policy,
+                                      urlToLoad: Constant.link_privacy_policy),
+                                ));
+                          },
+                        style: TextStyle(
+                            color: UIColor.theme_color,
+                            decoration: TextDecoration.underline),
+                      ),
+                    ]),
                   ),
                 ),
               ),
               SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: (!_agreedToTerms || !_agreedPrivacy)
-                    ? null
-                    : () async {
-                        await submit(registerState);
-                        registerState
-                            .setRegisterProgress(RegisterProgress.completed);
-                        registerState.clear();
-                        if (Navigator.canPop(context)) {
-                          Navigator.popUntil(context, (route) => route.isFirst);
-                        } else {
-                          Navigator.pushReplacementNamed(
-                              context, MainPage.routeName,
-                              arguments: true);
-                        }
-                      },
-                child: Text('Submit'),
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 10),
+                      child: ElevatedButton(
+                        onPressed: (!_agreedToTerms || !_agreedPrivacy)
+                            ? null
+                            : () async {
+                                await submit(registerState);
+                                registerState.setRegisterProgress(
+                                    RegisterProgress.completed);
+                                registerState.clear();
+                                if (Navigator.canPop(context)) {
+                                  Navigator.popUntil(
+                                      context, (route) => route.isFirst);
+                                } else {
+                                  Navigator.pushReplacementNamed(
+                                      context, MainPage.routeName,
+                                      arguments: true);
+                                }
+                              },
+                        child: Text(
+                          'Submit',
+                          style: TextStyle(color: UIColor.theme_color),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
