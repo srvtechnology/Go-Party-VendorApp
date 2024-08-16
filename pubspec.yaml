@@ -54,7 +54,10 @@ dependencies:
 #  flutter_launcher_name: ^0.0.1
   video_player: ^2.6.1
   dropdown_search: ^5.0.6
-  showcaseview: ^2.0.3
+  showcaseview:
+    git:
+      url: https://github.com/chandrabezzo/flutter_showcaseview
+      ref: bugfix/text-theme/removed-3.22
   intl_phone_field: ^3.2.0
   csc_picker: ^0.2.7
   geolocator: ^10.0.0

@@ -3,11 +3,16 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/core/components/customBox.dart';
+import 'package:utsavlife/core/components/gradientButton.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/utils/UIColor.dart';
 import 'package:utsavlife/routes/signUp.dart';
 import '../core/components/inputFields.dart';
 import 'otpPage.dart';
+
+const EdgeInsets textInputPadding =
+    EdgeInsets.symmetric(vertical: 8, horizontal: 0);
 
 class SignIn extends StatefulWidget {
   static const routeName = "signin";
@@ -37,98 +42,85 @@ class _SignInState extends State<SignIn> {
         }
         return Scaffold(
           backgroundColor: UIColor.screen_bg,
-          body: DefaultTextStyle(
-            style: TextStyle(color: UIColor.black_text_color),
-            child: Container(
-              child: SingleChildScrollView(
-                  child: Column(
-                children: [
-                  Container(
-                    height: 20.h,
-                    width: 40.w,
-                    child: Image.asset("assets/images/logo/logo.png"),
+          body: SingleChildScrollView(
+              child: Column(
+            children: [
+              Container(
+                height: 20.h,
+                width: 40.w,
+                child: Image.asset("assets/images/logo/logo.png"),
+              ),
+              CustomMaterialBox(listOfChildren: [
+                if (state.authState == AuthState.Error)
+                  Text(
+                    "Incorrect username or password",
+                    style: TextStyle(color: Colors.red),
                   ),
-                  if (state.authState == AuthState.Error)
-                    Text(
-                      "Incorrect username or password",
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    child: Text(
-                      "Welcome !",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall!
-                          .copyWith(color:  UIColor.black_text_color),
-                    ),
+                Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(vertical: 15),
+                  child: Text(
+                    "Welcome !",
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineSmall!
+                        .copyWith(color: UIColor.black_text_color),
                   ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          InputField(title: "Email", controller: _email),
-                          InputField(
-                              title: "Password",
-                              controller: _password,
-                              obscureText: true,
-                              isPassword: true),
-                        ],
-                      )),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    margin: EdgeInsets.symmetric(vertical: 10),
-                    child: Row(
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Form(
+                    key: _formKey,
+                    child: Column(
                       children: [
-                        Expanded(child: SignInButton(context)),
-                      ],
-                    ),
-                  ),
-                  Center(
-                    child: Text("OR"),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    alignment: Alignment.bottomRight,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red),
-                              onPressed: () {
-                                Navigator.pushNamed(context, SignUp.routeName);
-                              },
-                              child: const Text(
-                                "Register for new vendor",
-                                style: TextStyle(color: Colors.white),
-                              )),
+                        InputField(
+                          title: "Email",
+                          controller: _email,
+                          edgeInsets: textInputPadding,
                         ),
+                        InputField(
+                            title: "Password",
+                            controller: _password,
+                            obscureText: true,
+                            isPassword: true,
+                            edgeInsets: textInputPadding),
                       ],
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 20, horizontal: 10),
-                    alignment: Alignment.center,
-                    child: TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, OtpPageRoute.routeName);
-                        },
-                        child: const Text(
-                          " Forgot your password? Click here",
-                          style: TextStyle(color: UIColor.black_text_color),
-                        )),
-                  ),
-                ],
-              )),
-            ),
-          ),
+                    )),
+                customDivider(),
+                SignInButton(context),
+                customDivider(),
+                Center(
+                  child: Text("OR"),
+                ),
+                customDivider(),
+                GradientButton(
+                    buttonInsideMaterialBox: true,
+                    colors: [
+                      UIColor.error_color,
+                      UIColor.error_color,
+                    ],
+                    text: "Register for new vendor",
+                    onPressed: () {
+                      Navigator.pushNamed(context, SignUp.routeName);
+                    }),
+                customDivider(),
+                Container(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                  alignment: Alignment.center,
+                  child: TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, OtpPageRoute.routeName);
+                      },
+                      child: const Text(
+                        " Forgot your password? Click here",
+                        style: TextStyle(color: UIColor.black_text_color),
+                      )),
+                ),
+              ]),
+            ],
+          )),
         );
 
         /*Stack(
@@ -159,18 +151,32 @@ class _SignInState extends State<SignIn> {
   }
 
   Widget SignInButton(BuildContext context) {
+    return GradientButton(
+        buttonInsideMaterialBox: true,
+        text: "Sign In",
+        onPressed: () => {
+              if (_formKey.currentState!.validate())
+                {
+                  context
+                      .read<AuthProvider>()
+                      .login(_email.text, _password.text)
+                }
+            });
     return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: UIColor.theme_color
-      ),
+      style: ElevatedButton.styleFrom(backgroundColor: UIColor.theme_color),
       onPressed: () {
         if (_formKey.currentState!.validate()) {
           context.read<AuthProvider>().login(_email.text, _password.text);
         }
       },
       child: DefaultTextStyle(
-          style: TextStyle(color: Colors.white),
-          child: const Text("Sign In")),
+          style: TextStyle(color: Colors.white), child: const Text("Sign In")),
     );
   }
+}
+
+Widget customDivider() {
+  return SizedBox(
+    height: 20,
+  );
 }

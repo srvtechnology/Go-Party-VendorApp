@@ -8,13 +8,16 @@ class InputField extends StatefulWidget {
   String title;
   Icon? leading;
   bool obscureText = false, isPassword = false;
+  final EdgeInsets? edgeInsets;
+
   InputField(
       {Key? key,
       required this.controller,
       required this.title,
       this.obscureText = false,
       this.isPassword = false,
-      this.leading})
+      this.leading,
+      this.edgeInsets = null})
       : super(key: key);
 
   @override
@@ -25,7 +28,7 @@ class _InputFieldState extends State<InputField> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      padding: widget.edgeInsets,
       child: TextFormField(
         style: TextStyle(color: UIColor.black_text_color),
         obscureText: widget.obscureText,
@@ -38,7 +41,7 @@ class _InputFieldState extends State<InputField> {
               widget.title,
               style: TextStyle(color: UIColor.hint_text_color),
             ),
-            errorBorder: OutlineInputBorder(
+            /*         errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
                 color: Colors.red,
@@ -62,7 +65,7 @@ class _InputFieldState extends State<InputField> {
                 color: UIColor.black_text_color,
                 width: 1.0,
               ),
-            ),
+            ),*/
             suffixIcon: widget.isPassword
                 ? IconButton(
                     onPressed: () {
@@ -72,7 +75,7 @@ class _InputFieldState extends State<InputField> {
                     },
                     icon: Icon(
                       Icons.remove_red_eye_outlined,
-                      color: UIColor.black_text_color,
+                      color: UIColor.prefix_icon_tint,
                     ),
                   )
                 : null),

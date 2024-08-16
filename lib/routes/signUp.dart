@@ -14,6 +14,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
 import 'package:utsavlife/core/components/appToolbar.dart';
+import 'package:utsavlife/core/components/customBox.dart';
+import 'package:utsavlife/core/components/gradientButton.dart';
 import 'package:utsavlife/core/components/loading.dart';
 import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
@@ -34,6 +36,9 @@ import 'package:utsavlife/routes/terms_privacy.dart';
 import '../core/components/inputFields.dart';
 import '../core/models/dropdown.dart';
 import '../core/provider/ServiceProvider.dart';
+
+const EdgeInsets textInputPadding =
+    EdgeInsets.symmetric(vertical: 8, horizontal: 0);
 
 class SignUp extends StatefulWidget {
   bool dialogShow = false;
@@ -163,7 +168,7 @@ class _SignUp1State extends State<SignUp1> {
                     FocusManager.instance.primaryFocus!.unfocus();
                   },
                   child: Scaffold(
-                    extendBodyBehindAppBar: true,
+                    extendBodyBehindAppBar: false,
                     backgroundColor: UIColor.screen_bg,
                     appBar: AppToolbar(
                       toolbarTitle: "Basic Information",
@@ -175,43 +180,38 @@ class _SignUp1State extends State<SignUp1> {
                     ),
                     body: Form(
                       key: _formKey,
-                      child: Center(
-                        child: SingleChildScrollView(
-                            child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 40,
-                            ),
+                      child: SingleChildScrollView(
+                          child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          customDivider(),
+                          CustomMaterialBox(listOfChildren: [
                             CustomInputField("Full Name", _name),
                             CustomInputField("Email", _email,
                                 leading: Icon(
                                   Icons.email,
-                                  color: UIColor.black_text_color,
+                                  color: UIColor.prefix_icon_tint,
                                 ),
                                 validateEmail: true),
                             Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                ),
-                                margin: EdgeInsets.only(top: 5),
+                                padding: textInputPadding,
                                 child: InputField(
                                   title: "Password",
                                   controller: _password,
                                   isPassword: true,
                                   obscureText: true,
-                                  leading: Icon(Icons.password),
+                                  leading: Icon(Icons.password,
+                                      color: UIColor.prefix_icon_tint),
                                 )),
                             Container(
-                              padding:
-                                  EdgeInsets.only(left: 40, right: 40, top: 15),
+                              padding: textInputPadding,
                               child: IntlPhoneField(
                                 initialCountryCode: "IN",
                                 showCountryFlag: false,
                                 dropdownIcon: const Icon(
                                   Icons.arrow_drop_down,
-                                  color: UIColor.theme_color,
+                                  color: UIColor.prefix_icon_tint,
                                 ),
                                 style:
                                     TextStyle(color: UIColor.black_text_color),
@@ -221,21 +221,35 @@ class _SignUp1State extends State<SignUp1> {
                                   label: Text(
                                     "Phone Number",
                                     style: TextStyle(
-                                        color: UIColor.black_text_color),
+                                        color: UIColor.hint_text_color),
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    borderSide: BorderSide(
-                                      color: UIColor.theme_color,
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    borderSide: BorderSide(
-                                      color: UIColor.black_text_color,
-                                      width: 1.0,
-                                    ),
-                                  ),
+                                  /*                focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                            borderSide: BorderSide(
+                                              color: UIColor.theme_color,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                            borderSide: BorderSide(
+                                              color: UIColor.black_text_color,
+                                              width: 1.0,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                            borderSide: BorderSide(
+                                              color: Colors.red,
+                                              width: 1.0,
+                                            ),
+                                          ),
+                                          focusedErrorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(10.0),
+                                            borderSide: BorderSide(
+                                              color: Colors.red,
+                                              width: 1.0,
+                                            ),
+                                          ),*/
                                 ),
                                 validator: (text) {
                                   if (text == null ||
@@ -253,24 +267,23 @@ class _SignUp1State extends State<SignUp1> {
                                 },
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 40, vertical: 15),
+                          ]),
+                          customDivider(),
+                          CustomMaterialBox(listOfChildren: [
+                            Container(
                               child: CSCPicker(
                                 disabledDropdownDecoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                      color: UIColor.black_text_color,
-                                      width: 1),
+                                  border:
+                                      Border.all(color: Colors.grey, width: 1),
                                   color: Colors.transparent,
                                 ),
                                 selectedItemStyle:
                                     TextStyle(color: UIColor.black_text_color),
                                 dropdownDecoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                      color: UIColor.black_text_color,
-                                      width: 1),
+                                  border:
+                                      Border.all(color: Colors.grey, width: 1),
                                   color: Colors.transparent,
                                 ),
                                 currentCountry: selectedCountry,
@@ -289,62 +302,63 @@ class _SignUp1State extends State<SignUp1> {
                                   });
                                 },
                               ),
-                            ),
-                            // Padding(
-                            //   padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
-                            //   child: DropdownSearch<String>(
-                            //     items: DefaultCities,
-                            //     selectedItem: _address.text,
-                            //     validator: (text){
-                            //       if(text==null) return "Required";
-                            //     },
-                            //     dropdownDecoratorProps: DropDownDecoratorProps(
-                            //       baseStyle: TextStyle(color: Colors.white),
-                            //       dropdownSearchDecoration: InputDecoration(
-                            //         suffixIconColor: Colors.white,
-                            //         prefixIcon: Icon(Icons.home,color: Colors.white,),
-                            //         label: Text("City",style: TextStyle(color: Colors.white),),
-                            //         focusedBorder: OutlineInputBorder(
-                            //           borderRadius: BorderRadius.circular(10.0),
-                            //           borderSide: BorderSide(
-                            //             color: Colors.blue,
-                            //           ),
-                            //         ),
-                            //         enabledBorder: OutlineInputBorder(
-                            //           borderRadius: BorderRadius.circular(10.0),
-                            //           borderSide: BorderSide(
-                            //             color: Colors.white,
-                            //             width: 1.0,
-                            //           ),
-                            //         ),
-                            //       )
-                            //     ),
-                            //     onChanged: (text){
-                            //       setState(() {
-                            //         _address.text = text!;
-                            //       });
-                            //     },
-                            //   ),
-                            // ),
-                            // if(showLocationList&&mapState.locations.isNotEmpty)
-                            //   ListView.builder(
-                            //       physics: ClampingScrollPhysics(),
-                            //       shrinkWrap: true,itemCount: min(6, mapState.locations.length),itemBuilder: (context,index)=>ListTile(leading: Icon(Icons.location_on),title: Text(mapState.locations[index]),onTap: (){
-                            //     _address.text = mapState.locations[index];
-                            //     setState(() {
-                            //       showLocationList=false;
-                            //     });
-                            //   },)),
-                            if (isLoading)
-                              Container(
-                                alignment: Alignment.center,
-                                child: CircularProgressIndicator(),
-                              )
-                            else
-                              SignUpButton(context, mapState, registerState),
-                          ],
-                        )),
-                      ),
+                            )
+                          ]),
+                          customDivider(),
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(horizontal: 40,vertical: 20),
+                          //   child: DropdownSearch<String>(
+                          //     items: DefaultCities,
+                          //     selectedItem: _address.text,
+                          //     validator: (text){
+                          //       if(text==null) return "Required";
+                          //     },
+                          //     dropdownDecoratorProps: DropDownDecoratorProps(
+                          //       baseStyle: TextStyle(color: Colors.white),
+                          //       dropdownSearchDecoration: InputDecoration(
+                          //         suffixIconColor: Colors.white,
+                          //         prefixIcon: Icon(Icons.home,color: Colors.white,),
+                          //         label: Text("City",style: TextStyle(color: Colors.white),),
+                          //         focusedBorder: OutlineInputBorder(
+                          //           borderRadius: BorderRadius.circular(10.0),
+                          //           borderSide: BorderSide(
+                          //             color: Colors.blue,
+                          //           ),
+                          //         ),
+                          //         enabledBorder: OutlineInputBorder(
+                          //           borderRadius: BorderRadius.circular(10.0),
+                          //           borderSide: BorderSide(
+                          //             color: Colors.white,
+                          //             width: 1.0,
+                          //           ),
+                          //         ),
+                          //       )
+                          //     ),
+                          //     onChanged: (text){
+                          //       setState(() {
+                          //         _address.text = text!;
+                          //       });
+                          //     },
+                          //   ),
+                          // ),
+                          // if(showLocationList&&mapState.locations.isNotEmpty)
+                          //   ListView.builder(
+                          //       physics: ClampingScrollPhysics(),
+                          //       shrinkWrap: true,itemCount: min(6, mapState.locations.length),itemBuilder: (context,index)=>ListTile(leading: Icon(Icons.location_on),title: Text(mapState.locations[index]),onTap: (){
+                          //     _address.text = mapState.locations[index];
+                          //     setState(() {
+                          //       showLocationList=false;
+                          //     });
+                          //   },)),
+                          if (isLoading)
+                            Container(
+                              alignment: Alignment.center,
+                              child: CircularProgressIndicator(),
+                            )
+                          else
+                            SignUpButton(context, mapState, registerState),
+                        ],
+                      )),
                     ),
                   ),
                 ),
@@ -380,7 +394,24 @@ class _SignUp1State extends State<SignUp1> {
 
   Widget SignUpButton(
       BuildContext context, MapProvider mapState, AuthProvider registerState) {
-    return Container(
+    return GradientButton(
+        text: "Save and Continue",
+        onPressed: () async {
+          try {
+            setState(() {
+              isLoading = true;
+            });
+            await submit(registerState, mapState);
+          } catch (e) {
+            setState(() {
+              isLoading = false;
+            });
+            CustomLogger.error(e);
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(e.toString())));
+          }
+        });
+    /*return Container(
       margin: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -412,13 +443,13 @@ class _SignUp1State extends State<SignUp1> {
           ),
         ],
       ),
-    );
+    );*/
   }
 
   Widget CustomInputField(String title, TextEditingController controller,
       {Icon leading = const Icon(
         Icons.person,
-        color: UIColor.black_text_color,
+        color: UIColor.prefix_icon_tint,
       ),
       bool hide = false,
       bool autocomplete = true,
@@ -430,56 +461,46 @@ class _SignUp1State extends State<SignUp1> {
         controller.text = "+91" + controller.text;
     }
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
-      child: TextFormField(
-          style: TextStyle(color: UIColor.black_text_color),
-          keyboardType:
-              validatePhone ? TextInputType.phone : TextInputType.text,
-          obscureText: hide,
-          controller: controller,
-          validator: (text) {
-            if (text?.length == 0) return "Required field";
-            if (validatePhone) {
-              if (text != null && (text.length < 10 || text.length > 15)) {
-                return "Please enter a valid phone number";
+      margin: textInputPadding,
+      child: Material(
+        borderRadius: BorderRadius.all(Radius.circular(0)),
+        child: TextFormField(
+            style: TextStyle(color: UIColor.black_text_color),
+            keyboardType:
+                validatePhone ? TextInputType.phone : TextInputType.text,
+            obscureText: hide,
+            controller: controller,
+            validator: (text) {
+              if (text?.length == 0) return "Required field";
+              if (validatePhone) {
+                if (text != null && (text.length < 10 || text.length > 15)) {
+                  return "Please enter a valid phone number";
+                }
               }
-            }
-            if (validateEmail && !isValidEmail(text!)) {
-              return "Please enter a valid email ID";
-            }
-            return null;
-          },
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          onChanged: (text) {
-            //  _formKey.currentState?.validate();
-            if (state != null) {
-              setState(() {
-                showLocationList = true;
-              });
-              state.getLocations(text);
-              CustomLogger.debug(state.locations);
-            }
-          },
-          decoration: InputDecoration(
-            prefixIcon: leading,
-            label: Text(
-              title,
-              style: TextStyle(color: UIColor.hint_text_color),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(
-                color: UIColor.theme_color,
+              if (validateEmail && !isValidEmail(text!)) {
+                return "Please enter a valid email ID";
+              }
+              return null;
+            },
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            onChanged: (text) {
+              //  _formKey.currentState?.validate();
+              if (state != null) {
+                setState(() {
+                  showLocationList = true;
+                });
+                state.getLocations(text);
+                CustomLogger.debug(state.locations);
+              }
+            },
+            decoration: InputDecoration(
+              prefixIcon: leading,
+              label: Text(
+                title,
+                style: TextStyle(color: UIColor.hint_text_color),
               ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(
-                color: UIColor.black_text_color,
-                width: 1.0,
-              ),
-            ),
-          )),
+            )),
+      ),
     );
   }
 }
@@ -498,7 +519,7 @@ class _SignUp2State extends State<SignUp2> {
     DropDownField(title: "Voter Id", value: "VO"),
     DropDownField(title: "Passport", value: "PA"),
     DropDownField(title: "Driving License", value: "DL"),
-    DropDownField(title: "Other Govt. Id", value: "OT"),
+    /*    DropDownField(title: "Other Govt. Id", value: "OT"), */
   ];
   final _scrollKey = PageStorageKey("scroll");
   TextEditingController _pancard = TextEditingController();
@@ -512,6 +533,7 @@ class _SignUp2State extends State<SignUp2> {
   TextEditingController _state = TextEditingController();
   TextEditingController _country = TextEditingController();
   Country selectedCountry = Country(id: "101", name: "India");
+
   // late DropDownField selectedKyc = kyctypes[0];
   late DropDownField? selectedKyc = null;
   bool isLoading = false;
@@ -581,7 +603,7 @@ class _SignUp2State extends State<SignUp2> {
         builder: (context, snapshot) {
           return Consumer<AuthProvider>(builder: (context, state, child) {
             return Scaffold(
-              extendBodyBehindAppBar: true,
+              extendBodyBehindAppBar: false,
               backgroundColor: UIColor.screen_bg,
               appBar: AppToolbar(
                 toolbarTitle: "Personal Information",
@@ -593,33 +615,19 @@ class _SignUp2State extends State<SignUp2> {
               ),
               body: Form(
                 key: _formKey,
-                child: Center(
-                  child: SingleChildScrollView(
-                      //key: PageStorageKey<String>("try"),
-                      child: Column(
-                    children: [
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      /*    Container(
-                        margin: EdgeInsets.only(left: 20, right: 20),
-                        child: Column(
-                          children: [
-                            Container(
-                                height: 100,
-                                width: 200,
-                                child:
-                                    Image.asset("assets/images/logo/logo.png")),
-                          ],
-                        ),
-                      ),*/
+                child: SingleChildScrollView(
+                    //key: PageStorageKey<String>("try"),
+                    child: Column(
+                  children: [
+                    customDivider(),
+                    CustomMaterialBox(listOfChildren: [
                       InputField("Pan Number", _pancard,
                           uppercase: true,
                           leading: Icon(
                             Icons.numbers,
-                            color: UIColor.black_text_color,
+                            color: UIColor.prefix_icon_tint,
                           ), validator: (text) {
-//                        if (text == null || text.isEmpty) return null;
+                        //                        if (text == null || text.isEmpty) return null;
                         if (text?.length != 10 ||
                             (isNumeric(text!.substring(0, 5))) ||
                             (!isNumeric(text!.substring(5, 9))) ||
@@ -628,19 +636,18 @@ class _SignUp2State extends State<SignUp2> {
                         return null;
                       }),
                       Container(
-                        margin:
-                            EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                        margin: textInputPadding,
                         child: InputDecorator(
                           decoration: InputDecoration(
                             contentPadding:
                                 EdgeInsets.symmetric(horizontal: 20),
                             prefixIcon: Icon(
                               Icons.person,
-                              color: UIColor.black_text_color,
+                              color: UIColor.prefix_icon_tint,
                             ),
                             label: Text(
                               "Kyc Type",
-                              style: TextStyle(color: UIColor.black_text_color),
+                              style: TextStyle(color: Colors.grey),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
@@ -651,7 +658,7 @@ class _SignUp2State extends State<SignUp2> {
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
                               borderSide: BorderSide(
-                                color: UIColor.black_text_color,
+                                color: Colors.grey,
                                 width: 1.0,
                               ),
                             ),
@@ -660,8 +667,11 @@ class _SignUp2State extends State<SignUp2> {
                             children: [
                               Expanded(
                                   child: ExpansionTile(
-                                collapsedTextColor: UIColor.black_text_color,
-                                trailing: Icon(Icons.arrow_drop_down),
+                                collapsedTextColor: UIColor.prefix_icon_tint,
+                                trailing: Icon(
+                                  Icons.arrow_drop_down,
+                                  color: UIColor.prefix_icon_tint,
+                                ),
                                 key: GlobalKey(),
                                 initiallyExpanded: _isExpanded,
                                 onExpansionChanged: (value) {
@@ -735,7 +745,7 @@ class _SignUp2State extends State<SignUp2> {
                       InputField("Pin code", _pinCode,
                           leading: Icon(
                             Icons.pin_drop,
-                            color: UIColor.black_text_color,
+                            color: UIColor.prefix_icon_tint,
                           ),
                           keyboardType: TextInputType.phone, validator: (text) {
                         if (text == null || text.isEmpty) {
@@ -750,79 +760,74 @@ class _SignUp2State extends State<SignUp2> {
                           validator: null,
                           leading: Icon(
                             Icons.home_filled,
-                            color: UIColor.black_text_color,
+                            color: UIColor.prefix_icon_tint,
                           )),
                       InputField("Street/Sector/Village/Area", _area,
                           leading: Icon(
                             Icons.home_filled,
-                            color: UIColor.black_text_color,
+                            color: UIColor.prefix_icon_tint,
                           )),
                       InputField("Landmark", _landmark,
                           leading: Icon(
                             Icons.home_filled,
-                            color: UIColor.black_text_color,
+                            color: UIColor.prefix_icon_tint,
                           )),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 15),
-                        child: snapshot.connectionState ==
-                                ConnectionState.waiting
-                            ? Container(
-                                height: 80,
-                              )
-                            : CSCPicker(
-                                flagState: CountryFlag.DISABLE,
-                                showStates: true,
-                                showCities: true,
-                                disabledDropdownDecoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                      color: UIColor.black_text_color,
-                                      width: 1),
-                                  color: Colors.transparent,
-                                ),
-                                currentCountry: _country.text,
-                                currentCity: _city.text,
-                                currentState: _state.text,
-                                selectedItemStyle:
-                                    TextStyle(color: UIColor.black_text_color),
-                                dropdownDecoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                      color: UIColor.black_text_color,
-                                      width: 1),
-                                  color: Colors.transparent,
-                                ),
-                                onCountryChanged: (country) {
-                                  setState(() {
-                                    _country.text = country;
-                                  });
-                                },
-                                onStateChanged: (state) {
-                                  setState(() {
-                                    _state.text = state ?? "";
-                                  });
-                                },
-                                onCityChanged: (city) {
-                                  setState(() {
-                                    _city.text = city ?? "";
-                                  });
-                                },
+                    ]),
+                    customDivider(),
+                    CustomMaterialBox(listOfChildren: [
+                      snapshot.connectionState == ConnectionState.waiting
+                          ? Container(
+                              height: 80,
+                            )
+                          : CSCPicker(
+                              flagState: CountryFlag.DISABLE,
+                              showStates: true,
+                              showCities: true,
+                              disabledDropdownDecoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border:
+                                    Border.all(color: Colors.grey, width: 1),
+                                color: Colors.transparent,
                               ),
-                      ),
-                      if (isLoading)
-                        Container(
-                          alignment: Alignment.center,
-                          child: CircularProgressIndicator(),
-                        )
-                      else
-                        SignUpButton(context, state),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                    ],
-                  )),
-                ),
+                              currentCountry: _country.text,
+                              currentCity: _city.text,
+                              currentState: _state.text,
+                              selectedItemStyle:
+                                  TextStyle(color: UIColor.black_text_color),
+                              dropdownDecoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border:
+                                    Border.all(color: Colors.grey, width: 1),
+                                color: Colors.transparent,
+                              ),
+                              onCountryChanged: (country) {
+                                setState(() {
+                                  _country.text = country;
+                                });
+                              },
+                              onStateChanged: (state) {
+                                setState(() {
+                                  _state.text = state ?? "";
+                                });
+                              },
+                              onCityChanged: (city) {
+                                setState(() {
+                                  _city.text = city ?? "";
+                                });
+                              },
+                            ),
+                    ]),
+                    customDivider(),
+                    if (isLoading)
+                      Container(
+                        alignment: Alignment.center,
+                        child: CircularProgressIndicator(),
+                      )
+                    else
+                      SignUpButton(context, state),
+                    customDivider()
+                  ],
+                )),
               ),
             );
           });
@@ -867,47 +872,29 @@ class _SignUp2State extends State<SignUp2> {
   }
 
   Widget SignUpButton(BuildContext context, AuthProvider state) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-/*        ElevatedButton(
-            onPressed: () {
-              state.setRegisterProgress(RegisterProgress.three);
-            },
-            child: Text("Skip")),
-        const SizedBox(
-          width: 40,
-        ),*/
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: UIColor.theme_color),
-          onPressed: () async {
-            try {
-              setState(() {
-                isLoading = true;
-              });
-              await submit(state);
-            } catch (e) {
-              setState(() {
-                isLoading = false;
-              });
-              CustomLogger.error(e);
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(e.toString())));
-            }
-          },
-          child: const Text(
-            "Save and Continue",
-            style: TextStyle(color: Colors.white),
-          ),
-        )
-      ],
-    );
+    return GradientButton(
+        text: "Save and Continue",
+        onPressed: () async {
+          try {
+            setState(() {
+              isLoading = true;
+            });
+            await submit(state);
+          } catch (e) {
+            setState(() {
+              isLoading = false;
+            });
+            CustomLogger.error(e);
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(e.toString())));
+          }
+        });
   }
 
   Widget InputField(String title, TextEditingController controller,
       {Icon leading = const Icon(
         Icons.person,
-        color: UIColor.black_text_color,
+        color: UIColor.prefix_icon_tint,
       ),
       TextInputType keyboardType = TextInputType.text,
       bool hide = false,
@@ -915,7 +902,7 @@ class _SignUp2State extends State<SignUp2> {
       bool uppercase = false,
       String? Function(String? text)? validator}) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+      padding: textInputPadding,
       child: TextFormField(
           keyboardType: keyboardType,
           textCapitalization: uppercase
@@ -932,25 +919,11 @@ class _SignUp2State extends State<SignUp2> {
                 },
           style: TextStyle(color: UIColor.black_text_color),
           decoration: InputDecoration(
-            prefixIcon: leading,
-            label: Text(
-              title,
-              style: TextStyle(color: UIColor.hint_text_color),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(
-                color: UIColor.theme_color,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(
-                color: UIColor.black_text_color,
-                width: 1.0,
-              ),
-            ),
-          )),
+              prefixIcon: leading,
+              label: Text(
+                title,
+                style: TextStyle(color: UIColor.hint_text_color),
+              ))),
     );
   }
 }
@@ -1028,49 +1001,30 @@ class _SignUp3State extends State<SignUp3> {
               ),
               body: Form(
                 key: _formKey,
-                child: Center(
-                  child: SingleChildScrollView(
-                      child: Column(
-                    children: [
-                      if (kDebugMode)
-                        TextButton(
-                            onPressed: () {
-                              state.setRegisterProgress(RegisterProgress.one);
-                            },
-                            child: Text(
-                              "Reset",
-                              style: TextStyle(color: UIColor.black_text_color),
-                            )),
-                      /*            Container(
-                        margin: EdgeInsets.only(left: 20, right: 20),
-                        child: Column(
-                          children: [
-                            Container(
-                                height: 200,
-                                width: 200,
-                                child:
-                                    Image.asset("assets/images/logo/logo.png")),
-                          ],
-                        ),
-                      ),*/
+                child: SingleChildScrollView(
+                    child: Column(
+                  children: [
+                    customDivider(),
+                    CustomMaterialBox(listOfChildren: [
                       InputField("Bank Name", _bankName,
                           leading: Icon(
                             Icons.currency_rupee,
                             color: UIColor.black_text_color,
                           )),
                       Container(
-                        margin:
-                            EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                        padding:
+                        textInputPadding,
                         child: InputDecorator(
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.person,
-                                color: UIColor.black_text_color),
+                                color: UIColor.prefix_icon_tint),
                             contentPadding:
-                                EdgeInsets.symmetric(horizontal: 20),
+                            EdgeInsets.symmetric(horizontal: 20),
                             label: Text(
                               "Kyc Type (optional)",
-                              style: TextStyle(color: UIColor.black_text_color),
+                              style: TextStyle(color: UIColor.hint_text_color),
                             ),
+                            suffixIcon: Icon(Icons.arrow_drop_down, color: UIColor.prefix_icon_tint,),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
                               borderSide: BorderSide(
@@ -1080,7 +1034,7 @@ class _SignUp3State extends State<SignUp3> {
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
                               borderSide: BorderSide(
-                                color: UIColor.black_text_color,
+                                color: Colors.grey,
                                 width: 1.0,
                               ),
                             ),
@@ -1089,11 +1043,11 @@ class _SignUp3State extends State<SignUp3> {
                             children: [
                               Expanded(
                                   child: ExpansionTile(
-                                collapsedTextColor: UIColor.black_text_color,
-                                trailing: Text(""),
-                                key: GlobalKey(),
-                                title: Text(selectedAccount.title),
-                                children: AccountTypes.map((e) => ListTile(
+                                    collapsedTextColor: UIColor.black_text_color,
+                                    trailing: Text(""),
+                                    key: GlobalKey(),
+                                    title: Text(selectedAccount.title),
+                                    children: AccountTypes.map((e) => ListTile(
                                       onTap: () {
                                         setState(() {
                                           _AccountType.text = e.value;
@@ -1102,10 +1056,11 @@ class _SignUp3State extends State<SignUp3> {
                                       },
                                       title: Text(
                                         e.title,
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(
+                                            color: UIColor.hint_text_color),
                                       ),
                                     )).toList(),
-                              ))
+                                  ))
                             ],
                           ),
                         ),
@@ -1119,26 +1074,27 @@ class _SignUp3State extends State<SignUp3> {
                       InputField("Branch Name", _BranchName,
                           leading: Icon(
                             Icons.home_outlined,
-                            color: UIColor.black_text_color,
+                            color: UIColor.prefix_icon_tint,
                           )),
+                      customDivider(),
                       Container(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        textInputPadding,
                         child: Row(
                           children: [
                             Expanded(
                                 child: passbookPath == null
                                     ? Text(
-                                        "Cancelled Checkbook / Passbook Front page",
-                                        style: TextStyle(
-                                            color: UIColor.black_text_color),
-                                      )
+                                  "Cancelled Checkbook / Passbook Front page",
+                                  style: TextStyle(
+                                      color: UIColor.black_text_color),
+                                )
                                     : Container(
-                                        alignment: Alignment.centerLeft,
-                                        height: 80,
-                                        width: 80,
-                                        child:
-                                            Image.file(File(passbookPath!)))),
+                                    alignment: Alignment.centerLeft,
+                                    height: 80,
+                                    width: 80,
+                                    child:
+                                    Image.file(File(passbookPath!)))),
                             SizedBox(
                               width: 40,
                             ),
@@ -1157,16 +1113,17 @@ class _SignUp3State extends State<SignUp3> {
                           ],
                         ),
                       ),
-                      if (isLoading)
-                        Container(
-                          alignment: Alignment.center,
-                          child: CircularProgressIndicator(),
-                        )
-                      else
-                        SignUpButton(context, state),
-                    ],
-                  )),
-                ),
+                    ]),
+                    customDivider(),
+                    if (isLoading)
+                      Container(
+                        alignment: Alignment.center,
+                        child: CircularProgressIndicator(),
+                      )
+                    else
+                      SignUpButton(context, state),
+                  ],
+                )),
               ),
             );
           });
@@ -1209,58 +1166,41 @@ class _SignUp3State extends State<SignUp3> {
   }
 
   Widget SignUpButton(BuildContext context, AuthProvider state) {
-    return Container(
-      margin: EdgeInsets.all(20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () async {
-                state.setRegisterProgress(RegisterProgress.five);
-              },
-              child: const Text(
-                "Skip",
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 20,
-          ),
-          Expanded(
-              child: ElevatedButton(
-            onPressed: () async {
-              try {
-                setState(() {
-                  isLoading = true;
-                });
-                await submit(state);
-              } catch (e) {
-                setState(() {
-                  isLoading = false;
-                });
-                CustomLogger.error(e);
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text(e.toString())));
-              }
-            },
-            child: const Text("Save and Continue"),
-          )),
-        ],
-      ),
+    return Row(
+      children: [
+        Expanded(child: GradientButton(text: "Skip",colors: [UIColor.error_color,UIColor.error_color], onPressed: ()=>  state.setRegisterProgress(RegisterProgress.five))),
+        Expanded(
+          child: GradientButton(text: "Save and Continue", onPressed: () async {
+            try {
+              setState(() {
+                isLoading = true;
+              });
+              await submit(state);
+            } catch (e) {
+              setState(() {
+                isLoading = false;
+              });
+              CustomLogger.error(e);
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(e.toString())));
+            }
+          }),
+        ),
+
+      ],
     );
   }
 
   Widget InputField(String title, TextEditingController controller,
       {Icon leading = const Icon(
         Icons.person,
-        color: UIColor.black_text_color,
+        color: UIColor.prefix_icon_tint,
       ),
       bool hide = false,
       bool autocomplete = true,
       bool accountConfirm = false}) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+      margin: textInputPadding,
       child: TextFormField(
           keyboardType:
               accountConfirm ? TextInputType.number : TextInputType.text,
@@ -1283,19 +1223,7 @@ class _SignUp3State extends State<SignUp3> {
               title,
               style: TextStyle(color: UIColor.hint_text_color),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(
-                color: UIColor.theme_color,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(
-                color: UIColor.black_text_color,
-                width: 1.0,
-              ),
-            ),
+
           )),
     );
   }
@@ -1345,7 +1273,7 @@ class _SignUp4State extends State<SignUp4> {
           future: _cache,
           builder: (context, snapshot) {
             return Scaffold(
-              extendBodyBehindAppBar: true,
+              extendBodyBehindAppBar: false,
               backgroundColor: UIColor.screen_bg,
               appBar: AppToolbar(
                 toolbarTitle: "KYC documents",
@@ -1355,98 +1283,86 @@ class _SignUp4State extends State<SignUp4> {
               ),
               body: Form(
                 key: _formKey,
-                child: Center(
-                  child: SingleChildScrollView(
-                      child: Column(
-                    children: [
-                      /*    Container(
-                        margin: EdgeInsets.only(left: 20, right: 20),
-                        child: Column(
-                          children: [
-                            Container(
-                                height: 200,
-                                width: 200,
-                                child:
-                                    Image.asset("assets/images/logo/logo.png")),
-                          ],
-                        ),
-                      ),*/
+                child: SingleChildScrollView(
+                    child: Column(
+                  children: [
+                    customDivider(),
+                    CustomMaterialBox(listOfChildren: [
                       Container(
-                        margin:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 80),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Pan Card",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: UIColor.black_text_color,
+                      margin:
+                      textInputPadding,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Pan Card",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: UIColor.black_text_color,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(
+                                height: 100,
+                                width: 100,
+                                child: panUrl != null
+                                    ? CachedNetworkImage(
+                                  imageUrl: panUrl!,
+                                  placeholder: (context, url) {
+                                    return Container(
+                                      alignment: Alignment.center,
+                                      child:
+                                      CircularProgressIndicator(),
+                                    );
+                                  },
+                                  errorWidget: (context, url, err) {
+                                    return Icon(
+                                      Icons.file_copy,
+                                      size: 60,
+                                      color: UIColor.prefix_icon_tint,
+                                    );
+                                  },
+                                )
+                                    : imgPath["Pan Card"] == null
+                                    ? Icon(
+                                  Icons.file_copy,
+                                  size: 60,
+                                  color: UIColor.black_text_color,
+                                )
+                                    : Image.file(
+                                    File(imgPath["Pan Card"]!)),
                               ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  height: 100,
-                                  width: 100,
-                                  child: panUrl != null
-                                      ? CachedNetworkImage(
-                                          imageUrl: panUrl!,
-                                          placeholder: (context, url) {
-                                            return Container(
-                                              alignment: Alignment.center,
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            );
-                                          },
-                                          errorWidget: (context, url, err) {
-                                            return Icon(
-                                              Icons.file_copy,
-                                              size: 60,
-                                              color: UIColor.black_text_color,
-                                            );
-                                          },
-                                        )
-                                      : imgPath["Pan Card"] == null
-                                          ? Icon(
-                                              Icons.file_copy,
-                                              size: 60,
-                                              color: UIColor.black_text_color,
-                                            )
-                                          : Image.file(
-                                              File(imgPath["Pan Card"]!)),
-                                ),
-                                ElevatedButton(
-                                    onPressed: () async {
-                                      XFile? file = await ImagePicker()
-                                          .pickImage(
-                                              source: ImageSource.gallery);
-                                      if (file != null) {
-                                        int size = await file.length() ~/ 1024;
-                                        if (size > 2048) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(SnackBar(
-                                                  content: Text(
-                                                      "Image too big. Please select an image below 2mb")));
-                                        } else {
-                                          setState(() {
-                                            imgPath["Pan Card"] = file.path;
-                                            panUrl = null;
-                                          });
-                                        }
+                              ElevatedButton(
+                                  onPressed: () async {
+                                    XFile? file = await ImagePicker()
+                                        .pickImage(
+                                        source: ImageSource.gallery);
+                                    if (file != null) {
+                                      int size = await file.length() ~/ 1024;
+                                      if (size > 2048) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                            content: Text(
+                                                "Image too big. Please select an image below 2mb")));
+                                      } else {
+                                        setState(() {
+                                          imgPath["Pan Card"] = file.path;
+                                          panUrl = null;
+                                        });
                                       }
-                                    },
-                                    child: Text("Choose File")),
-                              ],
-                            ),
-                          ],
-                        ),
+                                    }
+                                  },
+                                  child: Text("Choose File")),
+                            ],
+                          ),
+                        ],
                       ),
+                    ),
                       if (state.user?.gstNumber != null)
                         Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 80),
+                          margin: textInputPadding,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1459,47 +1375,47 @@ class _SignUp4State extends State<SignUp4> {
                               ),
                               Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                MainAxisAlignment.spaceBetween,
                                 children: [
                                   SizedBox(
                                     height: 100,
                                     width: 100,
                                     child: gst != null
                                         ? CachedNetworkImage(
-                                            imageUrl: gst!,
-                                            placeholder: (context, url) {
-                                              return Container(
-                                                alignment: Alignment.center,
-                                                child:
-                                                    CircularProgressIndicator(),
-                                              );
-                                            },
-                                            errorWidget: (context, str, err) {
-                                              return Icon(
-                                                Icons.file_copy,
-                                                size: 60,
-                                                color: UIColor.black_text_color,
-                                              );
-                                            },
-                                          )
+                                      imageUrl: gst!,
+                                      placeholder: (context, url) {
+                                        return Container(
+                                          alignment: Alignment.center,
+                                          child:
+                                          CircularProgressIndicator(),
+                                        );
+                                      },
+                                      errorWidget: (context, str, err) {
+                                        return Icon(
+                                          Icons.file_copy,
+                                          size: 60,
+                                          color: UIColor.prefix_icon_tint,
+                                        );
+                                      },
+                                    )
                                         : imgPath["GST"] == null
-                                            ? Icon(
-                                                Icons.file_copy,
-                                                size: 60,
-                                                color: UIColor.black_text_color,
-                                              )
-                                            : Image.file(File(imgPath["GST"]!)),
+                                        ? Icon(
+                                      Icons.file_copy,
+                                      size: 60,
+                                      color: UIColor.black_text_color,
+                                    )
+                                        : Image.file(File(imgPath["GST"]!)),
                                   ),
                                   ElevatedButton(
                                       onPressed: () async {
                                         FilePickerResult? file =
-                                            await FilePicker.platform.pickFiles(
-                                                allowedExtensions: [
+                                        await FilePicker.platform.pickFiles(
+                                            allowedExtensions: [
                                               "pdf",
                                               "jpg",
                                               "jpeg"
                                             ],
-                                                type: FileType.custom);
+                                            type: FileType.custom);
                                         if (file != null) {
                                           int size =
                                               await file.files.single.size ~/
@@ -1507,8 +1423,8 @@ class _SignUp4State extends State<SignUp4> {
                                           if (size > 2048) {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(SnackBar(
-                                                    content: Text(
-                                                        "Image too big. Please select an image below 2mb")));
+                                                content: Text(
+                                                    "Image too big. Please select an image below 2mb")));
                                           } else {
                                             setState(() {
                                               imgPath["GST"] =
@@ -1526,7 +1442,7 @@ class _SignUp4State extends State<SignUp4> {
                         ),
                       Container(
                         margin:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 80),
+                        textInputPadding,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1545,42 +1461,42 @@ class _SignUp4State extends State<SignUp4> {
                                   width: 100,
                                   child: kyc != null
                                       ? CachedNetworkImage(
-                                          imageUrl: kyc!,
-                                          placeholder: (context, url) {
-                                            return Container(
-                                              alignment: Alignment.center,
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            );
-                                          },
-                                          errorWidget: (context, str, err) {
-                                            return Icon(
-                                              Icons.file_copy,
-                                              size: 60,
-                                              color: UIColor.black_text_color,
-                                            );
-                                          },
-                                        )
+                                    imageUrl: kyc!,
+                                    placeholder: (context, url) {
+                                      return Container(
+                                        alignment: Alignment.center,
+                                        child:
+                                        CircularProgressIndicator(),
+                                      );
+                                    },
+                                    errorWidget: (context, str, err) {
+                                      return Icon(
+                                        Icons.file_copy,
+                                        size: 60,
+                                        color: UIColor.prefix_icon_tint,
+                                      );
+                                    },
+                                  )
                                       : imgPath["KYC"] == null
-                                          ? Icon(
-                                              Icons.file_copy,
-                                              size: 60,
-                                              color: UIColor.black_text_color,
-                                            )
-                                          : Image.file(File(imgPath["KYC"]!)),
+                                      ? Icon(
+                                    Icons.file_copy,
+                                    size: 60,
+                                    color: UIColor.black_text_color,
+                                  )
+                                      : Image.file(File(imgPath["KYC"]!)),
                                 ),
                                 ElevatedButton(
                                     onPressed: () async {
                                       XFile? file = await ImagePicker()
                                           .pickImage(
-                                              source: ImageSource.gallery);
+                                          source: ImageSource.gallery);
                                       if (file != null) {
                                         int size = await file.length() ~/ 1024;
                                         if (size > 2048) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
-                                                  content: Text(
-                                                      "Image too big. Please select an image below 2mb")));
+                                              content: Text(
+                                                  "Image too big. Please select an image below 2mb")));
                                         } else {
                                           setState(() {
                                             imgPath["KYC"] = file.path;
@@ -1597,7 +1513,7 @@ class _SignUp4State extends State<SignUp4> {
                       ),
                       Container(
                         margin:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 80),
+                        textInputPadding,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1616,43 +1532,43 @@ class _SignUp4State extends State<SignUp4> {
                                   width: 100,
                                   child: vendor != null
                                       ? CachedNetworkImage(
-                                          imageUrl: vendor!,
-                                          placeholder: (context, url) {
-                                            return Container(
-                                              alignment: Alignment.center,
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            );
-                                          },
-                                          errorWidget: (context, str, err) {
-                                            return Icon(
-                                              Icons.file_copy,
-                                              size: 60,
-                                              color: UIColor.black_text_color,
-                                            );
-                                          },
-                                        )
+                                    imageUrl: vendor!,
+                                    placeholder: (context, url) {
+                                      return Container(
+                                        alignment: Alignment.center,
+                                        child:
+                                        CircularProgressIndicator(),
+                                      );
+                                    },
+                                    errorWidget: (context, str, err) {
+                                      return Icon(
+                                        Icons.file_copy,
+                                        size: 60,
+                                        color: UIColor.prefix_icon_tint,
+                                      );
+                                    },
+                                  )
                                       : imgPath["Vendor"] == null
-                                          ? Icon(
-                                              Icons.file_copy,
-                                              size: 60,
-                                              color: UIColor.black_text_color,
-                                            )
-                                          : Image.file(
-                                              File(imgPath["Vendor"]!)),
+                                      ? Icon(
+                                    Icons.file_copy,
+                                    size: 60,
+                                    color: UIColor.black_text_color,
+                                  )
+                                      : Image.file(
+                                      File(imgPath["Vendor"]!)),
                                 ),
                                 ElevatedButton(
                                     onPressed: () async {
                                       XFile? file = await ImagePicker()
                                           .pickImage(
-                                              source: ImageSource.gallery);
+                                          source: ImageSource.gallery);
                                       if (file != null) {
                                         int size = await file.length() ~/ 1024;
                                         if (size > 2048) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
-                                                  content: Text(
-                                                      "Image too big. Please select an image below 2mb")));
+                                              content: Text(
+                                                  "Image too big. Please select an image below 2mb")));
                                         } else {
                                           setState(() {
                                             imgPath["Vendor"] = file.path;
@@ -1666,17 +1582,17 @@ class _SignUp4State extends State<SignUp4> {
                             ),
                           ],
                         ),
-                      ),
-                      if (isLoading)
-                        Container(
-                          alignment: Alignment.center,
-                          child: CircularProgressIndicator(),
-                        )
-                      else
-                        SignUpButton(context, state),
-                    ],
-                  )),
-                ),
+                      ),]),
+                    customDivider(),
+                    if (isLoading)
+                      Container(
+                        alignment: Alignment.center,
+                        child: CircularProgressIndicator(),
+                      )
+                    else
+                      SignUpButton(context, state),
+                  ],
+                )),
               ),
             );
           });
@@ -1756,52 +1672,18 @@ class _SignUp4State extends State<SignUp4> {
   }
 
   Widget SignUpButton(BuildContext context, AuthProvider state) {
-    return Container(
-      margin: EdgeInsets.all(20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-/*          Expanded(
-            child: ElevatedButton(
-              onPressed: () async {
-                state.setRegisterProgress(RegisterProgress.six);
-              },
-              style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                color: Theme.of(context).primaryColor,
-                width: 1,
-              )),
-              child: const Text("Skip"),
-            ),
-          ),
-          const SizedBox(
-            width: 40,
-          ),*/
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () async {
-                try {
-                  await submit(state);
-                } catch (e) {
-                  setState(() {
-                    isLoading = false;
-                  });
-                  CustomLogger.error(e);
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text(e.toString())));
-                }
-              },
-              style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                color: Theme.of(context).primaryColor,
-                width: 1,
-              )),
-              child: const Text("Save and Continue"),
-            ),
-          ),
-        ],
-      ),
-    );
+   return GradientButton(text: "Save and Continue", onPressed: () async {
+     try {
+       await submit(state);
+     } catch (e) {
+       setState(() {
+         isLoading = false;
+       });
+       CustomLogger.error(e);
+       ScaffoldMessenger.of(context)
+           .showSnackBar(SnackBar(content: Text(e.toString())));
+     }
+   });
   }
 }
 
@@ -1881,7 +1763,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
     DropDownField(title: "Voter Id", value: "VO"),
     DropDownField(title: "Passport", value: "PA"),
     DropDownField(title: "Driving License", value: "DL"),
-    DropDownField(title: "Other Govt. Id", value: "OT"),
+    /*   DropDownField(title: "Other Govt. Id", value: "OT"), */
   ];
 
   late Country selectedOfficeCountry;
@@ -1978,7 +1860,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
             builder: (context, snapshot) {
               return Consumer<MapProvider>(
                 builder: (context, mapState, child) => Scaffold(
-                  extendBodyBehindAppBar: true,
+                  extendBodyBehindAppBar: false,
                   backgroundColor: UIColor.screen_bg,
                   appBar: AppToolbar(
                     toolbarTitle: "Office Details",
@@ -1993,7 +1875,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                       height: double.infinity,
                       width: double.infinity,
                       child: SingleChildScrollView(
-                        child: Column(children: <Widget>[
+                        child: Column(children: [
                           /*   Container(
                             margin: EdgeInsets.only(left: 20, right: 20),
                             child: Column(
@@ -2009,556 +1891,515 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
 
                           /*start of service details*/
 
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 20, horizontal: 20),
-                            child: Text(
-                              "Service details",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: UIColor.black_text_color),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            child: ExpansionTile(
-                              collapsedShape: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      width: 1,
-                                      color: UIColor.black_text_color),
-                                  borderRadius: BorderRadius.circular(5)),
-                              shape: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      width: 1,
-                                      color: UIColor.black_text_color),
-                                  borderRadius: BorderRadius.circular(5)),
-                              textColor: Colors.white,
-                              iconColor: Colors.white,
-                              collapsedTextColor: Colors.white,
-                              key: GlobalKey(),
-                              title: Text(
-                                serviceOption,
-                                style:
-                                    TextStyle(color: UIColor.black_text_color),
-                              ),
-                              children: state.options!.serviceOptions
-                                  .map(
-                                    (e) => ListTile(
-                                      title: Text(
-                                        e.service,
-                                        style: TextStyle(
-                                            color: UIColor.black_text_color),
+                          CustomMaterialBox(heading:"Service Details",listOfChildren: [
+                            Padding(
+                              padding: textInputPadding,
+                              child: ExpansionTile(
+                                collapsedShape: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 1,
+                                        color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(10)),
+                                shape: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 1,
+                                        color: UIColor.theme_color),
+                                    borderRadius: BorderRadius.circular(10)),
+                                textColor: UIColor.black_text_color,
+                                iconColor: Colors.grey,
+                                collapsedIconColor: Colors.grey,
+                                collapsedTextColor: UIColor.black_text_color,
+                                key: GlobalKey(),
+                                title: Text(
+                                  serviceOption,
+                                  style: TextStyle(
+                                      color: Colors.grey),
+                                ),
+                                children: state.options!.serviceOptions
+                                    .map(
+                                      (e) => ListTile(
+                                        title: Text(
+                                          e.service,
+                                          style: TextStyle(
+                                              color: UIColor.black_text_color),
+                                        ),
+                                        onTap: () {
+                                          setState(() {
+                                            serviceOption = e.service;
+                                            serviceId = e.id;
+                                          });
+                                        },
                                       ),
-                                      onTap: () {
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                            InputField(
+                                "Service Description", _serviceDescription,
+                                leading: Icon(
+                                  Icons.description,
+                                  color: UIColor.prefix_icon_tint,
+                                )),
+                            InputField(
+                                "Material Description", _materialDescription,
+                                leading: Icon(
+                                  Icons.description_outlined,
+                                  color: UIColor.prefix_icon_tint,
+                                )),
+                            InputField("Company Name (optional)", _companyName,
+                                required: false,
+                                leading: Icon(
+                                  Icons.description_outlined,
+                                  color: UIColor.prefix_icon_tint,
+                                )),
+                            InputField("Video Link", _videoLink,
+                                required: false,
+                                leading: Icon(
+                                  Icons.description_outlined,
+                                  color: UIColor.prefix_icon_tint,
+                                )),
+                            InputField("Price", _price,
+                                isPrice: true,
+                                leading: Icon(
+                                  Icons.currency_rupee,
+                                  color: UIColor.prefix_icon_tint,
+                                )),
+                          ]),
+                          customDivider(),
+                          CustomMaterialBox(heading:"Product Image", listOfChildren: [
+                            Container(
+                              margin: textInputPadding,
+                              alignment: Alignment.centerLeft,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Product Images (3 to 5)",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: UIColor.black_text_color),
+                                  ),
+                                  ElevatedButton(
+                                      onPressed: () async {
+                                        if (productImages.length >= 5) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                              content: Text(
+                                                  "Maximum 5 photos allowed")));
+                                          return;
+                                        }
+                                        List<XFile?> images =
+                                        await ImagePicker().pickMultiImage();
                                         setState(() {
-                                          serviceOption = e.service;
-                                          serviceId = e.id;
+                                          if (images.length > 5) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                content: Text(
+                                                    "Maximum 5 photos allowed")));
+                                          }
+                                          images.forEach((element) {
+                                            if (productImages.length == 5) return;
+                                            productImages.add(AddProductPhoto(
+                                                filePath: element?.path,
+                                                id: productImages.length,
+                                                onDelete: (id) {
+                                                  setState(() {
+                                                    productImages.removeWhere(
+                                                            (element) =>
+                                                        element.id == id);
+                                                  });
+                                                }));
+                                          });
+                                        });
+                                      },
+                                      child: const Text("Add"))
+                                ],
+                              ),
+                            ),
+                            ...productImages,
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              margin: textInputPadding,
+                              child: Text(
+                                "Add a video",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: UIColor.black_text_color),
+                              ),
+                            ),
+                            Container(
+                              padding: textInputPadding,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    alignment: Alignment.center,
+                                    width: 80,
+                                    height: 60,
+                                    child: videoPath != null
+                                        ? Container(
+                                      child: Text("Video Selected"),
+                                    )
+                                        : Container(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  Container(
+                                    child: ElevatedButton(
+                                      child: const Text("Choose"),
+                                      onPressed: () async {
+                                        XFile? video = await ImagePicker()
+                                            .pickVideo(
+                                            source: ImageSource.gallery);
+                                        setState(() {
+                                          videoPath = video?.path;
                                         });
                                       },
                                     ),
                                   )
-                                  .toList(),
+                                ],
+                              ),
                             ),
-                          ),
-                          InputField("Service Description", _serviceDescription,
-                              leading: Icon(
-                                Icons.description,
-                                color: UIColor.black_text_color,
-                              )),
-                          InputField(
-                              "Material Description", _materialDescription,
-                              leading: Icon(
-                                Icons.description_outlined,
-                                color: UIColor.black_text_color,
-                              )),
-                          InputField("Company Name (optional)", _companyName,
-                              required: false,
-                              leading: Icon(
-                                Icons.description_outlined,
-                                color: UIColor.black_text_color,
-                              )),
-                          InputField("Video Link", _videoLink,
-                              required: false,
-                              leading: Icon(
-                                Icons.description_outlined,
-                                color: UIColor.black_text_color,
-                              )),
-                          InputField("Price", _price,
-                              isPrice: true,
-                              leading: Icon(
-                                Icons.currency_rupee,
-                                color: UIColor.black_text_color,
-                              )),
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            alignment: Alignment.centerLeft,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Product photos. Max 5",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: UIColor.black_text_color),
-                                ),
-                                ElevatedButton(
-                                    onPressed: () async {
-                                      if (productImages.length >= 5) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                                content: Text(
-                                                    "Maximum 5 photos allowed")));
-                                        return;
-                                      }
-                                      List<XFile?> images =
-                                          await ImagePicker().pickMultiImage();
-                                      setState(() {
-                                        if (images.length > 5) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(SnackBar(
-                                                  content: Text(
-                                                      "Maximum 5 photos allowed")));
-                                        }
-                                        images.forEach((element) {
-                                          if (productImages.length == 5) return;
-                                          productImages.add(AddProductPhoto(
-                                              filePath: element?.path,
-                                              id: productImages.length,
-                                              onDelete: (id) {
-                                                setState(() {
-                                                  productImages.removeWhere(
-                                                      (element) =>
-                                                          element.id == id);
-                                                });
-                                              }));
-                                        });
-                                      });
-                                    },
-                                    child: const Text("Add"))
-                              ],
-                            ),
-                          ),
-                          ...productImages,
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            child: Text(
-                              "Add a video",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: UIColor.black_text_color),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 25),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  alignment: Alignment.center,
-                                  width: 80,
-                                  height: 60,
-                                  child: videoPath != null
-                                      ? Container(
-                                          child: Text("Video Selected"),
-                                        )
-                                      : Container(
-                                          color: Colors.grey,
-                                        ),
-                                ),
-                                Container(
-                                  child: ElevatedButton(
-                                    child: const Text("Choose"),
-                                    onPressed: () async {
-                                      XFile? video = await ImagePicker()
-                                          .pickVideo(
-                                              source: ImageSource.gallery);
-                                      setState(() {
-                                        videoPath = video?.path;
-                                      });
-                                    },
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          if (serviceOption.toLowerCase().endsWith("car"))
-                            Column(
-                              children: [
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  margin: EdgeInsets.symmetric(
-                                      vertical: 20, horizontal: 20),
-                                  child: Text(
-                                    "Driver details",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        color: UIColor.black_text_color),
-                                  ),
-                                ),
-                                InputField("Name", _driverName),
-                                Container(
-                                  padding: EdgeInsets.only(
-                                      left: 20, right: 20, top: 30),
-                                  child: IntlPhoneField(
-                                    initialCountryCode: "IN",
-                                    showCountryFlag: false,
-                                    dropdownIcon: const Icon(
-                                      Icons.arrow_drop_down,
-                                      color: UIColor.black_text_color,
-                                    ),
-                                    style: TextStyle(
-                                        color: UIColor.black_text_color),
-                                    dropdownTextStyle: TextStyle(
-                                        color: UIColor.black_text_color),
-                                    decoration: InputDecoration(
-                                      label: Text(
-                                        "Phone Number",
-                                        style: TextStyle(
-                                            color: UIColor.black_text_color),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide: BorderSide(
-                                          color: Colors.blue,
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide: BorderSide(
-                                          color: UIColor.black_text_color,
-                                          width: 1.0,
-                                        ),
-                                      ),
-                                    ),
-                                    validator: (text) {
-                                      if (text == null ||
-                                          text.completeNumber.isEmpty) {
-                                        return "Required field";
-                                      }
-                                      if (text.completeNumber.length < 12 ||
-                                          text.completeNumber.length > 15) {
-                                        return "Please enter a valid number";
-                                      }
-                                      return null;
-                                    },
-                                    onChanged: (number) {
-                                      _driverMob.text = number.completeNumber;
-                                    },
-                                  ),
-                                ),
-                                Container(
-                                  margin: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
-                                  child: InputDecorator(
-                                    decoration: InputDecoration(
-                                      prefixIcon: Icon(Icons.person,
+                          ]),
+                          customDivider(),
+
+                          CustomMaterialBox(heading: "Office Address", listOfChildren: [
+                            if (serviceOption.toLowerCase().endsWith("car"))
+                              Column(
+                                children: [
+                                  Container(
+                                    alignment: Alignment.centerLeft,
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: 20, horizontal: 20),
+                                    child: Text(
+                                      "Driver details",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500,
                                           color: UIColor.black_text_color),
-                                      contentPadding:
-                                          EdgeInsets.symmetric(horizontal: 20),
-                                      label: Text(
-                                        "Kyc Type",
-                                        style: TextStyle(
+                                    ),
+                                  ),
+                                  InputField("Name", _driverName),
+                                  Container(
+                                    padding: EdgeInsets.only(
+                                        left: 20, right: 20, top: 30),
+                                    child: IntlPhoneField(
+                                      initialCountryCode: "IN",
+                                      showCountryFlag: false,
+                                      dropdownIcon: const Icon(
+                                        Icons.arrow_drop_down,
+                                        color: UIColor.prefix_icon_tint,
+                                      ),
+                                      style: TextStyle(
+                                          color: UIColor.black_text_color),
+                                      dropdownTextStyle: TextStyle(
+                                          color: UIColor.black_text_color),
+                                      decoration: InputDecoration(
+                                        label: Text(
+                                          "Phone Number",
+                                          style: TextStyle(
+                                              color: UIColor.hint_text_color),
+                                        ),
+
+                                      ),
+                                      validator: (text) {
+                                        if (text == null ||
+                                            text.completeNumber.isEmpty) {
+                                          return "Required field";
+                                        }
+                                        if (text.completeNumber.length < 12 ||
+                                            text.completeNumber.length > 15) {
+                                          return "Please enter a valid number";
+                                        }
+                                        return null;
+                                      },
+                                      onChanged: (number) {
+                                        _driverMob.text = number.completeNumber;
+                                      },
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 10),
+                                    child: InputDecorator(
+                                      decoration: InputDecoration(
+                                        prefixIcon: Icon(Icons.person,
                                             color: UIColor.black_text_color),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide: BorderSide(
-                                          color: Colors.blue,
+                                        contentPadding:
+                                        EdgeInsets.symmetric(horizontal: 20),
+                                        label: Text(
+                                          "Kyc Type",
+                                          style: TextStyle(
+                                              color: UIColor.black_text_color),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(10.0),
+                                          borderSide: BorderSide(
+                                            color: UIColor.black_text_color,
+                                            width: 1.0,
+                                          ),
                                         ),
                                       ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        borderSide: BorderSide(
-                                          color: UIColor.black_text_color,
-                                          width: 1.0,
-                                        ),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                              child: ExpansionTile(
+                                                trailing: Text(""),
+                                                key: GlobalKey(),
+                                                title: Text(
+                                                  selectedKyc.title,
+                                                  style: TextStyle(
+                                                      color:
+                                                      UIColor.black_text_color),
+                                                ),
+                                                children: kyctypes
+                                                    .map((e) => ListTile(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      _driverKycType.text =
+                                                          e.value;
+                                                      selectedKyc = e;
+                                                    });
+                                                  },
+                                                  title: Text(
+                                                    e.title,
+                                                    style: TextStyle(
+                                                        color: UIColor
+                                                            .black_text_color),
+                                                  ),
+                                                ))
+                                                    .toList(),
+                                              ))
+                                        ],
                                       ),
                                     ),
+                                  ),
+                                  InputField(
+                                      "${selectedKyc.title} Number", _driverKycNo,
+                                      isAadhar: true),
+                                  InputField("License", _driverLicense),
+                                  InputField("House Number", _driverhouseNo),
+                                  InputField(
+                                      "Street/Sector/Village/Area", _driverArea),
+                                  InputField("Landmark", _driverLandmark),
+                                  InputField("City", _driverCity),
+                                  InputField("PinCode", _driverpinCode,
+                                      isPin: true),
+                                  InputField("State", _driverState),
+                                  Container(
+                                    alignment: Alignment.centerLeft,
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 20),
+                                    child: Text(
+                                      "Choose Driver Image",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: UIColor.black_text_color),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 25),
                                     child: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Expanded(
-                                            child: ExpansionTile(
-                                          trailing: Text(""),
-                                          key: GlobalKey(),
-                                          title: Text(
-                                            selectedKyc.title,
-                                            style: TextStyle(
-                                                color:
-                                                    UIColor.black_text_color),
+                                        Container(
+                                          width: 80,
+                                          height: 60,
+                                          child: driverImage != null
+                                              ? Image.file(File(driverImage!))
+                                              : Container(
+                                            color: Colors.grey,
                                           ),
-                                          children: kyctypes
-                                              .map((e) => ListTile(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        _driverKycType.text =
-                                                            e.value;
-                                                        selectedKyc = e;
-                                                      });
-                                                    },
-                                                    title: Text(
-                                                      e.title,
-                                                      style: TextStyle(
-                                                          color: UIColor
-                                                              .black_text_color),
-                                                    ),
-                                                  ))
-                                              .toList(),
-                                        ))
+                                        ),
+                                        Container(
+                                          child: ElevatedButton(
+                                            child: const Text("Choose"),
+                                            onPressed: () async {
+                                              XFile? image = await ImagePicker()
+                                                  .pickImage(
+                                                  source:
+                                                  ImageSource.gallery);
+                                              setState(() {
+                                                driverImage = image?.path;
+                                              });
+                                            },
+                                          ),
+                                        )
                                       ],
                                     ),
                                   ),
-                                ),
-                                InputField(
-                                    "${selectedKyc.title} Number", _driverKycNo,
-                                    isAadhar: true),
-                                InputField("License", _driverLicense),
-                                InputField("House Number", _driverhouseNo),
-                                InputField(
-                                    "Street/Sector/Village/Area", _driverArea),
-                                InputField("Landmark", _driverLandmark),
-                                InputField("City", _driverCity),
-                                InputField("PinCode", _driverpinCode,
-                                    isPin: true),
-                                InputField("State", _driverState),
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  margin: EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
-                                  child: Text(
-                                    "Choose Driver Image",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: UIColor.black_text_color),
+                                  Container(
+                                    alignment: Alignment.centerLeft,
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 20),
+                                    child: Text(
+                                      "Choose Driving License Image",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: UIColor.black_text_color),
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 25),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        width: 80,
-                                        height: 60,
-                                        child: driverImage != null
-                                            ? Image.file(File(driverImage!))
-                                            : Container(
-                                                color: Colors.grey,
-                                              ),
-                                      ),
-                                      Container(
-                                        child: ElevatedButton(
-                                          child: const Text("Choose"),
-                                          onPressed: () async {
-                                            XFile? image = await ImagePicker()
-                                                .pickImage(
-                                                    source:
-                                                        ImageSource.gallery);
-                                            setState(() {
-                                              driverImage = image?.path;
-                                            });
-                                          },
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 25),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          alignment: Alignment.center,
+                                          width: 80,
+                                          height: 60,
+                                          child: drivingLicenseImage != null
+                                              ? Image.file(
+                                              File(drivingLicenseImage!))
+                                              : Container(
+                                            color: Colors.grey,
+                                          ),
                                         ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  margin: EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 20),
-                                  child: Text(
-                                    "Choose Driving License Image",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: UIColor.black_text_color),
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 25),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        alignment: Alignment.center,
-                                        width: 80,
-                                        height: 60,
-                                        child: drivingLicenseImage != null
-                                            ? Image.file(
-                                                File(drivingLicenseImage!))
-                                            : Container(
-                                                color: Colors.grey,
-                                              ),
-                                      ),
-                                      Container(
-                                        child: ElevatedButton(
-                                          child: const Text("Choose"),
-                                          onPressed: () async {
-                                            XFile? image = await ImagePicker()
-                                                .pickImage(
-                                                    source:
-                                                        ImageSource.gallery);
-                                            setState(() {
-                                              drivingLicenseImage = image?.path;
-                                            });
-                                          },
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-
-                          /*end of service details*/
-
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 20),
-                            margin: EdgeInsets.only(top: 20),
-                            child: IntlPhoneField(
-                              initialValue: _officePhone.text,
-                              initialCountryCode: "IN",
-                              showCountryFlag: false,
-                              dropdownIcon: const Icon(
-                                Icons.arrow_drop_down,
-                                color: UIColor.black_text_color,
-                              ),
-                              style: TextStyle(color: UIColor.black_text_color),
-                              dropdownTextStyle:
-                                  TextStyle(color: UIColor.black_text_color),
-                              decoration: InputDecoration(
-                                label: Text(
-                                  "Phone Number",
-                                  style: TextStyle(
-                                      color: UIColor.black_text_color),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  borderSide: BorderSide(
-                                    color: UIColor.black_text_color,
-                                    width: 1.0,
-                                  ),
-                                ),
-                              ),
-                              validator: (text) {
-                                if (text == null ||
-                                    text.completeNumber.isEmpty) {
-                                  return "Required field";
-                                }
-                                if (text.completeNumber.length < 12 ||
-                                    text.completeNumber.length > 15) {
-                                  return "Please enter a valid number";
-                                }
-                                return null;
-                              },
-                              onChanged: (number) {
-                                _officePhone.text = number.completeNumber;
-                              },
-                            ),
-                          ),
-                          InputField("GST Number", _GST,
-                              isCapital: true,
-                              required: false,
-                              leading: Icon(
-                                Icons.numbers,
-                                color: UIColor.black_text_color,
-                              )),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            child: Text(
-                              "Office Address",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: UIColor.black_text_color),
-                            ),
-                          ),
-                          InputField("PinCode", _officePinCode,
-                              leading: Icon(
-                                Icons.pin_drop,
-                                color: UIColor.black_text_color,
-                              ),
-                              isPin: true),
-                          InputField(
-                              "Flat / House / Building Number", _officeNo,
-                              leading: Icon(
-                                Icons.home_filled,
-                                color: UIColor.black_text_color,
-                              )),
-                          InputField("Street/Sector/Village/Area", _officeArea,
-                              leading: Icon(
-                                Icons.home_filled,
-                                color: UIColor.black_text_color,
-                              )),
-                          InputField("Landmark", _officeLandmark,
-                              leading: Icon(
-                                Icons.home_filled,
-                                color: UIColor.black_text_color,
-                              )),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 20),
-                            child: snapshot.connectionState ==
-                                    ConnectionState.waiting
-                                ? Container(
-                                    height: 80,
+                                        Container(
+                                          child: ElevatedButton(
+                                            child: const Text("Choose"),
+                                            onPressed: () async {
+                                              XFile? image = await ImagePicker()
+                                                  .pickImage(
+                                                  source:
+                                                  ImageSource.gallery);
+                                              setState(() {
+                                                drivingLicenseImage = image?.path;
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   )
-                                : CSCPicker(
-                                    showStates: true,
-                                    showCities: true,
-                                    disabledDropdownDecoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          color: UIColor.black_text_color,
-                                          width: 1),
-                                      color: Colors.transparent,
-                                    ),
-                                    currentCountry: selectedOfficeCountry.name,
-                                    currentCity: _officeCity.text,
-                                    currentState: _officeState.text,
-                                    selectedItemStyle: TextStyle(
-                                        color: UIColor.black_text_color),
-                                    dropdownDecoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          color: UIColor.black_text_color,
-                                          width: 1),
-                                      color: Colors.transparent,
-                                    ),
-                                    onCountryChanged: (country) {
-                                      setState(() {
-                                        _officeCountry.text = country;
-                                      });
-                                    },
-                                    onStateChanged: (state) {
-                                      setState(() {
-                                        _officeState.text = state ?? "";
-                                      });
-                                    },
-                                    onCityChanged: (city) {
-                                      setState(() {
-                                        _officeCity.text = city ?? "";
-                                      });
-                                    },
+                                ],
+                              ),
+
+                            /*end of service details*/
+
+                            Container(
+                              child: IntlPhoneField(
+                                initialValue: _officePhone.text,
+                                initialCountryCode: "IN",
+                                showCountryFlag: false,
+                                dropdownIcon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.grey,
+                                ),
+                                style: TextStyle(color: UIColor.black_text_color),
+                                dropdownTextStyle:
+                                TextStyle(color: UIColor.black_text_color),
+                                decoration: InputDecoration(
+                                  label: Text(
+                                    "Phone Number",
+                                    style: TextStyle(
+                                        color: UIColor.hint_text_color),
                                   ),
-                          ),
+
+                                ),
+                                validator: (text) {
+                                  if (text == null ||
+                                      text.completeNumber.isEmpty) {
+                                    return "Required field";
+                                  }
+                                  if (text.completeNumber.length < 12 ||
+                                      text.completeNumber.length > 15) {
+                                    return "Please enter a valid number";
+                                  }
+                                  return null;
+                                },
+                                onChanged: (number) {
+                                  _officePhone.text = number.completeNumber;
+                                },
+                              ),
+                            ),
+                            InputField("GST Number", _GST,
+                                isCapital: true,
+                                required: false,
+                                leading: Icon(
+                                  Icons.numbers,
+                                  color: UIColor.prefix_icon_tint,
+                                )),
+                            InputField("PinCode", _officePinCode,
+                                leading: Icon(
+                                  Icons.pin_drop,
+                                  color: UIColor.prefix_icon_tint,
+                                ),
+                                isPin: true),
+                            InputField(
+                                "Flat / House / Building Number", _officeNo,
+                                leading: Icon(
+                                  Icons.home_filled,
+                                  color: UIColor.prefix_icon_tint,
+                                )),
+                            InputField("Street/Sector/Village/Area", _officeArea,
+                                leading: Icon(
+                                  Icons.home_filled,
+                                  color: UIColor.prefix_icon_tint,
+                                )),
+                            InputField("Landmark", _officeLandmark,
+                                leading: Icon(
+                                  Icons.home_filled,
+                                  color: UIColor.prefix_icon_tint,
+                                )),
+                          ]),
+                          customDivider(),
+                          CustomMaterialBox(listOfChildren: [
+                            snapshot.connectionState ==
+                                ConnectionState.waiting
+                                ? Container(
+                              height: 80,
+                            )
+                                : CSCPicker(
+                              showStates: true,
+                              showCities: true,
+                              disabledDropdownDecoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                    color: Colors.grey,
+                                    width: 1),
+                                color: Colors.transparent,
+                              ),
+                              currentCountry: selectedOfficeCountry.name,
+                              currentCity: _officeCity.text,
+                              currentState: _officeState.text,
+                              selectedItemStyle: TextStyle(
+                                  color: UIColor.black_text_color),
+                              dropdownDecoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                    color: Colors.grey,
+                                    width: 1),
+                                color: Colors.transparent,
+                              ),
+                              onCountryChanged: (country) {
+                                setState(() {
+                                  _officeCountry.text = country;
+                                });
+                              },
+                              onStateChanged: (state) {
+                                setState(() {
+                                  _officeState.text = state ?? "";
+                                });
+                              },
+                              onCityChanged: (city) {
+                                setState(() {
+                                  _officeCity.text = city ?? "";
+                                });
+                              },
+                            ),
+                          ]),
+
+                          customDivider(),
                           if (isLoading)
                             Container(
                               alignment: Alignment.center,
@@ -2566,6 +2407,8 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                             )
                           else
                             CreateButton(context, regState),
+
+                          customDivider()
                         ]),
                       ),
                     ),
@@ -2578,39 +2421,21 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
   }
 
   Widget CreateButton(BuildContext context, AuthProvider state) {
-    return Container(
-      margin: EdgeInsets.all(20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  isLoading = true;
-                });
-                createService(state);
-                setState(() {
-                  isLoading = false;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: UIColor.theme_color),
-              child: const Text(
-                "Save and Continue",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+   return GradientButton(text: "Save and Continue",  onPressed: () {
+     setState(() {
+       isLoading = true;
+     });
+     createService(state);
+     setState(() {
+       isLoading = false;
+     });
+   });
   }
 
   Widget InputField(String title, TextEditingController controller,
       {Icon leading = const Icon(
         Icons.person,
-        color: UIColor.black_text_color,
+        color: UIColor.prefix_icon_tint,
       ),
       bool required = true,
       MapProvider? state,
@@ -2626,7 +2451,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
         controller.text = "+91" + controller.text;
     }
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+      margin: textInputPadding,
       child: TextFormField(
         keyboardType: validatePhone || isPin || isPrice
             ? TextInputType.phone
@@ -2649,19 +2474,6 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
           label: Text(
             title,
             style: TextStyle(color: UIColor.hint_text_color),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(
-              color: UIColor.theme_color,
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(
-              color: UIColor.black_text_color,
-              width: 1.0,
-            ),
           ),
         ),
         validator: required
@@ -2794,7 +2606,6 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(builder: (context, registerState, child) {
       return Scaffold(
-        extendBodyBehindAppBar: false,
         backgroundColor: UIColor.screen_bg,
         appBar: AppToolbar(
           toolbarTitle: "Terms and Conditions",
@@ -2802,119 +2613,120 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
             registerState.setRegisterProgress(RegisterProgress.five);
           },
         ),
-        body: Center(
-          child: Column(
-            children: <Widget>[
-              SizedBox(height: 16.0),
-              Theme(
-                data:
-                    ThemeData(unselectedWidgetColor: UIColor.black_text_color),
-                child: CheckboxListTile(
-                  activeColor: UIColor.theme_color,
-                  checkColor: Colors.white,
-                  checkboxShape: RoundedRectangleBorder(
-                      side: BorderSide(color: Colors.white, width: 0.5)),
-                  value: _agreedToTerms,
-                  onChanged: _toggleTermsAgreement,
-                  title: RichText(
-                    text: TextSpan(children: [
-                      TextSpan(
-                        text: 'I agree to the ',
-                        style: TextStyle(color: UIColor.black_text_color),
-                      ),
-                      TextSpan(
-                        text: Constant.label_terms_condition,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => TermsPrivacy(
-                                      title: Constant.label_terms_condition,
-                                      urlToLoad: Constant.link_terms_condition),
-                                ));
-                          },
-                        style: TextStyle(
-                            color: UIColor.theme_color,
-                            decoration: TextDecoration.underline),
-                      ),
-                    ]),
-                  ),
-                ),
-              ),
-              Theme(
-                data:
-                    ThemeData(unselectedWidgetColor: UIColor.black_text_color),
-                child: CheckboxListTile(
-                  activeColor: UIColor.theme_color,
-                  checkColor: Colors.white,
-                  checkboxShape: RoundedRectangleBorder(
-                      side: BorderSide(color: Colors.white, width: 0.5)),
-                  value: _agreedPrivacy,
-                  onChanged: _togglePrivacy,
-                  title: RichText(
-                    text: TextSpan(children: [
-                      TextSpan(
-                        text: 'I agree to the ',
-                        style: TextStyle(color: UIColor.black_text_color),
-                      ),
-                      TextSpan(
-                        text: Constant.label_privacy_policy,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => TermsPrivacy(
-                                      title: Constant.label_privacy_policy,
-                                      urlToLoad: Constant.link_privacy_policy),
-                                ));
-                          },
-                        style: TextStyle(
-                            color: UIColor.theme_color,
-                            decoration: TextDecoration.underline),
-                      ),
-                    ]),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 10),
-                      child: ElevatedButton(
-                        onPressed: (!_agreedToTerms || !_agreedPrivacy)
-                            ? null
-                            : () async {
-                                await submit(registerState);
-                                registerState.setRegisterProgress(
-                                    RegisterProgress.completed);
-                                registerState.clear();
-                                if (Navigator.canPop(context)) {
-                                  Navigator.popUntil(
-                                      context, (route) => route.isFirst);
-                                } else {
-                                  Navigator.pushReplacementNamed(
-                                      context, MainPage.routeName,
-                                      arguments: true);
-                                }
-                              },
-                        child: Text(
-                          'Submit',
-                          style: TextStyle(color: UIColor.theme_color),
+        body: SingleChildScrollView( // Allows scrolling if content overflows
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start, // Aligns all content to start
+              children: <Widget>[
+                const SizedBox(height: 16.0),
+                Theme(
+                  data: ThemeData(
+                      unselectedWidgetColor: UIColor.black_text_color),
+                  child: CheckboxListTile(
+                    activeColor: UIColor.theme_color,
+                    checkColor: Colors.white,
+                    checkboxShape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                        side: BorderSide(color: Colors.white, width: 0.5)),
+                    value: _agreedToTerms,
+                    onChanged: _toggleTermsAgreement,
+                    title: RichText(
+                      text: TextSpan(children: [
+                        TextSpan(
+                          text: 'I agree to the ',
+                          style: TextStyle(color: UIColor.black_text_color),
                         ),
-                      ),
+                        TextSpan(
+                          text: Constant.label_terms_condition,
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TermsPrivacy(
+                                        title: Constant.label_terms_condition,
+                                        urlToLoad: Constant.link_terms_condition),
+                                  ));
+                            },
+                          style: TextStyle(
+                              color: UIColor.theme_color,
+                              decoration: TextDecoration.underline),
+                        ),
+                      ]),
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 8.0), // Add spacing between checkboxes
+                Theme(
+                  data: ThemeData(
+                      unselectedWidgetColor: UIColor.black_text_color),
+                  child: CheckboxListTile(
+                    activeColor: UIColor.theme_color,
+                    checkColor: Colors.white,
+                    checkboxShape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                        side: BorderSide(color: Colors.white, width: 0.5)),
+                    value: _agreedPrivacy,
+                    onChanged: _togglePrivacy,
+                    title: RichText(
+                      text: TextSpan(children: [
+                        TextSpan(
+                          text: 'I agree to the ',
+                          style: TextStyle(color: UIColor.black_text_color),
+                        ),
+                        TextSpan(
+                          text: Constant.label_privacy_policy,
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TermsPrivacy(
+                                        title: Constant.label_privacy_policy,
+                                        urlToLoad: Constant.link_privacy_policy),
+                                  ));
+                            },
+                          style: TextStyle(
+                              color: UIColor.theme_color,
+                              decoration: TextDecoration.underline),
+                        ),
+                      ]),
+                    ),
+                  ),
+                ),
+               customDivider(),
+                GradientButton(text: "Save", onPressed: () async {
+
+                  if(_agreedPrivacy && _agreedPrivacy){
+                 await submit(registerState);
+                 registerState.setRegisterProgress(
+                     RegisterProgress.completed);
+                 registerState.clear();
+                 if (Navigator.canPop(context)) {
+                   Navigator.popUntil(
+                       context, (route) => route.isFirst);
+                 } else {
+                   Navigator.pushReplacementNamed(
+                       context, MainPage.routeName,
+                       arguments: true);
+                 }
+               }
+
+
+                })
+              ],
+            ),
           ),
         ),
       );
     });
   }
+
+}
+
+Widget customDivider() {
+  return SizedBox(
+    height: 20,
+  );
 }

@@ -79,13 +79,13 @@ Future<String> ChangeOrderStatus(AuthProvider auth, VendorOrderStatus status,
   try {
     String url;
     if (status == VendorOrderStatus.approved) {
-      url = "https://utsavlife.com/api/vendor-approve-order/${OrderId}";
+      url = "https://events.srvtechservices.com/api/vendor-approve-order/${OrderId}";
       Response response = await Dio().get(
         url,
         options: Options(headers: {"Authorization": "Bearer ${auth.token}"}),
       );
     } else {
-      url = "https://utsavlife.com/api/vendor-reject-order";
+      url = "https://events.srvtechservices.com/api/vendor-reject-order";
       Response response = await Dio().post(url,
           options: Options(headers: {"Authorization": "Bearer ${auth.token}"}),
           data: {"id": OrderId, "reason": reason});
@@ -105,7 +105,7 @@ Future<String> ChangeOrderStatus(AuthProvider auth, VendorOrderStatus status,
 
 Future<String> DeliverOrder(AuthProvider auth, String OrderId) async {
   try {
-    String url = "https://utsavlife.com/api/manage-vendor/deliver_order";
+    String url = "https://events.srvtechservices.com/api/manage-vendor/deliver_order";
     Response response = await Dio().post(url,
         options: Options(headers: {"Authorization": "Bearer ${auth.token}"}),
         data: {"id": OrderId});

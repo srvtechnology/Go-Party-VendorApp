@@ -51,7 +51,7 @@ class _webViewerState extends State<webViewer> {
         },
       ))
       ..loadRequest(
-        Uri.parse("https://utsavlife.com/vandor/registration"),
+        Uri.parse("https://events.srvtechservices.com/vandor/registration"),
       );
   }
 
