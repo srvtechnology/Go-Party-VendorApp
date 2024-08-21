@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:csc_picker/csc_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/countries.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/core/components/customBox.dart';
 import 'package:utsavlife/core/components/gradientButton.dart';
 import 'package:utsavlife/core/components/loading.dart';
 import 'package:utsavlife/core/models/user.dart';
@@ -19,6 +21,9 @@ import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/errorScreen.dart';
 import '../core/models/dropdown.dart';
 import '../core/utils/UIColor.dart';
+
+const EdgeInsets textInputPadding =
+    EdgeInsets.symmetric(vertical: 8, horizontal: 0);
 
 class AddServiceRoute extends StatefulWidget {
   static const routeName = "/addservice";
@@ -35,7 +40,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
   final _formKey = GlobalKey<FormState>();
   bool showLocationList = false;
   bool isLoading = false;
-  String? videoPath;
+/*   String? videoPath; */
   TextEditingController _companyName = TextEditingController();
   TextEditingController _companyAddress = TextEditingController();
   TextEditingController _serviceDescription = TextEditingController();
@@ -52,6 +57,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
   TextEditingController _driverLandmark = TextEditingController();
   TextEditingController _driverCity = TextEditingController();
   TextEditingController _driverState = TextEditingController();
+  TextEditingController _videoLink = TextEditingController();
   String? driverImage, drivingLicenseImage;
   List<AddProductPhoto> productImages = [];
   late DropDownField selectedKyc;
@@ -106,291 +112,260 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
           body: Form(
             key: _formKey,
             child: Container(
-              padding: EdgeInsets.all(11),
+              margin: EdgeInsets.symmetric(vertical: 15),
               height: double.infinity,
               width: double.infinity,
               child: SingleChildScrollView(
                 child: Column(children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: ExpansionTile(
-                      shape: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: UIColor.theme_color)),
-                      collapsedShape: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.grey)),
-                      key: GlobalKey(),
-                      title: Text(serviceOption),
-                      children: state.options!.serviceOptions
-                          .map(
-                            (e) => ListTile(
-                              title: Text(e.service),
-                              onTap: () {
-                                setState(() {
-                                  serviceOption = e.service;
-                                  serviceId = e.id;
-                                });
-                              },
-                            ),
-                          )
-                          .toList(),
+                  CustomMaterialBox(listOfChildren: [
+                    Padding(
+                      padding: textInputPadding,
+                      child: ExpansionTile(
+                        shape: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: UIColor.theme_color)),
+                        collapsedShape: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(color: Colors.grey)),
+                        key: GlobalKey(),
+                        title: Text(serviceOption),
+                        children: state.options!.serviceOptions
+                            .map(
+                              (e) => ListTile(
+                                title: Text(e.service),
+                                onTap: () {
+                                  setState(() {
+                                    serviceOption = e.service;
+                                    serviceId = e.id;
+                                  });
+                                },
+                              ),
+                            )
+                            .toList(),
+                      ),
                     ),
-                  ),
-                  InputField("Company Name", _companyName),
-                  InputField("Address", _companyAddress, autoComplete: true),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: CSCPicker(
-                      flagState: CountryFlag.DISABLE,
-                      defaultCountry: CscCountry.India,
-                      showStates: true,
-                      showCities: true,
-                      disabledDropdownDecoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(width: 0.5, color: Colors.grey)),
-                      currentCountry: selectedCountry,
-                      currentCity: selectedCity,
-                      currentState: selectedState,
-                      dropdownDecoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(width: 0.5, color: Colors.grey)),
-                      onCountryChanged: (country) {
-                        setState(() {
-                          selectedCountry = country;
-                        });
-                      },
-                      onStateChanged: (state) {
-                        setState(() {
-                          selectedState = state ?? "";
-                        });
-                      },
-                      onCityChanged: (city) {
-                        setState(() {
-                          selectedCity = city ?? "";
-                        });
-                      },
+                    InputField("Company Name", _companyName),
+                    InputField("Address", _companyAddress, autoComplete: true),
+                    Padding(
+                      padding: textInputPadding,
+                      child: CSCPicker(
+                        flagState: CountryFlag.DISABLE,
+                        defaultCountry: CscCountry.India,
+                        showStates: true,
+                        showCities: true,
+                        disabledDropdownDecoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(width: 0.5, color: Colors.grey)),
+                        currentCountry: selectedCountry,
+                        currentCity: selectedCity,
+                        currentState: selectedState,
+                        dropdownDecoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(width: 0.5, color: Colors.grey)),
+                        onCountryChanged: (country) {
+                          setState(() {
+                            selectedCountry = country;
+                          });
+                        },
+                        onStateChanged: (state) {
+                          setState(() {
+                            selectedState = state ?? "";
+                          });
+                        },
+                        onCityChanged: (city) {
+                          setState(() {
+                            selectedCity = city ?? "";
+                          });
+                        },
+                      ),
                     ),
-                  ),
-                  InputField("Service Description", _serviceDescription),
-                  InputField("Material Description", _materialDescription),
-                  InputField("Price", _price, digits: true),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Product Images (3 to 5)",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        OutlinedButton(
-                            onPressed: () async {
-                              if (productImages.length >= 5) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                            Text("Maximum 5 photos allowed")));
-                                return;
-                              }
-                              List<XFile?> images = await ImagePicker()
-                                  .pickMultiImage(
-                                      maxHeight: 480,
-                                      maxWidth: 640,
-                                      imageQuality: 50);
-                              setState(() {
-                                if (images.length > 5) {
+                    InputField("Service Description", _serviceDescription),
+                    InputField("Material Description", _materialDescription),
+                    InputField("Video Link", _videoLink),
+                    InputField("Price", _price, digits: true),
+                    Container(
+                      margin: textInputPadding,
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Product Images (3 to 5)",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          OutlinedButton(
+                              onPressed: () async {
+                                if (productImages.length >= 5) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                           content: Text(
                                               "Maximum 5 photos allowed")));
+                                  return;
                                 }
-                                images.forEach((element) {
-                                  if (productImages.length == 5) return;
-                                  productImages.add(AddProductPhoto(
-                                      filePath: element?.path,
-                                      id: productImages.length,
-                                      onDelete: (id) {
-                                        setState(() {
-                                          productImages.removeWhere(
-                                              (element) => element.id == id);
-                                        });
-                                      }));
-                                });
-                              });
-                            },
-                            child: const Text("Add"))
-                      ],
-                    ),
-                  ),
-                  ...productImages,
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                    child: Text(
-                      "Add a video",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 25),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          alignment: Alignment.center,
-                          width: 80,
-                          height: 60,
-                          child: videoPath != null
-                              ? Container(
-                                  child: Text("Video Selected"),
-                                )
-                              : Container(
-                                  color: Colors.grey,
-                                ),
-                        ),
-                        Container(
-                          child: TextButton(
-                            child: const Text("Choose"),
-                            onPressed: () async {
-                              XFile? video = await ImagePicker()
-                                  .pickVideo(source: ImageSource.gallery);
-                              setState(() {
-                                videoPath = video?.path;
-                              });
-                            },
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  if (serviceOption.toLowerCase().contains("car"))
-                    Column(
-                      children: [
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          margin: EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          child: Text(
-                            "Driver details",
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                        InputField("Name", _driverName),
-                        InputField("Mobile Number", _driverMob,
-                            validatePhone: true),
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 45),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Kyc Type"),
-                              DropdownButton(
-                                value: selectedKyc,
-                                items: kyctypes
-                                    .map((e) => DropdownMenuItem(
-                                          child: Text(e.title),
-                                          value: e,
-                                        ))
-                                    .toList(),
-                                onChanged: (_) {
-                                  setState(() {
-                                    _driverKycType.text = _!.value;
-                                    selectedKyc = _;
+                                List<XFile?> images = await ImagePicker()
+                                    .pickMultiImage(
+                                        maxHeight: 480,
+                                        maxWidth: 640,
+                                        imageQuality: 50);
+                                setState(() {
+                                  if (images.length > 5) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                "Maximum 5 photos allowed")));
+                                  }
+                                  images.forEach((element) {
+                                    if (productImages.length == 5) return;
+                                    productImages.add(AddProductPhoto(
+                                        filePath: element?.path,
+                                        id: productImages.length,
+                                        onDelete: (id) {
+                                          setState(() {
+                                            productImages.removeWhere(
+                                                (element) => element.id == id);
+                                          });
+                                        }));
                                   });
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        InputField("${selectedKyc.title} Number", _driverKycNo),
-                        InputField("License", _driverLicense),
-                        InputField("PinCode", _driverpinCode),
-                        InputField("House Number", _driverhouseNo),
-                        InputField("Area", _driverArea),
-                        InputField("Landmark", _driverLandmark),
-                        InputField("City", _driverCity),
-                        InputField("State", _driverState),
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          margin: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          child: Text(
-                            "Choose Driver Image",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 25),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                width: 80,
-                                height: 60,
-                                child: driverImage != null
-                                    ? Image.file(File(driverImage!))
-                                    : Container(
-                                        color: Colors.grey,
-                                      ),
-                              ),
-                              Container(
-                                child: TextButton(
-                                  child: const Text("Choose"),
-                                  onPressed: () async {
-                                    XFile? image = await ImagePicker()
-                                        .pickImage(source: ImageSource.gallery);
-                                    setState(() {
-                                      driverImage = image?.path;
-                                    });
-                                  },
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          margin: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          child: Text(
-                            "Choose Driving License Image",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 25),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                alignment: Alignment.center,
-                                width: 80,
-                                height: 60,
-                                child: drivingLicenseImage != null
-                                    ? Image.file(File(drivingLicenseImage!))
-                                    : Container(
-                                        color: Colors.grey,
-                                      ),
-                              ),
-                              Container(
-                                child: TextButton(
-                                  child: const Text("Choose"),
-                                  onPressed: () async {
-                                    XFile? image = await ImagePicker()
-                                        .pickImage(source: ImageSource.gallery);
-                                    setState(() {
-                                      drivingLicenseImage = image?.path;
-                                    });
-                                  },
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
+                                });
+                              },
+                              child: const Text("Add"))
+                        ],
+                      ),
                     ),
+                    ...productImages,
+                    if (serviceOption.toLowerCase().contains("car"))
+                      Column(
+                        children: [
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            margin: EdgeInsets.symmetric(
+                                vertical: 20, horizontal: 20),
+                            child: Text(
+                              "Driver details",
+                              style: TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                          InputField("Name", _driverName),
+                          InputField("Mobile Number", _driverMob,
+                              validatePhone: true),
+                          Container(
+                            margin: EdgeInsets.symmetric(horizontal: 45),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Kyc Type"),
+                                DropdownButton(
+                                  value: selectedKyc,
+                                  items: kyctypes
+                                      .map((e) => DropdownMenuItem(
+                                            child: Text(e.title),
+                                            value: e,
+                                          ))
+                                      .toList(),
+                                  onChanged: (_) {
+                                    setState(() {
+                                      _driverKycType.text = _!.value;
+                                      selectedKyc = _;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          InputField(
+                              "${selectedKyc.title} Number", _driverKycNo),
+                          InputField("License", _driverLicense),
+                          InputField("PinCode", _driverpinCode),
+                          InputField("House Number", _driverhouseNo),
+                          InputField("Area", _driverArea),
+                          InputField("Landmark", _driverLandmark),
+                          InputField("City", _driverCity),
+                          InputField("State", _driverState),
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            margin: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 20),
+                            child: Text(
+                              "Choose Driver Image",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 25),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  width: 80,
+                                  height: 60,
+                                  child: driverImage != null
+                                      ? Image.file(File(driverImage!))
+                                      : Container(
+                                          color: Colors.grey,
+                                        ),
+                                ),
+                                Container(
+                                  child: TextButton(
+                                    child: const Text("Choose"),
+                                    onPressed: () async {
+                                      XFile? image = await ImagePicker()
+                                          .pickImage(
+                                              source: ImageSource.gallery);
+                                      setState(() {
+                                        driverImage = image?.path;
+                                      });
+                                    },
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            margin: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 20),
+                            child: Text(
+                              "Choose Driving License Image",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 25),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  alignment: Alignment.center,
+                                  width: 80,
+                                  height: 60,
+                                  child: drivingLicenseImage != null
+                                      ? Image.file(File(drivingLicenseImage!))
+                                      : Container(
+                                          color: Colors.grey,
+                                        ),
+                                ),
+                                Container(
+                                  child: TextButton(
+                                    child: const Text("Choose"),
+                                    onPressed: () async {
+                                      XFile? image = await ImagePicker()
+                                          .pickImage(
+                                              source: ImageSource.gallery);
+                                      setState(() {
+                                        drivingLicenseImage = image?.path;
+                                      });
+                                    },
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                  ]),
                   SizedBox(
                     height: 20,
                   ),
@@ -416,11 +391,11 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
   Widget CreateButton(BuildContext context, AuthProvider auth) {
     return GradientButton(
         text: "Create Service",
-        onPressed: () {
+        onPressed: () async {
           setState(() {
             isLoading = true;
           });
-          createService(auth);
+          await createService(auth);
           setState(() {
             isLoading = false;
           });
@@ -434,7 +409,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       validatePhone = false,
       digits = false}) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+      margin: textInputPadding,
       child: TextFormField(
         keyboardType:
             validatePhone || digits ? TextInputType.phone : TextInputType.text,
@@ -465,7 +440,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
     );
   }
 
-  void createService(AuthProvider auth) async {
+  Future<void> createService(AuthProvider auth) async {
     if (serviceId == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Please select service")));
@@ -494,6 +469,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
         "address": _companyAddress.text,
         "service_desc": _serviceDescription.text,
         "material_desc": _materialDescription.text,
+        "video": _videoLink.text,
         "price": _price.text,
         "driver_name": _driverName.text,
         "driver_mobile_no": _driverMob.text,
@@ -515,8 +491,8 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
         "img5": drivingLicenseImage == null
             ? null
             : await MultipartFile.fromFile(drivingLicenseImage!),
-        "video":
-            videoPath == null ? null : await MultipartFile.fromFile(videoPath!)
+        /*  "video":
+            videoPath == null ? null : await MultipartFile.fromFile(videoPath!) */
       };
       for (int i = 0; i < productImages.length; i++) {
         serviceData['pmg${i + 1}'] = productImages[i].filePath == null

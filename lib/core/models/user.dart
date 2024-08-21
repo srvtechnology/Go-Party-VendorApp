@@ -273,7 +273,9 @@ class BankDetails {
       holderName,
       branchName,
       accountType,
-      checkbook;
+      checkbook,
+      checkbookOrPassbookImage
+  ;
 
   BankDetails({
     required this.id,
@@ -284,6 +286,7 @@ class BankDetails {
     required this.branchName,
     required this.accountType,
     required this.checkbook,
+    required this.checkbookOrPassbookImage,
   });
 
   factory BankDetails.fromJson(Map json) {
@@ -295,7 +298,10 @@ class BankDetails {
         holderName: json["holder_name"],
         branchName: json["branch_name"],
         accountType: json["acc_type"],
-        checkbook: "");
+        checkbook: "",
+      checkbookOrPassbookImage: json["checkbookOrPassbookImage"]
+
+    );
   }
 }
 

@@ -52,23 +52,30 @@ void main() {
                         ),
                         inputDecorationTheme: InputDecorationTheme(
                           enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey), // Default color when not focused
+                            borderSide: BorderSide(
+                                color: Colors
+                                    .grey), // Default color when not focused
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue), // Default color when focused
+                            borderSide: BorderSide(
+                                color:
+                                    Colors.blue), // Default color when focused
                           ),
                           errorBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red), // Default color when there's an error
+                            borderSide: BorderSide(
+                                color: Colors
+                                    .red), // Default color when there's an error
                           ),
                           focusedErrorBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red), // Color when focused with an error
+                            borderSide: BorderSide(
+                                color: Colors
+                                    .red), // Color when focused with an error
                           ),
-
                         ),
                         textSelectionTheme: TextSelectionThemeData(
-                          cursorColor: Colors.blue, // Set your desired cursor color
+                          cursorColor:
+                              Colors.blue, // Set your desired cursor color
                         ),
-
                       ),
                       useInheritedMediaQuery: true,
                       initialRoute: SplashScreen.routeName,

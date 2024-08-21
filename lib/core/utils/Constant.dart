@@ -6,4 +6,7 @@ class Constant {
 
   static String link_terms_condition = "${APIConfig.baseUrl}/terms-condition";
   static String link_privacy_policy = '${APIConfig.baseUrl}/privacy-policy';
+
+  static final String passbook_prefix_url =
+      "${APIConfig.baseUrl}/storage/app/public/vandor/checkbookOrPassbookImage/";
 }

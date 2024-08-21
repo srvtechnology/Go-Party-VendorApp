@@ -7,92 +7,104 @@ import 'package:utsavlife/core/repo/user.dart' as userRepo;
 import 'package:utsavlife/core/utils/logger.dart';
 
 import 'RegisterProvider.dart';
-enum AuthState {
-  LoggedOut,
-  Waiting,
-  LoggedIn,
-  Error
-}
+
+enum AuthState { LoggedOut, Waiting, LoggedIn, Error }
+
 class AuthProvider with ChangeNotifier {
   AuthState _authState = AuthState.Waiting;
-  String? _token=null;
+  String? _token = null;
   bool _isLoading = false;
   bool get isLoading => _isLoading;
   UserModel? _user;
   late final SharedPreferences pref;
-  String? get token => _token ;
+  String? get token => _token;
   AuthState get authState => _authState;
-  UserModel? get user => _user ;
-  void startLoading(){
+  UserModel? get user => _user;
+  void startLoading() {
     _isLoading = true;
     notifyListeners();
   }
-  void stopLoading(){
+
+  void stopLoading() {
     _isLoading = false;
     notifyListeners();
   }
-  void isLoggedIn(){
-    if (_token==null){
-      _authState = AuthState.LoggedOut ;
-    }
-    else{
+
+  void isLoggedIn() {
+    if (_token == null) {
+      _authState = AuthState.LoggedOut;
+    } else {
       _authState = AuthState.LoggedIn;
     }
     notifyListeners();
   }
-  AuthProvider(){
+
+  AuthProvider() {
     init();
   }
-  void init()async{
+  void init() async {
     startLoading();
     pref = await SharedPreferences.getInstance();
-    String? tempToken =await getTokenFromStorage();
-     if(tempToken==null){
-       _authState = AuthState.LoggedOut;
-     }
-     else{
-       _token = tempToken;
-       print("Logged in");
-       await getUser();
-       _authState = AuthState.LoggedIn ;
-
-     }
-     stopLoading();
+    String? tempToken = await getTokenFromStorage();
+    if (tempToken == null) {
+      _authState = AuthState.LoggedOut;
+    } else {
+      _token = tempToken;
+      print("Logged in");
+      await getUser();
+      _authState = AuthState.LoggedIn;
+    }
+    stopLoading();
   }
-  Future<void> getUser()async{
+
+  Future<void> getUser() async {
     print("Getting user data token $token");
     _user = await userRepo.get_UserData(_token!); // from repo
   }
-  void saveTokenToStorage(String tempToken){
-      pref.setString("token", tempToken);
+
+  Future<void> getUserWithNotifyListener() async {
+    print("Getting user data token $token");
+    _user = await userRepo.get_UserData(_token!); // from repo
+    notifyListeners();
   }
-  void saveEmailPasswordToStorage(String email,String password){
+
+  void saveTokenToStorage(String tempToken) {
+    pref.setString("token", tempToken);
+  }
+
+  void saveEmailPasswordToStorage(String email, String password) {
     pref.setString("email", email);
     pref.setString("password", password);
   }
-  Future<String?> getTokenFromStorage()async{
-      String? tempToken = await pref.getString("token");
-      return tempToken;
+
+  Future<String?> getTokenFromStorage() async {
+    String? tempToken = await pref.getString("token");
+    return tempToken;
   }
-  Future<String?> getEmailFromStorage()async{
+
+  Future<String?> getEmailFromStorage() async {
     String? email = await pref.getString("email");
     return email;
   }
-  Future<String?> getPasswordFromStorage()async{
+
+  Future<String?> getPasswordFromStorage() async {
     String? password = await pref.getString("password");
     return password;
   }
-  void deleteTokenFromStorage(){
+
+  void deleteTokenFromStorage() {
     pref.remove("token");
     pref.remove("email");
     pref.remove("password");
   }
-  void reLogin()async{
-    String? email =await getEmailFromStorage();
-    String? password =await getPasswordFromStorage();
-    if(email!=null && password!=null)login(email, password);
+
+  void reLogin() async {
+    String? email = await getEmailFromStorage();
+    String? password = await getPasswordFromStorage();
+    if (email != null && password != null) login(email, password);
   }
-  Future<void> login(String email,String password)async{
+
+  Future<void> login(String email, String password) async {
     _authState = AuthState.Waiting;
     notifyListeners();
     try {
@@ -102,115 +114,113 @@ class AuthProvider with ChangeNotifier {
       _token = tempToken;
       _authState = AuthState.LoggedIn;
       await getUser();
-    }
-    catch(e){
+    } catch (e) {
       _authState = AuthState.Error;
     }
     notifyListeners();
   }
-  void deleteAllFromStorage(){
+
+  void deleteAllFromStorage() {
     pref.clear();
   }
-  void logout(){
-      _token = null;
-      _authState = AuthState.LoggedOut;
-      _user = null ;
-      notifyListeners();
-      deleteTokenFromStorage();
-      deleteAllFromStorage();
+
+  void logout() {
+    _token = null;
+    _authState = AuthState.LoggedOut;
+    _user = null;
+    notifyListeners();
+    deleteTokenFromStorage();
+    deleteAllFromStorage();
   }
 
-  void editProfile()async{
+  Future<void> editProfile() async {
     bool status = await userRepo.edit_profile(_token!, {
-      "name":_user!.name,
-      "pan_card":_user!.panCardNumber,
-      "kyc_type":_user!.kycType,
-      "kyc_no":_user!.kycNumber,
-      "gst_no":_user!.gstNumber,
-      "pin_code":_user!.zip,
-      "house_no":_user!.houseNumber,
-      "area":_user!.area,
-      "landmark":_user!.landmark,
-      "city":_user!.city,
-      "state":_user!.state,
-      "country":_user!.country?.id,
-      "mobile":_user!.mobileno
+      "name": _user!.name,
+      "pan_card": _user!.panCardNumber,
+      "kyc_type": _user!.kycType,
+      "kyc_no": _user!.kycNumber,
+      "gst_no": _user!.gstNumber,
+      "pin_code": _user!.zip,
+      "house_no": _user!.houseNumber,
+      "area": _user!.area,
+      "landmark": _user!.landmark,
+      "city": _user!.city,
+      "state": _user!.state,
+      "country": _user!.country?.id,
+      "mobile": _user!.mobileno,
+      "calling_no": _user!.callingNumber??""
     });
-    if(status == true){
+    if (status == true) {
       getUser();
       notifyListeners();
-    }
-    else {
-      
-    }
+    } else {}
   }
-  void setRegisterProgress(RegisterProgress progress)async{
+
+  void setRegisterProgress(RegisterProgress progress) async {
     getUser();
     _user?.progress = progress;
     notifyListeners();
   }
-  void clear()async{
+
+  void clear() async {
     CustomLogger.debug("Deleting all data");
     final SharedPreferences instance = await SharedPreferences.getInstance();
     instance.clear();
   }
-  void editOfficeDetails()async{
-    Map<String,dynamic> data = {
-        "office_mobile":_user!.officePhone,
-        "office_pincode":_user!.officeZip,
-        "office_house_no":_user!.officeNumber,
-        "office_area" :_user!.officeArea,
-        "office_landmark" :_user!.officeLandmark,
-        "office_city" :_user!.officeCity,
-        "office_state":_user!.officeState,
-        "gst_no":_user!.gstNumber,
-        "office_country":_user!.officeCountry!.id
-      };
+
+  Future<void> editOfficeDetails() async {
+    Map<String, dynamic> data = {
+      "office_mobile": _user!.officePhone,
+      "office_pincode": _user!.officeZip,
+      "office_house_no": _user!.officeNumber,
+      "office_area": _user!.officeArea,
+      "office_landmark": _user!.officeLandmark,
+      "office_city": _user!.officeCity,
+      "office_state": _user!.officeState,
+      "gst_no": _user!.gstNumber,
+      "office_country": _user!.officeCountry!.id
+    };
     CustomLogger.debug(data);
     bool status = await userRepo.edit_office_details(_token!, data);
-    if(status == true){
+    if (status == true) {
       getUser();
       notifyListeners();
-    }
-    else {
-
-    }
+    } else {}
   }
 
-  void editDocument({String? panPath, String? kycPath, String? vendorPath, String? gstPath})async{
-    Map<String,dynamic> data = {};
-    if(panPath != null){
-      data["img1"]= await MultipartFile.fromFile(panPath);
+  void editDocument(
+      {String? panPath,
+      String? kycPath,
+      String? vendorPath,
+      String? gstPath}) async {
+    Map<String, dynamic> data = {};
+    if (panPath != null) {
+      data["img1"] = await MultipartFile.fromFile(panPath);
     }
-    if (kycPath != null){
-      data["img2"]= await MultipartFile.fromFile(kycPath);
+    if (kycPath != null) {
+      data["img2"] = await MultipartFile.fromFile(kycPath);
     }
-    if (vendorPath != null){
-      data["img3"]=await MultipartFile.fromFile(vendorPath);
+    if (vendorPath != null) {
+      data["img3"] = await MultipartFile.fromFile(vendorPath);
     }
-    if (gstPath != null){
-      data["img4"]=await MultipartFile.fromFile(gstPath);
+    if (gstPath != null) {
+      data["img4"] = await MultipartFile.fromFile(gstPath);
     }
     bool status = await userRepo.edit_Document_details(_token!, data);
-    if(status == true){
+    if (status == true) {
       getUser();
       notifyListeners();
-    }
-    else {
-
-    }
+    } else {}
   }
-  Future<void> editProfileImage({required String profilePath})async{
-    Map<String,dynamic> data={
-      "img3":await MultipartFile.fromFile(profilePath)
+
+  Future<void> editProfileImage({required String profilePath}) async {
+    Map<String, dynamic> data = {
+      "img3": await MultipartFile.fromFile(profilePath)
     };
     bool status = await userRepo.edit_Document_details(_token!, data);
-    if(status == true){
+    if (status == true) {
       getUser();
       notifyListeners();
-    }
-    else {
-
-    }
+    } else {}
   }
 }

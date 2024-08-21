@@ -7,7 +7,9 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
   String toolbarTitle;
   void Function()? onPressed;
 
-   AppToolbar({super.key, required this.toolbarTitle,  required this.onPressed});
+  final Icon leadingIcon;
+
+   AppToolbar({super.key, required this.toolbarTitle,  required this.onPressed, this.leadingIcon = const Icon(Icons.arrow_back_ios) });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +18,7 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         color: UIColor.toolbar_content_color,
         onPressed: onPressed,
-        icon: Icon(Icons.arrow_back_ios),
+        icon: leadingIcon,
       ),
       elevation: 0,
       centerTitle: true,

@@ -1,19 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:utsavlife/core/components/appToolbar.dart';
 import 'package:utsavlife/core/models/user.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/repo/auth.dart';
 import 'package:utsavlife/routes/mainpage.dart';
+
+import '../core/utils/Constant.dart';
+import 'terms_privacy.dart';
 
 class SettingsPage extends StatelessWidget {
   static const routeName = "/settings";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Settings'),
-      ),
+      appBar: AppToolbar(toolbarTitle: "Settings", onPressed: () => Navigator.pop(context),),
       body: Container(
         padding: EdgeInsets.all(20.0),
         child: ListView(
@@ -29,7 +31,13 @@ class SettingsPage extends StatelessWidget {
             ListTile(
               title: Text('Terms and Conditions'),
               onTap: () {
-                Navigator.pushNamed(context, '/terms');
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TermsPrivacy(
+                          title: Constant.label_terms_condition,
+                          urlToLoad: Constant.link_terms_condition),
+                    ));
               },
               trailing: Icon(Icons.arrow_forward_ios),
             ),
@@ -37,7 +45,13 @@ class SettingsPage extends StatelessWidget {
             ListTile(
               title: Text('Privacy Policy'),
               onTap: () {
-                Navigator.pushNamed(context, '/privacy');
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TermsPrivacy(
+                          title: Constant.label_privacy_policy,
+                          urlToLoad: Constant.link_privacy_policy),
+                    ));
               },
               trailing: Icon(Icons.arrow_forward_ios),
             ),

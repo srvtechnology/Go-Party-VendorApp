@@ -1206,10 +1206,11 @@ class _SignUp3State extends State<SignUp3> {
               accountConfirm ? TextInputType.number : TextInputType.text,
           obscureText: hide,
           controller: controller,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           validator: (text) {
             if (text?.length == 0) return "Required field";
             if (accountConfirm) {
-              if (_AccountNo.text.length < 12 || _AccountNo.text.length > 20)
+              if (_AccountNo.text.length < 8 || _AccountNo.text.length > 20)
                 return "Enter Valid Account Number";
               if (_AccountNo.text != _AccountNoConfirm.text)
                 return "Account Numbers do not match";
@@ -2017,49 +2018,7 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                               ),
                             ),
                             ...productImages,
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              margin: textInputPadding,
-                              child: Text(
-                                "Add a video",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: UIColor.black_text_color),
-                              ),
-                            ),
-                            Container(
-                              padding: textInputPadding,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    alignment: Alignment.center,
-                                    width: 80,
-                                    height: 60,
-                                    child: videoPath != null
-                                        ? Container(
-                                      child: Text("Video Selected"),
-                                    )
-                                        : Container(
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  Container(
-                                    child: ElevatedButton(
-                                      child: const Text("Choose"),
-                                      onPressed: () async {
-                                        XFile? video = await ImagePicker()
-                                            .pickVideo(
-                                            source: ImageSource.gallery);
-                                        setState(() {
-                                          videoPath = video?.path;
-                                        });
-                                      },
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
+
                           ]),
                           customDivider(),
 
