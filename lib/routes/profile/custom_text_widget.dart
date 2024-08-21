@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart'; // Import your IntlPhoneField package
 import 'package:dropdown_search/dropdown_search.dart'; // Import your DropdownSearch package
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/routes/profile/Constants.dart';
 import '../../core/models/user.dart';
+import '../../core/utils/textformatters.dart';
 
 class CustomText extends StatefulWidget {
   final String title;
@@ -85,6 +87,7 @@ class _CustomTextState extends State<CustomText> {
                 text.completeNumber.length > 15) {
               return "Please enter a valid number";
             }
+            return null;
           },
           onChanged: (number) {
             widget.textControllers[controllerKey]?.text = number.completeNumber;
@@ -145,11 +148,36 @@ class _CustomTextState extends State<CustomText> {
                                 : TextInputType.text,
                             validator: (text) {
                               if (text == null || text.isEmpty)
-                                return "Required";
+                                return "${widget.title} is Required";
 
                               /*if (widget.isAccountNumber && text.length < 8) {
                                 return "Account number should be at least 8 digit";
                               }*/
+                              if(controllerKey == Constants.panCardNumberKey){
+                                if (text.length != 10 ||
+                                    (isNumeric(text.substring(0, 5))) ||
+                                    (!isNumeric(text.substring(5, 9))) ||
+                                    (isNumeric(text.substring(9, 10))))
+                                  return "Please enter a valid Pan Number";
+                              }
+                              if(controllerKey == Constants.kycNumberKey){
+                                final selectedKYCType = widget.textControllers[Constants.kycTypeKey]?.text;
+                                if ((selectedKYCType == "AD" || selectedKYCType == "Aadhar") && text.length != 12)
+                                  return "Please enter a valid aadhar number";
+
+                                if ((selectedKYCType == "DL" || selectedKYCType == "Driving License") &&
+                                    (text.length < 15 || text.length > 16)) {
+                                  return "Please enter a valid driving licence number (15-16 characters)";
+                                }
+
+                                if ((selectedKYCType == "PA" || selectedKYCType == "Passport" )&& text.length != 8)
+                                  return "Please enter a valid passport number";
+
+                                if ((selectedKYCType == "VO" || selectedKYCType == "Voter Id") && text.length != 10)
+                                  return "Please enter a valid voter number";
+
+
+                              }
 
                               if (widget.accountConfirm) {
                                 if (text.length < 8 || text.length > 20)
@@ -164,6 +192,7 @@ class _CustomTextState extends State<CustomText> {
                                   return "Please enter a 6 digit valid pincode";
                                 }
                               }
+                              return null;
                             },
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                             textCapitalization: widget.capitals

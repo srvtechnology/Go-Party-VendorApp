@@ -120,7 +120,21 @@ class _BankTabState extends State<BankTab> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-
+              SizedBox(height: 20,),
+              if(BankEditMode) Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      BankEditMode =!BankEditMode;
+                    });
+                  },
+                  icon: Image.asset(
+                    'assets/images/back_arrow.png',
+                    height: 25,
+                  ),
+                ),
+              ),
               CustomText(context,
                   textControllers: textControllers,
                   editMode: BankEditMode,

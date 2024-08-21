@@ -74,6 +74,21 @@ class _officeTabState extends State<officeTab> {
                 : NeverScrollableScrollPhysics(),
             child: Column(
               children: [
+                SizedBox(height: 20,),
+                if(OfficeEditMode) Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        OfficeEditMode =!OfficeEditMode;
+                      });
+                    },
+                    icon: Image.asset(
+                      'assets/images/back_arrow.png',
+                      height: 25,
+                    ),
+                  ),
+                ),
                 CustomText(context,
                     editMode: OfficeEditMode,
                     textControllers: textControllers,

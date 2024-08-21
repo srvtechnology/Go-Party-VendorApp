@@ -38,7 +38,8 @@ class _PersonaltabState extends State<Personaltab> {
     auth.user!.city = textControllers[Constants.cityKey]!.text;
     auth.user!.houseNumber = textControllers[Constants.houseNumberKey]!.text;
 
-    auth.user!.callingNumber = textControllers[Constants.callingNumberKey]!.text;
+    auth.user!.callingNumber =
+        textControllers[Constants.callingNumberKey]!.text;
     auth.user!.country = selectedCountry;
   }
 
@@ -56,7 +57,6 @@ class _PersonaltabState extends State<Personaltab> {
     Constants.stateKey: TextEditingController(),
     Constants.cityKey: TextEditingController(),
     Constants.houseNumberKey: TextEditingController(),
-
     Constants.callingNumberKey: TextEditingController(),
   };
 
@@ -113,6 +113,21 @@ class _PersonaltabState extends State<Personaltab> {
               padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
               child: Column(
                 children: [
+                  SizedBox(height: 20,),
+                 if(ProfileEditMode) Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          ProfileEditMode =!ProfileEditMode;
+                        });
+                      },
+                      icon: Image.asset(
+                        'assets/images/back_arrow.png',
+                        height: 25,
+                      ),
+                    ),
+                  ),
                   Stack(
                     alignment: Alignment.centerRight,
                     children: [
@@ -133,10 +148,10 @@ class _PersonaltabState extends State<Personaltab> {
                         right: 0,
                         bottom: 0,
                         child: Container(
-                          height:
-                              35, // Adjust height to match the size of the icon and padding
-                          width:
-                              35, // Ensure width is equal to height to maintain circular shape
+                          height: 35,
+                          // Adjust height to match the size of the icon and padding
+                          width: 35,
+                          // Ensure width is equal to height to maintain circular shape
                           decoration: BoxDecoration(
                             boxShadow: [
                               BoxShadow(
@@ -204,7 +219,6 @@ class _PersonaltabState extends State<Personaltab> {
                       title: "Pan Number",
                       content: auth.user!.panCardNumber ?? "",
                       capitals: true),
-
                   if (ProfileEditMode)
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 45),
@@ -225,6 +239,9 @@ class _PersonaltabState extends State<Personaltab> {
                                 textControllers[Constants.kycTypeKey]?.text =
                                     _!.value;
                                 selectedKyc = _!;
+                                textControllers[Constants.kycNumberKey]?.text =
+                                    "";
+                                auth.user!.kycNumber = "";
                               });
                             },
                           ),
@@ -293,7 +310,6 @@ class _PersonaltabState extends State<Personaltab> {
                                     city ?? "";
                               },
                             )),
-
                         CustomText(context,
                             textControllers: textControllers,
                             editMode: ProfileEditMode,
@@ -354,25 +370,26 @@ class _PersonaltabState extends State<Personaltab> {
                                         content: Text("Successfully updated")));
                               }
                             }),
-
-
-                  if (!ProfileEditMode) Container(
-                    width: double.infinity,
-                    margin: EdgeInsets.all(15),
-                    child: OutlinedButton(
-
-                        style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: UIColor.theme_color),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                            padding: EdgeInsets.all(15)
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            ProfileEditMode = !ProfileEditMode;
-                          });
-                        }, child: Text("Edit Profile Details", style: TextStyle(color: UIColor.theme_color),)),
-                  ),
-
+                  if (!ProfileEditMode)
+                    Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.all(15),
+                      child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: UIColor.theme_color),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)),
+                              padding: EdgeInsets.all(15)),
+                          onPressed: () {
+                            setState(() {
+                              ProfileEditMode = !ProfileEditMode;
+                            });
+                          },
+                          child: Text(
+                            "Edit Profile Details",
+                            style: TextStyle(color: UIColor.theme_color),
+                          )),
+                    ),
                 ],
               ),
             ),
