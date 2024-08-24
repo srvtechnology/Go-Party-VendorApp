@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/models/order.dart';
+import 'package:utsavlife/core/utils/UIColor.dart';
 typedef onSearch = Function(String searchItem) ;
 typedef onStatusSelect = Function(VendorOrderStatus? status);
 class Filter extends StatefulWidget {
@@ -168,7 +169,7 @@ class _ServiceFilterState extends State<ServiceFilter> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10),
+      padding: EdgeInsets.symmetric(horizontal: 0),
       height: 10.h,
       child: Row(children: [
         Expanded(flex: 3,child: _SearchBar(context)),
@@ -177,18 +178,36 @@ class _ServiceFilterState extends State<ServiceFilter> {
   }
   Widget _SearchBar(BuildContext context){
     return Container(
-      height: 8.h,
-      decoration:const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(5))
-      ),
       margin:const EdgeInsets.symmetric(horizontal: 5),
       child: TextFormField(
         onChanged: (text){
           widget.onsearch(text);
         },
-        decoration:const InputDecoration(
-          suffixIcon: Icon(Icons.search),
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+         hintText: "Search here",
+          hintStyle: TextStyle(color: UIColor.hint_text_color, fontSize: 14, fontWeight: FontWeight.normal),
+          suffixIcon: Icon(Icons.search, color: UIColor.theme_color,),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide(
+              color: Colors.grey.shade300,  // Outline color for the border
+              width: 1,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide(
+              color: UIColor.theme_color.withAlpha(99),  // Outline color for the border
+              width: 1,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide(
+              color: Colors.grey.shade300,  // Outline color for the border
+              width: 1,
+            ),
+          ),
         ),
       ),
     );

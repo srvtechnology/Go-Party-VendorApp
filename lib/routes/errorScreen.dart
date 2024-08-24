@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/core/components/appToolbar.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/utils/UIColor.dart';
 
@@ -25,15 +26,9 @@ class _errorScreenRouteState extends State<errorScreenRoute> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: widget.hasAppbar?AppBar(
-        actions: [
-          IconButton(onPressed: (){
-            context.read<AuthProvider>().logout();
-          }, icon: Icon(Icons.logout),
-            color: UIColor.toolbar_content_color,
-          ),
-        ],
-      ):AppBar(automaticallyImplyLeading: false,),
+      appBar: widget.hasAppbar?AppToolbar(toolbarTitle: "", onPressed: () {
+        Navigator.pop(context);
+      },):AppBar(automaticallyImplyLeading: false,),
       body:Container(
         padding: EdgeInsets.all(20),
         height: double.infinity,

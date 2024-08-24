@@ -115,7 +115,7 @@ class _HomepageState extends State<Homepage> {
                         title: Text("Services List"),
                         leading: Icon(Icons.list_alt),
                         onTap: () {
-                          Navigator.pushNamed(
+                          Navigator.popAndPushNamed(
                               context, serviceListRoute.routeName);
                         }),
                   ),
@@ -127,13 +127,13 @@ class _HomepageState extends State<Homepage> {
                       title: Text("Settings"),
                       leading: Icon(Icons.settings),
                       onTap: () {
-                        Navigator.pushNamed(context, SettingsPage.routeName);
+                        Navigator.popAndPushNamed(context, SettingsPage.routeName);
                       }),
                   ListTile(
                       title: Text("Your Money"),
                       leading: Icon(Icons.wallet),
                       onTap: () {
-                        Navigator.pushNamed(context, WalletPage.routeName);
+                        Navigator.popAndPushNamed(context, WalletPage.routeName);
                       }),
                   ListTile(
                       title: Text("Logout"),

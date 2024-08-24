@@ -1,53 +1,83 @@
 class Driver {
-  String? name, mobileNumber, kycType, kycNumber, licenseNumber, pinCode,
-      houseNumber, area, landmark, city, state, image, dlImage;
+  String? name,
+      mobileNumber,
+      kycType,
+      kycNumber,
+      licenseNumber,
+      pinCode,
+      houseNumber,
+      area,
+      landmark,
+      city,
+      state,
+      image,
+      dlImage;
 
-  Driver({
-    this.name,
-    this.mobileNumber,
-    this.kycType,
-    this.kycNumber,
-    this.licenseNumber,
-    this.pinCode,
-    this.houseNumber,
-    this.area,
-    this.landmark,
-    this.city,
-    this.state,
-    this.image,
-    this.dlImage
-  });
+  Driver(
+      {this.name,
+      this.mobileNumber,
+      this.kycType,
+      this.kycNumber,
+      this.licenseNumber,
+      this.pinCode,
+      this.houseNumber,
+      this.area,
+      this.landmark,
+      this.city,
+      this.state,
+      this.image,
+      this.dlImage});
 }
 
 class ServiceModel {
   String id;
-  String? categoryId, serviceId, address, serviceName, serviceDescription,
-      materialDescription, company, priceBasis, price, discountedPrice,
-      categoryName, categoryDescription, videoUrl, companyName;
+  String? categoryId,
+      serviceId,
+      address,
+      serviceName,
+      serviceDescription,
+      materialDescription,
+      company,
+      priceBasis,
+      price,
+      discountedPrice,
+      categoryName,
+      categoryDescription,
+      videoUrl,
+      companyName;
   Driver driverDetails;
   List<String?> imageUrls;
 
-  ServiceModel({
-    required this.id,
-    required this.driverDetails,
-    required this.imageUrls,
-    this.categoryId,
-    this.serviceId,
-    this.address,
-    this.serviceName,
-    this.serviceDescription,
-    this.materialDescription,
-    this.company,
-    this.priceBasis,
-    this.price,
-    this.discountedPrice,
-    this.categoryName,
-    this.categoryDescription,
-    this.videoUrl,
-    this.companyName
-  });
+  String? status, created_at,pin_code, country_id,state_id,city_id;
 
-  factory ServiceModel.fromJson(Map json){
+  ServiceModel(
+      {required this.id,
+      required this.driverDetails,
+      required this.imageUrls,
+      this.categoryId,
+      this.serviceId,
+      this.address,
+      this.serviceName,
+      this.serviceDescription,
+      this.materialDescription,
+      this.company,
+      this.priceBasis,
+      this.price,
+      this.discountedPrice,
+      this.categoryName,
+      this.categoryDescription,
+      this.videoUrl,
+      this.companyName,
+      this.status,
+      this.pin_code,
+      this.created_at,
+      this.country_id,
+      this.state_id,
+      this.city_id,
+
+      });
+
+  factory ServiceModel.fromJson(Map json) {
     try {
       Map? service_details = json["service_details"] ?? null;
       Map? category_details = json["category_details"] ?? null;
@@ -55,11 +85,16 @@ class ServiceModel {
           id: json["id"].toString(),
           serviceId: json["service_id"].toString(),
           address: json["address"] ?? null,
-          serviceName: service_details != null ? service_details["service"] ??
-              null : null,
+          serviceName: service_details != null
+              ? service_details["service"] ?? null
+              : null,
           serviceDescription: json["service_desc"] ?? null,
           materialDescription: json["material_desc"] ?? null,
           company: json["company_name"] ?? null,
+          pin_code: json["pin_code"] ?? null,
+          country_id: json["country_id"] ?? null,
+          state_id: json["state_id"] ?? null,
+          city_id: json["city_id"] ?? null,
           price: json["price"] != null ? json["price"].toString() : "",
           priceBasis: service_details != null
               ? service_details["price_basis"] ?? null
@@ -95,11 +130,11 @@ class ServiceModel {
             json["image4"] ?? null,
             json["image5"] ?? null
           ],
-          videoUrl: json["video_url"] ?? null,
-          companyName: json["company_name"] ?? null
-      );
-    }
-    catch (e) {
+          videoUrl: json["video"] ?? null,
+          companyName: json["company_name"] ?? null,
+          status: service_details?["status"] == "D" ? "Active" : "Disable",
+          created_at: service_details?["created_at"]);
+    } catch (e) {
       throw ArgumentError(e);
     }
   }
@@ -108,15 +143,14 @@ class ServiceModel {
 class ServiceOptionModel {
   String id, service, description, price, discountPrice;
 
-  ServiceOptionModel({
-    required this.id,
-    required this.service,
-    required this.description,
-    required this.price,
-    required this.discountPrice
-  });
+  ServiceOptionModel(
+      {required this.id,
+      required this.service,
+      required this.description,
+      required this.price,
+      required this.discountPrice});
 
-  factory ServiceOptionModel.fromJson(Map json){
+  factory ServiceOptionModel.fromJson(Map json) {
     return ServiceOptionModel(
         id: json["id"].toString(),
         service: json["service"],
@@ -135,8 +169,9 @@ class CategoryOptionModel {
     required this.description,
   });
 
-  factory CategoryOptionModel.fromJson(Map json){
-    return CategoryOptionModel(id: json["id"].toString(),
+  factory CategoryOptionModel.fromJson(Map json) {
+    return CategoryOptionModel(
+        id: json["id"].toString(),
         name: json["category_name"].toString(),
         description: json["category_description"]);
   }
@@ -145,7 +180,5 @@ class CategoryOptionModel {
 class ServiceDropDownOptions {
   List<ServiceOptionModel> serviceOptions;
 
-  ServiceDropDownOptions({
-    required this.serviceOptions
-  });
+  ServiceDropDownOptions({required this.serviceOptions});
 }

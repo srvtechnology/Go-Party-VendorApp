@@ -8,6 +8,7 @@ import 'package:collection/collection.dart';
 
 
 import '../core/components/filters.dart';
+import '../core/utils/UIColor.dart';
 
 class serviceListRoute extends StatefulWidget {
   static const routeName = "/servicelist";
@@ -24,7 +25,7 @@ class _serviceListRouteState extends State<serviceListRoute> {
   }
   @override
   Widget build(BuildContext context) {
-    return ListenableProvider(
+    return ChangeNotifierProvider(
         create: (_)=>ServiceListProvider(auth: Provider.of<AuthProvider>(context)),
         child: Consumer<ServiceListProvider>(builder:(context,state,child){
           if(state.isLoading){
@@ -39,7 +40,13 @@ class _serviceListRouteState extends State<serviceListRoute> {
           }
           return Scaffold(
             appBar: AppBar(
-              title: Text("Services",style: TextStyle(color: Colors.white),),
+              backgroundColor: UIColor.theme_color,
+              elevation: 0,
+              iconTheme: IconThemeData(color: UIColor.toolbar_content_color),
+              title: Text("Services",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      color: UIColor.toolbar_content_color)),
             ),
             body: SingleChildScrollView(
               child: Padding(

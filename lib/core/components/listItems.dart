@@ -287,95 +287,37 @@ class CustomServiceItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => SingleService(
-                      service: service,
-                    ))).then((value) => state.getList());
-      },
-      child: DefaultTextStyle(
-        style: TextStyle(fontSize: 16.sp, color: Colors.black),
-        child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                      offset: Offset(0, 3),
-                      color: Colors.grey[400]!,
-                      blurRadius: 4)
-                ]),
-            width: 100.w,
-            height: 20.h,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                    child: Container(
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20))),
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20),
-                        child: Text(
-                          "${(index + 1)}",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      Text(
-                        service.address?.substring(
-                                0, min(service.address!.length, 10)) ??
-                            "",
-                        style: TextStyle(color: Colors.white),
-                      )
-                    ],
-                  ),
-                )),
-                Expanded(
-                    flex: 3,
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 40),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Row(
-                            children: [
-                              SizedBox(width: 20.w, child: Text("Name:")),
-                              SizedBox(
-                                width: 10.w,
-                              ),
-                              SizedBox(
-                                  width: 30.w,
-                                  child:
-                                      Text(service.serviceName ?? "Not Set")),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              SizedBox(width: 20.w, child: Text("Price:")),
-                              SizedBox(
-                                width: 10.w,
-                              ),
-                              SizedBox(
-                                  width: 30.w,
-                                  child: Text(service.price ?? "Not Set")),
-                            ],
-                          ),
-                        ],
-                      ),
-                    )),
-              ],
-            )),
+    return Card(
+      elevation: 2,
+      shadowColor: UIColor.success_color,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5),side: BorderSide(color: UIColor.theme_color)),
+      child: ListTile(
+        title: RichText(text: TextSpan(
+          children: [
+           // TextSpan(text: "service name : ", style: TextStyle(color: UIColor.black_text_color, fontWeight: FontWeight.normal)),
+            TextSpan(text: "${service.serviceName}", style: TextStyle(color: UIColor.black_text_color,fontSize: 18, fontWeight: FontWeight.bold))
+          ]
+        ),),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 5,),
+            Text("Description : ${service.serviceDescription}" ?? "Not set"),
+            Text("Status : ${service.status}" ?? "Not set"),
+            Text("price : ₹${service.price}" ?? "Not set"),
+
+          ],
+        ),
+        contentPadding: EdgeInsets.all(8),
+        onTap: (){
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SingleService(
+                    service: service,
+                  ))).then((value) => state.getList());
+        },
+       /* trailing: Icon(Icons.more_vert),*/
       ),
     );
   }

@@ -23,6 +23,7 @@ class ServiceListProvider with ChangeNotifier {
     }
 
     Future<void> getList()async{
+      services =[];
       startLoading();
       try {
         services = await serviceRepo.getServiceList(auth);
