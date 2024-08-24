@@ -128,7 +128,7 @@ class _SingleServiceState extends State<SingleService> {
               body: isDeleteLoading ? Center(child: CircularProgressIndicator(),) :  SingleChildScrollView(
                 child: CustomMaterialBox(listOfChildren: [
                   Row(children: [
-                    Expanded(child: GradientButton(text: "Edit Service",buttonInsideMaterialBox: true, onPressed: (){   setState(() {
+                    Expanded(child: GradientButton(text: canEdit ? "View Details" : "Edit Service",buttonInsideMaterialBox: true, onPressed: (){   setState(() {
                       productImages = [];
                       for(var i in widget.service.imageUrls){
                         if(i!=null)
