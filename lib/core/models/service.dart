@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:utsavlife/config.dart';
+
 class Driver {
   String? name,
       mobileNumber,
@@ -48,7 +51,9 @@ class ServiceModel {
   Driver driverDetails;
   List<String?> imageUrls;
 
-  String? status, created_at,pin_code, country_id,state_id,city_id;
+  List<ImageUrl> listImage;
+
+  String? status, created_at, pin_code, country_id, state_id, city_id;
 
   ServiceModel(
       {required this.id,
@@ -74,8 +79,7 @@ class ServiceModel {
       this.country_id,
       this.state_id,
       this.city_id,
-
-      });
+     required this.listImage});
 
   factory ServiceModel.fromJson(Map json) {
     try {
@@ -124,11 +128,18 @@ class ServiceModel {
             dlImage: json["dl_image"] ?? null,
           ),
           imageUrls: [
-            json["image"] ?? null,
-            json["image2"] ?? null,
-            json["image3"] ?? null,
-            json["image4"] ?? null,
-            json["image5"] ?? null
+            json["image"]?.isNotEmpty == true ? json["image"] : null,
+            json["image2"]?.isNotEmpty == true ? json["image2"] : null,
+            json["image3"]?.isNotEmpty == true ? json["image3"] : null,
+            json["image4"]?.isNotEmpty == true ? json["image4"] : null,
+            json["image5"]?.isNotEmpty == true ? json["image5"] : null,
+          ],
+          listImage :[
+            ImageUrl(keyName: "image", url:  json["image"]?.isNotEmpty == true ? "${APIConfig.baseUrl}/storage/app/public/vandor/product_image/"+json["image"] : null, isNetwork: true),
+            ImageUrl(keyName: "image2",url: json["image2"]?.isNotEmpty == true ? "${APIConfig.baseUrl}/storage/app/public/vandor/product_image/"+json["image2"] : null,isNetwork: true ),
+            ImageUrl(keyName: "image3",url: json["image3"]?.isNotEmpty == true ? "${APIConfig.baseUrl}/storage/app/public/vandor/product_image/"+json["image3"] : null,isNetwork: true ),
+            ImageUrl(keyName: "image4",url: json["image4"]?.isNotEmpty == true ? "${APIConfig.baseUrl}/storage/app/public/vandor/product_image/"+json["image4"] : null,isNetwork: true ),
+            ImageUrl(keyName: "image5",url: json["image5"]?.isNotEmpty == true ? "${APIConfig.baseUrl}/storage/app/public/vandor/product_image/"+json["image5"] : null,isNetwork: true ),
           ],
           videoUrl: json["video"] ?? null,
           companyName: json["company_name"] ?? null,
@@ -181,4 +192,12 @@ class ServiceDropDownOptions {
   List<ServiceOptionModel> serviceOptions;
 
   ServiceDropDownOptions({required this.serviceOptions});
+}
+
+class ImageUrl {
+  bool isNetwork;
+  String keyName;
+  String? url;
+
+  ImageUrl({required this.keyName, required this.url, required this.isNetwork });
 }

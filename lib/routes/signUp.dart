@@ -1154,6 +1154,9 @@ class _SignUp3State extends State<SignUp3> {
       setState(() {
         isLoading = false;
       });
+
+      CustomLogger.debug(data);
+
       await completeRegistration2(state, data);
       state.setRegisterProgress(RegisterProgress.five);
       ScaffoldMessenger.of(context).showSnackBar(

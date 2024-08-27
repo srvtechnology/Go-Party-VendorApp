@@ -60,6 +60,28 @@ Future<bool> deleteService(AuthProvider auth, String serviceId) async {
   }
 }
 
+
+Future<String> deleteImage(AuthProvider auth, String id, String imageKey) async {
+  try {
+    Response response = await Dio().post(
+      "${APIConfig.baseUrl}/api/delete-service-image",
+      data: {
+        "id":id,
+        "image_name":imageKey,
+      },
+      options: Options(headers: {"Authorization": "Bearer ${auth.token}"}),
+    );
+    return "Image Deleted Successfully";
+  } catch (e) {
+    if (e is DioError) {
+      CustomLogger.error(e.response?.data);
+    }
+    return Future.error(e);
+  }
+}
+
+
+
 Future<bool> updateService(
     AuthProvider auth, String id, Map<String, dynamic> data) async {
   try {

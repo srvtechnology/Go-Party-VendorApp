@@ -157,9 +157,7 @@ void _showActivateConfirmation(BuildContext context,AuthProvider state) {
     return Consumer<AuthProvider>(
       builder: (context,state,child) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text('Account Settings'),
-          ),
+          appBar: AppToolbar(toolbarTitle: "Account Settings", onPressed: () => Navigator.pop(context),),
           body: Container(
             padding: EdgeInsets.all(16.0),
             child: Column(

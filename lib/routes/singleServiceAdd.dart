@@ -781,6 +781,10 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       });
       return;
     }
+    if(productImages.length==0){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("At least one image is required")));
+      return;
+    }
     if (selectedCountry == null ||
         selectedState == null ||
         selectedCity == null) {
