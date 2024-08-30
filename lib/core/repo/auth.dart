@@ -96,7 +96,7 @@ Future<bool> completeRegistration(AuthProvider state, Map data) async {
     CustomLogger.debug(response.data);
     return true;
   } catch (e) {
-    if (e is DioError) {
+    if (e is DioException) {
       CustomLogger.error(e.response?.data);
     }
     return Future.error(e);

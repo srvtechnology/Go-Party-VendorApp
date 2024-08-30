@@ -576,6 +576,7 @@ class _SignUp2State extends State<SignUp2> {
   Future<void> getDataFromCache() async {
     _kycType.text = selectedKyc?.value ?? "";
     _pancard.text = context.read<AuthProvider>().user!.panCardNumber ?? "";
+    _pancard.text=_pancard.text.toUpperCase();
     _kycNo.text = context.read<AuthProvider>().user!.kycNumber ?? "";
     _pinCode.text = context.read<AuthProvider>().user!.zip ?? "";
     _houseNo.text = context.read<AuthProvider>().user!.houseNumber ?? "";
@@ -586,10 +587,11 @@ class _SignUp2State extends State<SignUp2> {
     _country.text = context.read<AuthProvider>().user!.country?.name ?? "";
 
     String kycType = context.read<AuthProvider>().user!.kycType ?? "";
-    if (kycType != null && kycType.isNotEmpty) {
+    if (kycType.isNotEmpty) {
       //here we pre selecting the kyc type
       selectedKyc =
-          kyctypes.where((element) => element.value == kycType).firstOrNull;
+          kyctypes.where((element) => element.value == kycType).first;
+      _kycType.text= selectedKyc?.value??"";
       _kycNo.text = context.read<AuthProvider>().user!.kycNumber ?? "";
     }
   }
