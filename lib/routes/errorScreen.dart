@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/components/appToolbar.dart';
@@ -27,7 +28,7 @@ class _errorScreenRouteState extends State<errorScreenRoute> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: widget.hasAppbar?AppToolbar(toolbarTitle: "", onPressed: () {
-        Navigator.pop(context);
+        SystemNavigator.pop();
       },):AppBar(automaticallyImplyLeading: false,),
       body:Container(
         padding: EdgeInsets.all(20),
