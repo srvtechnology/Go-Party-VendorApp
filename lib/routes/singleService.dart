@@ -5,11 +5,14 @@ import 'package:csc_picker/csc_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:quill_html_editor/quill_html_editor.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/config.dart';
+import 'package:utsavlife/core/components/HtmlInputBox.dart';
 import 'package:utsavlife/core/components/customBox.dart';
 import 'package:utsavlife/core/components/gradientButton.dart';
 import 'package:utsavlife/core/models/service.dart';
@@ -83,11 +86,15 @@ class _SingleServiceState extends State<SingleService> {
   final CustomFieldController _companyName =
       CustomFieldController(title: "Company Name", key: "company_name");
   final CustomFieldController _videoUrl =
-      CustomFieldController(title: "Video URL", key: "video");
+      CustomFieldController(title: "Video URL", key: "video_url");
 
   final TextEditingController _priceBasis = TextEditingController();
   final TextEditingController _discountedPrice = TextEditingController();
   late List<CustomFieldController> controllers;
+
+
+
+
 
 
   bool isLoading = false;
@@ -104,6 +111,8 @@ class _SingleServiceState extends State<SingleService> {
   @override
   void initState() {
     super.initState();
+
+
     _service.controller.text = widget.service.serviceId ?? "1";
 
     selectedCountry = widget.service.country_id ?? "India";
@@ -138,6 +147,8 @@ class _SingleServiceState extends State<SingleService> {
         //CustomLogger.debug("pincode listener exceed 5 digit now on 6");
       }
     });
+
+
   }
 
   Future<void> getLocationData() async {
@@ -313,11 +324,24 @@ class _SingleServiceState extends State<SingleService> {
                                           );
                                   },
                                 ),
-                              DetailTile("Service Description",
-                                  widget.service.serviceDescription,
-                                  controller: _description.controller,
-                                  big: true,
-                                  maxLine: canEdit ? 3 : null),
+                              if(!canEdit) Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                        child: Text("Description : ${widget.service.serviceDescription!.isEmpty? "Not Set" : ""}"),
+                                      ),
+                                      Html(data:widget.service.serviceDescription, shrinkWrap: true)
+                                    ],
+                                  ),
+                                ],
+                              ),
+                             if(canEdit)
+                              HtmlInputBox(text: widget.service.serviceDescription ?? "", onTextChange: (text) =>{
+                                _description.controller.text=text
+                              }),
                               DetailTile("Material Description",
                                   widget.service.materialDescription,
                                   controller: _material.controller),

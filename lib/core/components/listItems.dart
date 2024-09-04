@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/models/service.dart';
@@ -15,6 +17,7 @@ import 'package:utsavlife/routes/partialPaymentPage.dart';
 import '../../routes/singleService.dart';
 import '../models/order.dart';
 import 'reject_popup.dart';
+import 'package:html/parser.dart';
 
 typedef Ontap = Function();
 
@@ -302,8 +305,21 @@ class CustomServiceItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 5,),
-            Text("Description : ${service.serviceDescription}" ?? "Not set"),
-            Text("Status : ${service.status}" ?? "Not set"),
+            Text("Description : "),
+            Text(_parseHtmlString(service.serviceDescription ?? "Not Set"), maxLines: 3,),
+         /*   Container(
+                constraints: BoxConstraints(
+                  maxHeight: 105
+                ),
+                child: Html(data:service.serviceDescription!, shrinkWrap: false,)),*/
+            SizedBox(height: 5,),
+          Row(children: [
+            Text("Status : "),
+            Text(service.status ?? "Not set" , style: TextStyle(
+                color: service.status==null ? UIColor.hint_text_color :  service.status!.startsWith("A") ? CupertinoColors.activeGreen : UIColor.error_color
+            )),
+          ],),
+
             Text("price : ₹${service.price}" ?? "Not set"),
 
           ],
@@ -320,5 +336,12 @@ class CustomServiceItem extends StatelessWidget {
        /* trailing: Icon(Icons.more_vert),*/
       ),
     );
+  }
+
+  String _parseHtmlString(String htmlString) {
+    final document = parse(htmlString);
+    final String parsedString = parse(document.body?.text).documentElement!.text;
+
+    return parsedString;
   }
 }

@@ -33,6 +33,7 @@ import 'package:utsavlife/routes/mainpage.dart';
 import 'package:utsavlife/routes/singleServiceAdd.dart';
 import 'package:utsavlife/routes/terms_privacy.dart';
 
+import '../core/components/HtmlInputBox.dart';
 import '../core/components/inputFields.dart';
 import '../core/models/dropdown.dart';
 import '../core/provider/ServiceProvider.dart';
@@ -1940,12 +1941,15 @@ class _SignUpIntermediateState extends State<SignUpIntermediate> {
                                     .toList(),
                               ),
                             ),
-                            InputField(
+                            HtmlInputBox(text: "",hint: "Service Description", onTextChange: (text) =>{
+                              _serviceDescription.text=text
+                            }),
+                          /*  InputField(
                                 "Service Description", _serviceDescription,
                                 leading: Icon(
                                   Icons.description,
                                   color: UIColor.prefix_icon_tint,
-                                )),
+                                )),*/
                             InputField(
                                 "Material Description", _materialDescription,
                                 leading: Icon(

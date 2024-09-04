@@ -141,9 +141,9 @@ class ServiceModel {
             ImageUrl(keyName: "image4",url: json["image4"]?.isNotEmpty == true ? "${APIConfig.baseUrl}/storage/app/public/vandor/product_image/"+json["image4"] : null,isNetwork: true ),
             ImageUrl(keyName: "image5",url: json["image5"]?.isNotEmpty == true ? "${APIConfig.baseUrl}/storage/app/public/vandor/product_image/"+json["image5"] : null,isNetwork: true ),
           ],
-          videoUrl: json["video"] ?? null,
+          videoUrl: json["video_url"] ?? null,
           companyName: json["company_name"] ?? null,
-          status: service_details?["status"] == "D" ? "Active" : "Disable",
+          status: service_details?["status"] == "A" ? "Active" : "Disable",
           created_at: service_details?["created_at"]);
     } catch (e) {
       throw ArgumentError(e);

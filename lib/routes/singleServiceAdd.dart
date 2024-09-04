@@ -19,6 +19,7 @@ import 'package:utsavlife/core/provider/mapProvider.dart';
 import 'package:utsavlife/core/repo/service.dart' as serviceRepo;
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/errorScreen.dart';
+import '../core/components/HtmlInputBox.dart';
 import '../core/models/dropdown.dart';
 import '../core/repo/maps.dart';
 import '../core/utils/UIColor.dart';
@@ -210,7 +211,9 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                           },
                         ),
                       ),
-                      InputField("Service Description", _serviceDescription),
+                      HtmlInputBox(text: "",hint: "Service Description", onTextChange: (text) =>{
+                        _serviceDescription.text=text
+                      }),
                       InputField("Material Description", _materialDescription),
                       InputField("Video Link", _videoLink),
                       InputField("Price", _price, digits: true),
@@ -806,7 +809,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
         "address": _companyAddress.text,
         "service_desc": _serviceDescription.text,
         "material_desc": _materialDescription.text,
-        "video": _videoLink.text,
+        "video_url": _videoLink.text,
         "price": _price.text,
         "driver_name": _driverName.text,
         "driver_mobile_no": _driverMob.text,
