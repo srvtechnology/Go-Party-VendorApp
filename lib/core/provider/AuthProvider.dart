@@ -178,7 +178,7 @@ class AuthProvider with ChangeNotifier {
       "office_city": _user!.officeCity,
       "office_state": _user!.officeState,
       "gst_no": _user!.gstNumber,
-      "office_country": _user!.officeCountry!.id
+      "office_country": _user!.officeCountry
     };
     CustomLogger.debug(data);
     bool status = await userRepo.edit_office_details(_token!, data);

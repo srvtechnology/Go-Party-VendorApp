@@ -337,7 +337,7 @@ class UserModel {
       officeState,
       officeCity;
 
-  Country? officeCountry;
+  String? officeCountry;
 
   // Documents
   String? panCardUrl, kycUrl, gstUrl, dlUrl, vendorUrl;
@@ -463,9 +463,7 @@ class UserModel {
         officeLandmark: json["vendor_details"]["office_landmark"],
         officeCity: json["vendor_details"]["office_city"],
         officeState: json["vendor_details"]["office_state"],
-        officeCountry: json["vendor_details"]["country_name"] != null
-            ? Country.fromJson(json["vendor_details"]["country_name"])
-            : null,
+        officeCountry: json["vendor_details"]["office_country"] ?? null,
         panCardUrl:
             '${json["pan_image_link"]}',
         gstUrl: '${json["gst_image"]}',

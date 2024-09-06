@@ -5,6 +5,7 @@ import 'package:utsavlife/core/components/gradientButton.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/routes/profile/Constants.dart';
 
+import '../../core/components/CountryPicker.dart';
 import '../../core/models/user.dart';
 import '../../core/utils/UIColor.dart';
 import '../../core/utils/logger.dart';
@@ -26,39 +27,48 @@ class _officeTabState extends State<officeTab> {
     Constants.officePinCodeKey: new TextEditingController(),
     Constants.officeAreaKey: new TextEditingController(),
     Constants.officeLandmarkKey: new TextEditingController(),
-    Constants.officeStateKey: new TextEditingController(),
-    Constants.officeCityKey: new TextEditingController(),
-    Constants.officeCountryKey: new TextEditingController(),
     Constants.gstNumberKey: TextEditingController(),
   };
 
   bool OfficeEditMode = false;
-  late Country selectedOfficeCountry;
+
   bool isLoading = false;
 
   void setOfficeChanges(AuthProvider auth) {
-    CustomLogger.debug(textControllers[Constants.officeStateKey]!.text);
+
     auth.user!.officePhone = textControllers[Constants.officePhoneKey]!.text;
     auth.user!.officeNumber = textControllers[Constants.officeNumberKey]!.text;
     auth.user!.officeZip = textControllers[Constants.officePinCodeKey]!.text;
     auth.user!.officeArea = textControllers[Constants.officeAreaKey]!.text;
     auth.user!.officeLandmark = textControllers[Constants.officeLandmarkKey]!.text;
-    auth.user!.officeState = textControllers[Constants.officeStateKey]!.text;
-    auth.user!.officeCity = textControllers[Constants.officeCityKey]!.text;
-    auth.user!.officeCountry = selectedOfficeCountry;
+    auth.user!.officeState = _state;
+    auth.user!.officeCity = _city;
+    auth.user!.officeCountry = _country;
     auth.user!.gstNumber = textControllers[Constants.gstNumberKey]!.text;
   }
+
+  String pinCode = "";
+  String _city = "", _state = "" ,_country ="";
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+
+    textControllers[Constants.officePinCodeKey]!.addListener(() {
+      if (textControllers[Constants.officePinCodeKey]!.text.length >= 6)
+        setState(() {
+          pinCode = textControllers[Constants.officePinCodeKey]!.text;
+        });
+    });
+
+
     Provider.of<AuthProvider>(context, listen: false).getUser();
-    selectedOfficeCountry =
-        Provider.of<AuthProvider>(context, listen: false).user?.country ??
-            Country(id: "101", name: "India");
-    textControllers[Constants.officeStateKey]!.text=Provider.of<AuthProvider>(context, listen: false).user!.officeState??"";
-    textControllers[Constants.officeCityKey]!.text=Provider.of<AuthProvider>(context, listen: false).user!.officeCity??"";
+    _country =
+        Provider.of<AuthProvider>(context, listen: false).user?.officeCountry ?? "India";
+    _state=Provider.of<AuthProvider>(context, listen: false).user!.officeState??"";
+    _city=Provider.of<AuthProvider>(context, listen: false).user!.officeCity??"";
 
   }
 
@@ -134,38 +144,27 @@ class _officeTabState extends State<officeTab> {
                 if (OfficeEditMode)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                    child: CSCPicker(
-                    currentCity: auth.user!.officeCity ?? "",
-                    currentState: auth.user!.officeState ?? "",
-                    currentCountry: auth.user!.officeCountry?.name ?? "",
-
-                    showStates: true,
-                    showCities: true,
-                    onCountryChanged: (country) {
-                      setState(() {
-                        textControllers[Constants.officeCountryKey]!.text =
-                            country ?? "";
-                      });
-                    },
-                    onStateChanged: (state) {
-                      setState(() {
-                        textControllers[Constants.officeStateKey]!.text =
-                            state ?? "";
-                      });
-                    },
-                    onCityChanged: (city) {
-                      setState(() {
-                        textControllers[Constants.officeCityKey]!.text = city ?? "";
-                      });
-                    },
-                                    ),
+                    child: CountryPicker(
+                        pinCode: pinCode,
+                        state: _state,
+                        city: _city,
+                        country: _country,
+                        onCountryChanged: (country) {
+                          _country =   country;
+                        },
+                        onStateChanged: (state) {
+                          _state = state ?? "";
+                        },
+                        onCityChanged: (city) {
+                          _city = city ?? "";
+                        }),
                   )
                 else
                   CustomText(context,
                       title: "Address",
                       textControllers: textControllers,
                       content:
-                          "${auth.user!.officeNumber}, ${auth.user!.officeLandmark}, ${auth.user!.officeArea}, ${auth.user!.officeCity}, ${auth.user!.officeZip}, ${auth.user!.officeState}, ${auth.user!.officeCountry?.name ?? ""}",
+                          "${auth.user!.officeNumber}, ${auth.user!.officeLandmark}, ${auth.user!.officeArea}, ${auth.user!.officeCity}, ${auth.user!.officeZip}, ${auth.user!.officeState}, ${auth.user!.officeCountry ?? ""}",
                       editMode: OfficeEditMode),
                 if (OfficeEditMode)
                   isLoading
@@ -174,12 +173,17 @@ class _officeTabState extends State<officeTab> {
                   )
                       :  GradientButton(text: "Save", onPressed: () async{
                     if (_officeFormKey.currentState!.validate()) {
-                      if (textControllers[Constants.officeStateKey]!.text.isEmpty) {
+                      if (_country.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Please select country")));
+                        return;
+                      }
+                   if (_state.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Please select state")));
                         return;
                       }
-                      if (textControllers[Constants.officeCityKey]!.text.isEmpty) {
+                      if (_city.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Please select city")));
                         return;

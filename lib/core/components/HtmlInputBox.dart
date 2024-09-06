@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:quill_html_editor/quill_html_editor.dart';
+import 'package:utsavlife/core/utils/UIColor.dart';
 
 class HtmlInputBox extends StatefulWidget {
-    String text ;
-    String hint ;
-    void Function(String) onTextChange ;
-   HtmlInputBox({super.key, required this.text, this.hint="Enter your description", required this.onTextChange});
+  String text;
+
+  String hint;
+
+  void Function(String) onTextChange;
+
+  HtmlInputBox(
+      {super.key,
+      required this.text,
+      this.hint = "Enter your description",
+      required this.onTextChange});
 
   @override
   State<HtmlInputBox> createState() => _HtmlInputBoxState();
 }
 
 class _HtmlInputBoxState extends State<HtmlInputBox> {
-
   final QuillEditorController controller = QuillEditorController();
 
   @override
@@ -20,13 +27,12 @@ class _HtmlInputBoxState extends State<HtmlInputBox> {
     controller.onTextChanged(widget.onTextChange);
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return   Column(
+    return Column(
       children: [
         QuillHtmlEditor(
-          text:widget.text,
+          text: widget.text,
           hintText: widget.hint,
           controller: controller,
           isEnabled: true,
@@ -39,6 +45,12 @@ class _HtmlInputBoxState extends State<HtmlInputBox> {
           hintTextAlign: TextAlign.start,
           padding: const EdgeInsets.only(left: 10, top: 5),
           hintTextPadding: EdgeInsets.zero,
+          hintTextStyle: const TextStyle(
+            fontStyle: FontStyle.normal,
+            fontSize: 14.0,
+            color: UIColor.hint_text_color,
+            fontWeight: FontWeight.normal,
+          ),
 /*          onFocusChanged: (hasFocus) => debugPrint('has focus $hasFocus'),
           onTextChanged: (text) => debugPrint('widget text change $text'),
           onEditorCreated: () => debugPrint('Editor has been loaded'),

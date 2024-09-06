@@ -11,6 +11,7 @@ import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/utils/UIColor.dart';
 import 'package:utsavlife/routes/profile/custom_text_widget.dart';
 
+import '../../core/components/CountryPicker.dart';
 import '../../core/models/dropdown.dart';
 import '../../core/models/user.dart';
 import 'Constants.dart';
@@ -34,13 +35,15 @@ class _PersonaltabState extends State<Personaltab> {
     auth.user!.zip = textControllers[Constants.pinCodeKey]!.text;
     auth.user!.area = textControllers[Constants.areaKey]!.text;
     auth.user!.landmark = textControllers[Constants.landmarkKey]!.text;
-    auth.user!.state = textControllers[Constants.stateKey]!.text;
-    auth.user!.city = textControllers[Constants.cityKey]!.text;
+
     auth.user!.houseNumber = textControllers[Constants.houseNumberKey]!.text;
 
     auth.user!.callingNumber =
         textControllers[Constants.callingNumberKey]!.text;
+
     auth.user!.country = selectedCountry;
+    auth.user!.state = _state;
+    auth.user!.city = _city;
   }
 
   Map<String, TextEditingController> textControllers = {
@@ -54,8 +57,6 @@ class _PersonaltabState extends State<Personaltab> {
     Constants.addressKey: TextEditingController(),
     Constants.areaKey: TextEditingController(),
     Constants.landmarkKey: TextEditingController(),
-    Constants.stateKey: TextEditingController(),
-    Constants.cityKey: TextEditingController(),
     Constants.houseNumberKey: TextEditingController(),
     Constants.callingNumberKey: TextEditingController(),
   };
@@ -76,10 +77,18 @@ class _PersonaltabState extends State<Personaltab> {
   bool isLoading = false;
   String? profileImageLocal;
 
+  String pinCode = "";
+  String _city = "", _state = "";
+
   @override
   void initState() {
     super.initState();
-
+    textControllers[Constants.pinCodeKey]!.addListener(() {
+      if (textControllers[Constants.pinCodeKey]!.text.length >= 6)
+        setState(() {
+          pinCode = textControllers[Constants.pinCodeKey]!.text;
+        });
+    });
     setState(() {
       isLoading = !isLoading;
     });
@@ -96,9 +105,9 @@ class _PersonaltabState extends State<Personaltab> {
     selectedCountry =
         Provider.of<AuthProvider>(context, listen: false).user?.country ??
             Country(id: "101", name: "India");
-    textControllers[Constants.cityKey]!.text =
+    _city=
         Provider.of<AuthProvider>(context, listen: false).user?.city ?? "";
-    textControllers[Constants.stateKey]!.text =
+    _state =
         Provider.of<AuthProvider>(context, listen: false).user?.state ?? "";
   }
 
@@ -296,20 +305,20 @@ class _PersonaltabState extends State<Personaltab> {
                         Container(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 10),
-                            child: CSCPicker(
-                              currentCountry: auth.user!.country!.name,
-                              currentState: auth.user!.state,
-                              currentCity: auth.user!.city,
-                              onCountryChanged: (country) {},
-                              onStateChanged: (state) {
-                                textControllers[Constants.stateKey]!.text =
-                                    state ?? "";
-                              },
-                              onCityChanged: (city) {
-                                textControllers[Constants.cityKey]!.text =
-                                    city ?? "";
-                              },
-                            )),
+                            child:   CountryPicker(
+                                pinCode: pinCode,
+                                state: _state,
+                                city: _city,
+                                country: selectedCountry.name,
+                                onCountryChanged: (country) {
+                                  selectedCountry =   Country(id: "101", name: country);;
+                                },
+                                onStateChanged: (state) {
+                                  _state = state ?? "";
+                                },
+                                onCityChanged: (city) {
+                                  _city = city ?? "";
+                                }),),
                         CustomText(context,
                             textControllers: textControllers,
                             editMode: ProfileEditMode,
@@ -338,8 +347,7 @@ class _PersonaltabState extends State<Personaltab> {
                             text: "Save",
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                if (textControllers[Constants.stateKey]!
-                                    .text
+                                if (_state
                                     .isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -347,8 +355,7 @@ class _PersonaltabState extends State<Personaltab> {
                                               Text("Please select state")));
                                   return;
                                 }
-                                if (textControllers[Constants.cityKey]!
-                                    .text
+                                if (_city
                                     .isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
