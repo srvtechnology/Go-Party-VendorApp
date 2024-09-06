@@ -55,6 +55,13 @@ class _officeTabState extends State<officeTab> {
     // TODO: implement initState
     super.initState();
 
+    Provider.of<AuthProvider>(context, listen: false).getUser();
+    _country =
+        Provider.of<AuthProvider>(context, listen: false).user?.officeCountry ?? "India";
+    _state=Provider.of<AuthProvider>(context, listen: false).user!.officeState??"";
+    _city=Provider.of<AuthProvider>(context, listen: false).user!.officeCity??"";
+
+    textControllers[Constants.officePinCodeKey]!.text = Provider.of<AuthProvider>(context, listen: false).user?.zip ?? "";
 
     textControllers[Constants.officePinCodeKey]!.addListener(() {
       if (textControllers[Constants.officePinCodeKey]!.text.length >= 6)
@@ -62,13 +69,6 @@ class _officeTabState extends State<officeTab> {
           pinCode = textControllers[Constants.officePinCodeKey]!.text;
         });
     });
-
-
-    Provider.of<AuthProvider>(context, listen: false).getUser();
-    _country =
-        Provider.of<AuthProvider>(context, listen: false).user?.officeCountry ?? "India";
-    _state=Provider.of<AuthProvider>(context, listen: false).user!.officeState??"";
-    _city=Provider.of<AuthProvider>(context, listen: false).user!.officeCity??"";
 
   }
 
@@ -139,7 +139,7 @@ class _officeTabState extends State<officeTab> {
                     textControllers: textControllers,
                     title: "PinCode",
                     controllerKey: "Office PinCode",
-                    content: auth.user!.officeZip ?? "",
+                    content: textControllers[Constants.officePinCodeKey]!.text ?? "",
                     isPin: true),
                 if (OfficeEditMode)
                   Padding(

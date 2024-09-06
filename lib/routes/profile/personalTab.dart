@@ -83,12 +83,7 @@ class _PersonaltabState extends State<Personaltab> {
   @override
   void initState() {
     super.initState();
-    textControllers[Constants.pinCodeKey]!.addListener(() {
-      if (textControllers[Constants.pinCodeKey]!.text.length >= 6)
-        setState(() {
-          pinCode = textControllers[Constants.pinCodeKey]!.text;
-        });
-    });
+
     setState(() {
       isLoading = !isLoading;
     });
@@ -107,8 +102,15 @@ class _PersonaltabState extends State<Personaltab> {
             Country(id: "101", name: "India");
     _city=
         Provider.of<AuthProvider>(context, listen: false).user?.city ?? "";
-    _state =
-        Provider.of<AuthProvider>(context, listen: false).user?.state ?? "";
+    _state = Provider.of<AuthProvider>(context, listen: false).user?.state ?? "";
+    textControllers[Constants.pinCodeKey]!.text = Provider.of<AuthProvider>(context, listen: false).user?.zip ?? "";
+
+    textControllers[Constants.pinCodeKey]!.addListener(() {
+      if (textControllers[Constants.pinCodeKey]!.text.length >= 6)
+        setState(() {
+          pinCode = textControllers[Constants.pinCodeKey]!.text;
+        });
+    });
   }
 
   @override
@@ -283,7 +285,7 @@ class _PersonaltabState extends State<Personaltab> {
                             editMode: ProfileEditMode,
                             textControllers: textControllers,
                             title: "PinCode",
-                            content: auth.user!.zip ?? "",
+                            content: textControllers[Constants.pinCodeKey]!.text ?? "",
                             isPin: true),
                         CustomText(context,
                             textControllers: textControllers,
