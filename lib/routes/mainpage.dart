@@ -7,7 +7,7 @@ import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/RegisterProvider.dart';
 import 'package:utsavlife/core/provider/networkProvider.dart';
 import 'package:utsavlife/core/utils/logger.dart';
-import 'package:utsavlife/routes/homepage.dart';
+import 'package:utsavlife/routes/home/homepage.dart';
 import 'package:utsavlife/routes/signIn.dart';
 import 'package:utsavlife/routes/signUp.dart';
 

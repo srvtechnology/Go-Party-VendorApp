@@ -6,7 +6,7 @@ import 'package:showcaseview/showcaseview.dart';
 import 'package:utsavlife/core/components/loading.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/utils/logger.dart';
-import 'package:utsavlife/routes/homepage.dart';
+import 'package:utsavlife/routes/home/homepage.dart';
 import 'package:utsavlife/routes/mainpage.dart';
 import 'package:utsavlife/routes/notifications.dart';
 import 'package:utsavlife/routes/otpPage.dart';

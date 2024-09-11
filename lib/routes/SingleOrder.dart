@@ -247,8 +247,8 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                     children: [
                       if (singleOrderState.order?.vendorOrderStatus ==
                               VendorOrderStatus.approved &&
-                          singleOrderState.order?.orderStatus !=
-                              OrderStatus.delivered)
+                          singleOrderState.order?.orderStatus ==
+                              OrderStatus.onGoing)
                         ElevatedButton(
                             style: ElevatedButton.styleFrom(
                                 backgroundColor:

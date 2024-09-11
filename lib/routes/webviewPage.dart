@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:utsavlife/config.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class webViewer extends StatefulWidget {
@@ -51,7 +52,7 @@ class _webViewerState extends State<webViewer> {
         },
       ))
       ..loadRequest(
-        Uri.parse("https://events.srvtechservices.com/vandor/registration"),
+        Uri.parse("${APIConfig.baseUrl}/vandor/registration"),
       );
   }
 
