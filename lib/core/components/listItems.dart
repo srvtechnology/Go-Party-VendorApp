@@ -14,7 +14,7 @@ import 'package:utsavlife/core/repo/order.dart';
 import 'package:utsavlife/core/utils/UIColor.dart';
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/partialPaymentPage.dart';
-import '../../routes/singleService.dart';
+import '../../routes/service/singleService.dart';
 import '../models/order.dart';
 import 'reject_popup.dart';
 import 'package:html/parser.dart';

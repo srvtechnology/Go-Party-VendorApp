@@ -21,10 +21,10 @@ import 'package:utsavlife/core/repo/service.dart' as serviceRepo;
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/VideoPlayer.dart';
 import 'package:utsavlife/routes/imageViewPage.dart';
-import 'package:utsavlife/routes/singleServiceAdd.dart';
-import '../core/provider/ServiceProvider.dart';
-import '../core/repo/maps.dart';
-import '../core/utils/UIColor.dart';
+import 'package:utsavlife/routes/service/singleServiceAdd.dart';
+import '../../core/provider/ServiceProvider.dart';
+import '../../core/repo/maps.dart';
+import '../../core/utils/UIColor.dart';
 
 class SingleService extends StatefulWidget {
   final ServiceModel service;

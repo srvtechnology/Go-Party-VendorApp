@@ -7,7 +7,7 @@ import 'package:utsavlife/core/components/customBox.dart';
 import 'package:utsavlife/core/components/gradientButton.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/utils/UIColor.dart';
-import 'package:utsavlife/routes/signUp.dart';
+import 'package:utsavlife/routes/signup/signUp.dart';
 import '../core/components/inputFields.dart';
 import 'otpPage.dart';
 

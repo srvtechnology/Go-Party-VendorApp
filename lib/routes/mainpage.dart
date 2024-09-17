@@ -9,7 +9,7 @@ import 'package:utsavlife/core/provider/networkProvider.dart';
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/home/homepage.dart';
 import 'package:utsavlife/routes/signIn.dart';
-import 'package:utsavlife/routes/signUp.dart';
+import 'package:utsavlife/routes/signup/signUp.dart';
 
 import 'errorScreen.dart';
 

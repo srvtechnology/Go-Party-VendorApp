@@ -20,14 +20,14 @@ import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/core/repo/auth.dart';
 import 'package:utsavlife/core/utils/logger.dart';
-import 'package:utsavlife/routes/SingleOrder.dart';
+import 'package:utsavlife/routes/home/OrderDetails.dart';
 import 'package:utsavlife/routes/imageViewPage.dart';
 import 'package:utsavlife/routes/notifications.dart';
 import 'package:utsavlife/routes/pdfView.dart';
 import 'package:utsavlife/routes/profile/profileScreen.dart';
-import 'package:utsavlife/routes/servicelist.dart';
+import 'package:utsavlife/routes/service/servicelist.dart';
 import 'package:utsavlife/routes/settingsPage.dart';
-import 'package:utsavlife/routes/singleServiceAdd.dart';
+import 'package:utsavlife/routes/service/singleServiceAdd.dart';
 import 'package:utsavlife/routes/wallet.dart';
 import '../../core/models/dropdown.dart';
 import '../../core/models/order.dart';
@@ -142,7 +142,7 @@ class _OrdersState extends State<Orders> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          SingleOrderPage(
+                                          OrderDetailsPage(
                                             onPop: () {
                                               orderState
                                                   .load_upcoming_orders();

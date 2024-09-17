@@ -9,22 +9,22 @@ import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/partialPaymentPage.dart';
 
-import '../core/utils/UIColor.dart';
+import '../../core/utils/UIColor.dart';
 
-class SingleOrderPage extends StatefulWidget {
+class OrderDetailsPage extends StatefulWidget {
   String id;
   Function? onPop;
   bool readOnly;
 
-  SingleOrderPage(
+  OrderDetailsPage(
       {Key? key, required this.id, required this.readOnly, this.onPop})
       : super(key: key);
 
   @override
-  State<SingleOrderPage> createState() => _SingleOrderPageState();
+  State<OrderDetailsPage> createState() => _OrderDetailsPageState();
 }
 
-class _SingleOrderPageState extends State<SingleOrderPage> {
+class _OrderDetailsPageState extends State<OrderDetailsPage> {
   String selectedReason = "";
   bool ShowReasonField = false;
   bool showReason = false;
@@ -50,7 +50,6 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                   color: UIColor.toolbar_content_color)),
         ),
         body: Container(
-          height: double.infinity,
           width: double.infinity,
           margin: EdgeInsets.all(20),
           padding: EdgeInsets.all(20),
@@ -146,7 +145,7 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                   ),
                   DetailTile(
                       "Service Name", singleOrderState.order!.service_name!),
-                  DetailTile("Address", singleOrderState.order!.address!),
+                 if(compareDate(startDate: singleOrderState.order?.date ?? "", dayCount: 7)) DetailTile("Address", singleOrderState.order!.address),
                   Row(
                     children: [
                       Expanded(
@@ -181,9 +180,6 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                         ),
                       ],
                     ),
-                  if (singleOrderState.order?.customer != null &&
-                      isDateIn5DaysOrLater(singleOrderState.order?.date ?? "",
-                          singleOrderState.order?.end_date ?? ""))
                     Container(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,7 +209,7 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                                             "Not Set")),
                             ],
                           ),
-                          Row(
+                          if(compareDate(startDate: singleOrderState.order?.date ?? "", dayCount: 7))  Row(
                             children: [
                               Expanded(
                                   child: DetailTile(
@@ -316,23 +312,13 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
     );
   }
 
-  bool isDateIn5DaysOrLater(
-    String startDate,
-    String endDate,
-  ) {
-    DateTime stDate = DateTime.parse(startDate);
-    DateTime edDate = DateTime.parse(endDate);
-    DateTime currentDate = DateTime.now();
+  bool compareDate({required String startDate, required int dayCount}) {
+    var strDate = DateTime.parse(startDate);
+    var currentDate = DateTime.now();
 
-    if ((currentDate.isBefore(stDate) &&
-            currentDate.difference(stDate).inDays.abs() < 5) ||
-        currentDate.isAfter(stDate) ||
-        currentDate.isAtSameMomentAs(stDate)) {
-      return true;
-    }
-
-    return false;
+    return strDate.difference(currentDate).inDays  < dayCount;
   }
+
 
   void approveOrder(BuildContext context) async {
     try {

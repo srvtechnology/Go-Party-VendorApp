@@ -7,8 +7,8 @@ import 'package:utsavlife/routes/errorScreen.dart';
 import 'package:collection/collection.dart';
 
 
-import '../core/components/filters.dart';
-import '../core/utils/UIColor.dart';
+import '../../core/components/filters.dart';
+import '../../core/utils/UIColor.dart';
 
 class serviceListRoute extends StatefulWidget {
   static const routeName = "/servicelist";

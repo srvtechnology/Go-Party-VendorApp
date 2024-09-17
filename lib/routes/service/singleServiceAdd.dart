@@ -19,16 +19,17 @@ import 'package:utsavlife/core/provider/mapProvider.dart';
 import 'package:utsavlife/core/repo/service.dart' as serviceRepo;
 import 'package:utsavlife/core/utils/logger.dart';
 import 'package:utsavlife/routes/errorScreen.dart';
-import '../core/components/HtmlInputBox.dart';
-import '../core/models/dropdown.dart';
-import '../core/repo/maps.dart';
-import '../core/utils/UIColor.dart';
+import '../../core/components/HtmlInputBox.dart';
+import '../../core/models/dropdown.dart';
+import '../../core/repo/maps.dart';
+import '../../core/utils/UIColor.dart';
 
 const EdgeInsets textInputPadding =
     EdgeInsets.symmetric(vertical: 8, horizontal: 0);
 
 class AddServiceRoute extends StatefulWidget {
   static const routeName = "/addservice";
+
   const AddServiceRoute({Key? key}) : super(key: key);
 
   @override
@@ -42,6 +43,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
   final _formKey = GlobalKey<FormState>();
   bool showLocationList = false;
   bool isLoading = false;
+
 /*   String? videoPath; */
   TextEditingController _companyName = TextEditingController();
   TextEditingController _companyAddress = TextEditingController();
@@ -74,10 +76,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
     DropDownField(title: "Other Govt. Id", value: "OT"),
   ];
 
-
-
   Future _locationFuture = Future.value({});
-
 
   @override
   void initState() {
@@ -85,15 +84,14 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
     _driverKycType.text = kyctypes[0].value;
     selectedKyc = kyctypes[0];
 
-    _pinCode.addListener((){
-      if(_pinCode.text.length==6){
-        _locationFuture=getLocationData();
+    _pinCode.addListener(() {
+      if (_pinCode.text.length == 6) {
+        _locationFuture = getLocationData();
       }
     });
-
   }
 
-  Future<void> getLocationData() async{
+  Future<void> getLocationData() async {
     var data = await getCountryStateCityfromZip(_pinCode.text);
     CustomLogger.debug(data);
     setState(() {
@@ -125,8 +123,8 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
           );
         }
         CustomLogger.debug(state.options);
-        return  Scaffold(
-          appBar:  AppBar(
+        return Scaffold(
+          appBar: AppBar(
             backgroundColor: UIColor.theme_color,
             elevation: 0,
             iconTheme: IconThemeData(color: UIColor.toolbar_content_color),
@@ -135,291 +133,309 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
                     fontWeight: FontWeight.w400,
                     color: UIColor.toolbar_content_color)),
           ),
-          body: FutureBuilder(future: _locationFuture, builder: (context, snapshot) {
-           return Form(
-              key: _formKey,
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 15),
-                height: double.infinity,
-                width: double.infinity,
-                child: SingleChildScrollView(
-                  child: Column(children: <Widget>[
-                    CustomMaterialBox(listOfChildren: [
-                      Padding(
-                        padding: textInputPadding,
-                        child: ExpansionTile(
-                          shape: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: UIColor.theme_color)),
-                          collapsedShape: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.grey)),
-                          key: GlobalKey(),
-                          title: Text(serviceOption),
-                          children: state.options!.serviceOptions
-                              .map(
-                                (e) => ListTile(
-                              title: Text(e.service),
-                              onTap: () {
-                                setState(() {
-                                  serviceOption = e.service;
-                                  serviceId = e.id;
-                                });
-                              },
-                            ),
-                          )
-                              .toList(),
-                        ),
-                      ),
-                      InputField("Company Name", _companyName),
-                      InputField("Address", _companyAddress, autoComplete: true),
-                      InputField("Pin Code", _pinCode, autoComplete: false, validatePin: true,digits: true),
-                      Padding(
-                        padding: textInputPadding,
-                        child:   snapshot.connectionState ==
-                            ConnectionState.waiting
-                            ? Container(
-                          height: 80,
-                        )
-                            :  CSCPicker(
-                          flagState: CountryFlag.DISABLE,
-                          showStates: true,
-                          showCities: true,
-                          disabledDropdownDecoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(width: 0.5, color: Colors.grey)),
-                          currentCountry: selectedCountry,
-                          currentCity: selectedCity,
-                          currentState: selectedState,
-                          dropdownDecoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(width: 0.5, color: Colors.grey)),
-                          onCountryChanged: (country) {
-                            setState(() {
-                              selectedCountry = country;
-                            });
-                          },
-                          onStateChanged: (state) {
-                            setState(() {
-                              selectedState = state ?? "";
-                            });
-                          },
-                          onCityChanged: (city) {
-                            setState(() {
-                              selectedCity = city ?? "";
-                            });
-                          },
-                        ),
-                      ),
-                      HtmlInputBox(text: "",hint: "Service Description", onTextChange: (text) =>{
-                        _serviceDescription.text=text
-                      }),
-                      InputField("Material Description", _materialDescription),
-                      InputField("Video Link", _videoLink),
-                      InputField("Price", _price, digits: true),
-                      Container(
-                        margin: textInputPadding,
-                        alignment: Alignment.centerLeft,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Product Images (3 to 5)",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            OutlinedButton(
-                                onPressed: () async {
-                                  if (productImages.length >= 5) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                "Maximum 5 photos allowed")));
-                                    return;
-                                  }
-                                  List<XFile?> images = await ImagePicker()
-                                      .pickMultiImage(
-                                      maxHeight: 480,
-                                      maxWidth: 640,
-                                      imageQuality: 50);
-                                  setState(() {
-                                    if (images.length > 5) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                              content: Text(
-                                                  "Maximum 5 photos allowed")));
-                                    }
-                                    images.forEach((element) {
-                                      if (productImages.length == 5) return;
-                                      productImages.add(AddProductPhoto(
-                                          filePath: element?.path,
-                                          id: productImages.length,
-                                          onDelete: (id) {
-                                            setState(() {
-                                              productImages.removeWhere(
-                                                      (element) => element.id == id);
-                                            });
-                                          }));
-                                    });
-                                  });
-                                },
-                                child: const Text("Add"))
-                          ],
-                        ),
-                      ),
-                      ...productImages,
-                      if (serviceOption.toLowerCase().contains("car"))
-                        Column(
-                          children: [
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 20),
-                              child: Text(
-                                "Driver details",
-                                style: TextStyle(fontWeight: FontWeight.w500),
-                              ),
-                            ),
-                            InputField("Name", _driverName),
-                            InputField("Mobile Number", _driverMob,
-                                validatePhone: true),
-                            Container(
-                              margin: EdgeInsets.symmetric(horizontal: 45),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text("Kyc Type"),
-                                  DropdownButton(
-                                    value: selectedKyc,
-                                    items: kyctypes
-                                        .map((e) => DropdownMenuItem(
-                                      child: Text(e.title),
-                                      value: e,
-                                    ))
-                                        .toList(),
-                                    onChanged: (_) {
+          body: FutureBuilder(
+            future: _locationFuture,
+            builder: (context, snapshot) {
+              return Form(
+                key: _formKey,
+                child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 15),
+                  height: double.infinity,
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Column(children: <Widget>[
+                      CustomMaterialBox(listOfChildren: [
+                        Padding(
+                          padding: textInputPadding,
+                          child: ExpansionTile(
+                            shape: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide:
+                                    BorderSide(color: UIColor.theme_color)),
+                            collapsedShape: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(color: Colors.grey)),
+                            key: GlobalKey(),
+                            title: Text(serviceOption),
+                            children: state.options!.serviceOptions
+                                .map(
+                                  (e) => ListTile(
+                                    title: Text(e.service),
+                                    onTap: () {
                                       setState(() {
-                                        _driverKycType.text = _!.value;
-                                        selectedKyc = _;
+                                        serviceOption = e.service;
+                                        serviceId = e.id;
                                       });
                                     },
                                   ),
-                                ],
-                              ),
-                            ),
-                            InputField(
-                                "${selectedKyc.title} Number", _driverKycNo),
-                            InputField("License", _driverLicense),
-                            InputField("PinCode", _driverpinCode),
-                            InputField("House Number", _driverhouseNo),
-                            InputField("Area", _driverArea),
-                            InputField("Landmark", _driverLandmark),
-                            InputField("City", _driverCity),
-                            InputField("State", _driverState),
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 20),
-                              child: Text(
-                                "Choose Driver Image",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 25),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    width: 80,
-                                    height: 60,
-                                    child: driverImage != null
-                                        ? Image.file(File(driverImage!))
-                                        : Container(
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  Container(
-                                    child: TextButton(
-                                      child: const Text("Choose"),
-                                      onPressed: () async {
-                                        XFile? image = await ImagePicker()
-                                            .pickImage(
-                                            source: ImageSource.gallery);
-                                        setState(() {
-                                          driverImage = image?.path;
-                                        });
-                                      },
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 20),
-                              child: Text(
-                                "Choose Driving License Image",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 25),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    alignment: Alignment.center,
-                                    width: 80,
-                                    height: 60,
-                                    child: drivingLicenseImage != null
-                                        ? Image.file(File(drivingLicenseImage!))
-                                        : Container(
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  Container(
-                                    child: TextButton(
-                                      child: const Text("Choose"),
-                                      onPressed: () async {
-                                        XFile? image = await ImagePicker()
-                                            .pickImage(
-                                            source: ImageSource.gallery);
-                                        setState(() {
-                                          drivingLicenseImage = image?.path;
-                                        });
-                                      },
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
+                                )
+                                .toList(),
+                          ),
                         ),
+                        InputField("Company Name", _companyName, isRequired: false),
+                        InputField("Address", _companyAddress,
+                            autoComplete: true),
+                        InputField("Pin Code", _pinCode,
+                            autoComplete: false,
+                            validatePin: true,
+                            digits: true),
+                        Padding(
+                          padding: textInputPadding,
+                          child: snapshot.connectionState ==
+                                  ConnectionState.waiting
+                              ? Container(
+                                  height: 80,
+                                )
+                              : CSCPicker(
+                                  flagState: CountryFlag.DISABLE,
+                                  showStates: true,
+                                  showCities: true,
+                                  disabledDropdownDecoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          width: 0.5, color: Colors.grey)),
+                                  currentCountry: selectedCountry,
+                                  currentCity: selectedCity,
+                                  currentState: selectedState,
+                                  dropdownDecoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          width: 0.5, color: Colors.grey)),
+                                  onCountryChanged: (country) {
+                                    setState(() {
+                                      selectedCountry = country;
+                                    });
+                                  },
+                                  onStateChanged: (state) {
+                                    setState(() {
+                                      selectedState = state ?? "";
+                                    });
+                                  },
+                                  onCityChanged: (city) {
+                                    setState(() {
+                                      selectedCity = city ?? "";
+                                    });
+                                  },
+                                ),
+                        ),
+                        HtmlInputBox(
+                            text: "",
+                            hint: "Service Description",
+                            onTextChange: (text) =>
+                                {_serviceDescription.text = text}),
+                        InputField(
+                            "Material Description", _materialDescription),
+                        InputField("Video Link", _videoLink),
+                        InputField("Price", _price, digits: true),
+                        Container(
+                          margin: textInputPadding,
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Product Images (3 to 5)",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              OutlinedButton(
+                                  onPressed: () async {
+                                    if (productImages.length >= 5) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content: Text(
+                                                  "Maximum 5 photos allowed")));
+                                      return;
+                                    }
+                                    List<XFile?> images = await ImagePicker()
+                                        .pickMultiImage(
+                                            maxHeight: 480,
+                                            maxWidth: 640,
+                                            imageQuality: 50);
+                                    setState(() {
+                                      if (images.length > 5) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content: Text(
+                                                    "Maximum 5 photos allowed")));
+                                      }
+                                      images.forEach((element) {
+                                        if (productImages.length == 5) return;
+                                        productImages.add(AddProductPhoto(
+                                            filePath: element?.path,
+                                            id: productImages.length,
+                                            onDelete: (id) {
+                                              setState(() {
+                                                productImages.removeWhere(
+                                                    (element) =>
+                                                        element.id == id);
+                                              });
+                                            }));
+                                      });
+                                    });
+                                  },
+                                  child: const Text("Add"))
+                            ],
+                          ),
+                        ),
+                        ...productImages,
+                        if (serviceOption.toLowerCase().contains("car"))
+                          Column(
+                            children: [
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 20, horizontal: 20),
+                                child: Text(
+                                  "Driver details",
+                                  style: TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                              InputField("Name", _driverName),
+                              InputField("Mobile Number", _driverMob,
+                                  validatePhone: true),
+                              Container(
+                                margin: EdgeInsets.symmetric(horizontal: 45),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text("Kyc Type"),
+                                    DropdownButton(
+                                      value: selectedKyc,
+                                      items: kyctypes
+                                          .map((e) => DropdownMenuItem(
+                                                child: Text(e.title),
+                                                value: e,
+                                              ))
+                                          .toList(),
+                                      onChanged: (_) {
+                                        setState(() {
+                                          _driverKycType.text = _!.value;
+                                          selectedKyc = _;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              InputField(
+                                  "${selectedKyc.title} Number", _driverKycNo),
+                              InputField("License", _driverLicense),
+                              InputField("PinCode", _driverpinCode),
+                              InputField("House Number", _driverhouseNo),
+                              InputField("Area", _driverArea),
+                              InputField("Landmark", _driverLandmark),
+                              InputField("City", _driverCity),
+                              InputField("State", _driverState),
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 20),
+                                child: Text(
+                                  "Choose Driver Image",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 25),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      width: 80,
+                                      height: 60,
+                                      child: driverImage != null
+                                          ? Image.file(File(driverImage!))
+                                          : Container(
+                                              color: Colors.grey,
+                                            ),
+                                    ),
+                                    Container(
+                                      child: TextButton(
+                                        child: const Text("Choose"),
+                                        onPressed: () async {
+                                          XFile? image = await ImagePicker()
+                                              .pickImage(
+                                                  source: ImageSource.gallery);
+                                          setState(() {
+                                            driverImage = image?.path;
+                                          });
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 20),
+                                child: Text(
+                                  "Choose Driving License Image",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 25),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      alignment: Alignment.center,
+                                      width: 80,
+                                      height: 60,
+                                      child: drivingLicenseImage != null
+                                          ? Image.file(
+                                              File(drivingLicenseImage!))
+                                          : Container(
+                                              color: Colors.grey,
+                                            ),
+                                    ),
+                                    Container(
+                                      child: TextButton(
+                                        child: const Text("Choose"),
+                                        onPressed: () async {
+                                          XFile? image = await ImagePicker()
+                                              .pickImage(
+                                                  source: ImageSource.gallery);
+                                          setState(() {
+                                            drivingLicenseImage = image?.path;
+                                          });
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                      ]),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      if (isLoading)
+                        Container(
+                          alignment: Alignment.center,
+                          child: CircularProgressIndicator(),
+                        )
+                      else
+                        CreateButton(context, state.auth),
                       SizedBox(
                         height: 20,
                       ),
                     ]),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    if (isLoading)
-                      Container(
-                        alignment: Alignment.center,
-                        child: CircularProgressIndicator(),
-                      )
-                    else
-                      CreateButton(context, state.auth),
-                    SizedBox(
-                      height: 20,
-                    ),
-                  ]),
+                  ),
                 ),
-              ),
-            );
-          },),
+              );
+            },
+          ),
         );
-       /* return FutureBuilder(future: Future.wait([_locationFuture]),
+        /* return FutureBuilder(future: Future.wait([_locationFuture]),
           builder: (context, snapshot) {
         return  Scaffold(
             appBar:  AppBar(
@@ -736,8 +752,8 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       bool hide = false,
       bool autoComplete = false,
       validatePhone = false,
-        validatePin = false,
-      digits = false}) {
+      validatePin = false,
+      digits = false, isRequired = true}) {
     return Container(
       margin: textInputPadding,
       child: TextFormField(
@@ -758,6 +774,9 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
             labelText: title,
             border: const OutlineInputBorder()),
         validator: (text) {
+
+          if(!isRequired) return null;
+
           if (text?.length == 0) {
             return "Required field";
           }
@@ -765,10 +784,11 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
             if (text == null || text.length < 10)
               return "Please enter a valid number";
           }
-     if (validatePin) {
-            if (text == null || text.length !=6)
+          if (validatePin) {
+            if (text == null || text.length != 6)
               return "Please enter a valid pin";
           }
+          return null;
         },
         autovalidateMode: AutovalidateMode.onUserInteraction,
       ),
@@ -784,8 +804,9 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       });
       return;
     }
-    if(productImages.length==0){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("At least one image is required")));
+    if (productImages.length == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("At least one image is required")));
       return;
     }
     if (selectedCountry == null ||
@@ -858,6 +879,7 @@ class AddProductPhoto extends StatefulWidget {
   Function(int) onDelete;
   String? filePath;
   bool network;
+
   AddProductPhoto(
       {Key? key,
       required this.id,

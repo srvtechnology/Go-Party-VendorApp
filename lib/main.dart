@@ -10,17 +10,17 @@ import 'package:utsavlife/routes/home/homepage.dart';
 import 'package:utsavlife/routes/mainpage.dart';
 import 'package:utsavlife/routes/notifications.dart';
 import 'package:utsavlife/routes/otpPage.dart';
-import 'package:utsavlife/routes/servicelist.dart';
+import 'package:utsavlife/routes/service/servicelist.dart';
 import 'package:utsavlife/routes/settingsPage.dart';
 import 'package:utsavlife/routes/signIn.dart';
-import 'package:utsavlife/routes/signUp.dart';
-import 'package:utsavlife/routes/singleServiceAdd.dart';
+import 'package:utsavlife/routes/signup/signUp.dart';
 import 'package:utsavlife/routes/splash.dart';
 import 'package:utsavlife/routes/terms_privacy.dart';
 import 'package:utsavlife/routes/wallet.dart';
 import 'package:utsavlife/routes/webviewPage.dart';
 import 'core/provider/networkProvider.dart';
 import 'core/provider/showcaseProvider.dart';
+import 'routes/service/singleServiceAdd.dart';
 
 void main() {
   runApp(DevicePreview(
