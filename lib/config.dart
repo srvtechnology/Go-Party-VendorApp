@@ -1,6 +1,9 @@
 class APIConfig{
   static String baseUrl = "https://utsavlife.com";
   static String googleKey = "AIzaSyBb3u4WhswXfkedBokSesulamIrCWhskG4";
+
+  static String serviceImageUrl = baseUrl+"/storage/app/public/service/";
+
 }
 List<String> DefaultCities = [
   "Abohar",

@@ -45,7 +45,7 @@ class CustomFieldController {
 class _SingleServiceState extends State<SingleService> {
   bool canEdit = false;
 
-  final String imageUrl = "storage/app/public/vandor/product_image";
+
   final String driverUrl = "storage/app/public/vandor/driver_image";
   final String dlUrl = "storage/app/public/vandor/dl_image";
 
@@ -518,8 +518,7 @@ class _SingleServiceState extends State<SingleService> {
                                                         MaterialPageRoute(
                                                             builder: (context) =>
                                                                 ImageViewer(
-                                                                    imageUrl:
-                                                                        "${APIConfig.baseUrl}/${imageUrl}/${e}")));
+                                                                    imageUrl: "${APIConfig.serviceImageUrl}$e")));
                                                   },
                                                   child: Container(
                                                     margin:
@@ -530,8 +529,7 @@ class _SingleServiceState extends State<SingleService> {
                                                     child: CachedNetworkImage(
                                                       placeholder: (context, url) =>
                                                           Container(alignment: Alignment.center, child: const CircularProgressIndicator()),
-                                                      imageUrl:
-                                                          "${APIConfig.baseUrl}/${imageUrl}/${e}",
+                                                      imageUrl:"${APIConfig.serviceImageUrl}$e",
                                                     ),
                                                   ),
                                                 ))
