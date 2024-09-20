@@ -13,9 +13,11 @@ import 'package:utsavlife/core/provider/ServiceProvider.dart';
 import 'package:utsavlife/core/repo/order.dart';
 import 'package:utsavlife/core/utils/UIColor.dart';
 import 'package:utsavlife/core/utils/logger.dart';
+import 'package:utsavlife/core/utils/validator.dart';
 import 'package:utsavlife/routes/partialPaymentPage.dart';
 import '../../routes/service/singleService.dart';
 import '../models/order.dart';
+import '../utils/util.dart';
 import 'reject_popup.dart';
 import 'package:html/parser.dart';
 
@@ -151,7 +153,7 @@ class _CustomOrderItemState extends State<CustomOrderItem> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Text("₹ ${widget.order.amount}"),
-                            Text(widget.order.date),
+                            Text(formatDate(widget.order.date)),
                             Text(widget.order.address.isEmpty
                                 ? "Not set"
                                 : widget.order.address.length > 8

@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/models/wallet.dart';
@@ -382,7 +383,8 @@ class TransactionTile extends StatelessWidget {
                     height: 5,
                   ),
                   Text(
-                    transaction.transactionDate.toString().substring(0, 10),
+                    DateFormat("dd/MM/yyyy")
+                        .format(transaction.transactionDate),
                     style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ],

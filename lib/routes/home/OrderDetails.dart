@@ -7,6 +7,7 @@ import 'package:utsavlife/core/models/order.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/provider/OrderProvider.dart';
 import 'package:utsavlife/core/utils/logger.dart';
+import 'package:utsavlife/core/utils/util.dart';
 import 'package:utsavlife/routes/partialPaymentPage.dart';
 
 import '../../core/utils/UIColor.dart';
@@ -150,10 +151,10 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     children: [
                       Expanded(
                           child: DetailTile("Order start date",
-                              singleOrderState.order!.date!)),
+                              formatDate(singleOrderState.order!.date!))),
                       Expanded(
                           child: DetailTile("Order end date",
-                              singleOrderState.order!.end_date!)),
+                              formatDate(singleOrderState.order!.end_date!))),
                     ],
                   ),
                   Row(
