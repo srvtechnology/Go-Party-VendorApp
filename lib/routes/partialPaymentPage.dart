@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:utsavlife/core/components/appToolbar.dart';
+import 'package:utsavlife/core/components/gradientButton.dart';
+import 'package:utsavlife/core/models/dropdown.dart';
 import 'package:utsavlife/core/models/order.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/repo/order.dart';
 
+import '../core/utils/UIColor.dart';
+
+const EdgeInsets textInputPadding =
+    EdgeInsets.symmetric(vertical: 8, horizontal: 0);
+
 class PartialPaymentPage extends StatefulWidget {
   final OrderModel order;
 
-  const PartialPaymentPage({Key? key,required this.order}) : super(key: key);
+  const PartialPaymentPage({Key? key, required this.order}) : super(key: key);
 
   @override
   State<PartialPaymentPage> createState() => _PartialPaymentPageState();
@@ -17,12 +25,28 @@ class PartialPaymentPage extends StatefulWidget {
 class _PartialPaymentPageState extends State<PartialPaymentPage> {
   TextEditingController _controller = TextEditingController();
   final formKey = GlobalKey<FormState>();
+
+  int selectedPaymentMode = 0;
+
+
+  List<DropDownField> paymentModes = [
+    DropDownField(title: "Online", value: "O"),
+    DropDownField(title: "Cash", value: "C"),
+
+  ];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _controller.text = widget.order.amount;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text("Partial Payment"),
+      appBar: AppToolbar(
+        toolbarTitle: "Partial Payment",
+        onPressed: Navigator.of(context).pop,
       ),
       body: Container(
         height: double.infinity,
@@ -31,50 +55,78 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-              Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
+            Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
-                      offset: Offset(0,0.5),
-                      color: Colors.grey[400]!,
-                      blurRadius: 1,
-                      spreadRadius: 1
-                    ),
-                  ]
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Order Details",style: TextStyle(fontWeight: FontWeight.w500),),
-                    const SizedBox(height: 20,),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Text("₹ ${widget.order.amount}",style: Theme.of(context).textTheme.headlineSmall,),
+                        offset: Offset(0, 0.5),
+                        color: Colors.grey[400]!,
+                        blurRadius: 1,
+                        spreadRadius: 1),
+                  ]),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Order Details",
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          "₹ ${widget.order.amount}",
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
-                        Row(
-                          children: [
-                            Expanded(child: DetailTile("Status", widget.order.vendorOrderStatus == VendorOrderStatus.approved?"Accepted":widget.order!.vendorOrderStatus == VendorOrderStatus.pending?"Pending":"Rejected")),
-                            Expanded(child: DetailTile("Event Name", widget.order.category!)),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(child: DetailTile("Category", widget.order.category!)),
-                            Expanded(child: DetailTile("Payment Status", widget.order.paymentStatus==OrderPaymentStatus.partial?"Partial Payment":"Payment Completed",)),
-                          ],
-                        ),
-                      ],
-                    )
-                  ],
-                ),
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: DetailTile(
+                                  "Status",
+                                  widget.order.vendorOrderStatus ==
+                                          VendorOrderStatus.approved
+                                      ? "Accepted"
+                                      : widget.order!.vendorOrderStatus ==
+                                              VendorOrderStatus.pending
+                                          ? "Pending"
+                                          : "Rejected")),
+                          Expanded(
+                              child: DetailTile(
+                                  "Event Name", widget.order.category!)),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: DetailTile(
+                                  "Category", widget.order.category!)),
+                          Expanded(
+                              child: DetailTile(
+                            "Payment Status",
+                            widget.order.paymentStatus ==
+                                    OrderPaymentStatus.partial
+                                ? "Partial Payment"
+                                : "Payment Completed",
+                          )),
+                        ],
+                      ),
+                    ],
+                  )
+                ],
               ),
-            const SizedBox(height: 40,),
+            ),
+            const SizedBox(
+              height: 40,
+            ),
             Container(
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -82,44 +134,112 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
-                        offset: Offset(0,0.5),
+                        offset: Offset(0, 0.5),
                         color: Colors.grey[400]!,
                         blurRadius: 1,
-                        spreadRadius: 1
-                    ),
-                  ]
-              ),
+                        spreadRadius: 1),
+                  ]),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Enter Amount to be paid",style: TextStyle(fontWeight: FontWeight.w600),),
-                  const SizedBox(height: 20,),
-                  Form(
-                    key: formKey,
-                    child: TextFormField(
-                      keyboardType: TextInputType.numberWithOptions(signed: false),
-                      validator: (text){
-                        if(text==null || text.isEmpty)return "Please enter an amount";
-                      },
-                      controller: _controller,
+                  Text(
+                    "Remaining Amount",
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    padding: textInputPadding,
+                    child: InputDecorator(
                       decoration: InputDecoration(
-                          labelText: "Amount",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)
-                        )
+                        prefixIcon: Icon(Icons.currency_rupee,
+                            color: UIColor.prefix_icon_tint),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                        label: Text(
+                          "Due Amount",
+                          style: TextStyle(color: UIColor.hint_text_color),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide(
+                            color: UIColor.theme_color,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                            width: 1.0,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        widget.order.remaining_amount.toString(),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(onPressed: (){
+                  Container(
+                    padding: textInputPadding,
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        prefixIcon:
+                            Icon(Icons.money, color: UIColor.prefix_icon_tint),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                        label: Text(
+                          "Payment Type",
+                          style: TextStyle(color: UIColor.hint_text_color),
+                        ),
+                        suffixIcon: IconButton(
+                         icon:  Icon(Icons.arrow_drop_down),
+                          color: UIColor.prefix_icon_tint,
+                          onPressed: null,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide(
+                            color: UIColor.theme_color,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                            width: 1.0,
+                          ),
+                        ),
+                      ),
+                      child: DropdownButton<DropDownField>(
+                        value: paymentModes[selectedPaymentMode],
+                        items: paymentModes
+                            .map((DropDownField item) =>
+                                DropdownMenuItem<DropDownField>(
+                                    child: Text(item.title), value: item))
+                            .toList(),
+                        onChanged: (DropDownField? value) {
+                          setState(() {
+                            selectedPaymentMode = paymentModes.indexOf(value!!);
+                          });
+                        },
+                        underline: SizedBox.shrink(),
+                        icon: SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  GradientButton(
+                      buttonInsideMaterialBox: true,
+                      text: paymentModes[selectedPaymentMode].value == "C"
+                          ? "Confirm"
+                          : "Pay",
+                      onPressed: () {
                         _payAmount();
-                      }, child: Text("Pay")),
-                    ],
-                  )
+                      }),
                 ],
               ),
             ),
@@ -128,34 +248,34 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
       ),
     );
   }
-  void _payAmount()async{
-    if(formKey.currentState!.validate()){
-      try{
-        await payPartialAmount(context.read<AuthProvider>(), widget.order.id, _controller.text);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Amount Paid")));
+
+  void _payAmount() async {
+    if (formKey.currentState!.validate()) {
+      try {
+        await payPartialAmount(
+            context.read<AuthProvider>(), widget.order.id, _controller.text);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Amount Paid")));
         Navigator.pop(context);
-      }catch(e){
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error occured, please try later")));
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error occured, please try later")));
         //Navigator.pop(context);
       }
     }
   }
-  Widget DetailTile(String header,String body){
-    if(body=="")body="Not set";
+
+  Widget DetailTile(String header, String body) {
+    if (body == "") body = "Not set";
     return Container(
-        constraints: BoxConstraints(
-            maxHeight: 40.h
-        ),
-        margin: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
+        constraints: BoxConstraints(maxHeight: 40.h),
+        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: TextFormField(
           maxLines: null,
-          decoration: InputDecoration(
-              labelText: header,
-              border: InputBorder.none
-          ),
+          decoration:
+              InputDecoration(labelText: header, border: InputBorder.none),
           initialValue: body,
           readOnly: true,
-        )
-    );
+        ));
   }
 }

@@ -1,4 +1,4 @@
-import 'package:utsavlife/core/utils/logger.dart';
+import 'dart:core';
 
 class Category {}
 
@@ -14,7 +14,9 @@ enum VendorOrderStatus {
 class CustomerDetailsModel {
   String name;
   String? email, phoneNumber;
+
   CustomerDetailsModel({required this.name, this.email, this.phoneNumber});
+
   factory CustomerDetailsModel.fromJson(Map json) {
     return CustomerDetailsModel(
         name: json["name"], email: json["email"], phoneNumber: json["mobile"]);
@@ -42,6 +44,8 @@ class OrderModel {
   VendorOrderStatus vendorOrderStatus;
   OrderStatus orderStatus;
   String? admin_remarks;
+  num remaining_amount = 0.00;
+
   OrderModel({
     required this.id,
     required this.address,
@@ -59,6 +63,7 @@ class OrderModel {
     this.service_name,
     this.timing,
     this.admin_remarks,
+    required this.remaining_amount,
   });
 
   factory OrderModel.fromJson(Map json) {
@@ -115,23 +120,25 @@ class OrderModel {
       }
     } catch (e) {}
     return OrderModel(
-        id: json["id"].toString(),
-        paymentStatus: json["paid_status"] == "partial"
-            ? OrderPaymentStatus.partial
-            : OrderPaymentStatus.completed,
-        address: json["event_address"].toString(),
-        latitude: json["lat"].toString(),
-        longitude: json["long"].toString(),
-        date: json["event_date"].toString(),
-        amount: json["total_price"].toString(),
-        vendorOrderStatus: tempStatus,
-        orderStatus: orderStatus,
-        days: json["days"].toString(),
-        customer: CustomerDetailsModel.fromJson(json["customer_details"]),
-        timing: tempTiming,
-        end_date: json["event_end_date"].toString(),
-        service_name: tempServiceName,
-        category: tempCategoryName,
-        admin_remarks: json["admin_remarks"]);
+      id: json["id"].toString(),
+      paymentStatus: json["paid_status"] == "partial"
+          ? OrderPaymentStatus.partial
+          : OrderPaymentStatus.completed,
+      address: json["event_address"].toString(),
+      latitude: json["lat"].toString(),
+      longitude: json["long"].toString(),
+      date: json["event_date"].toString(),
+      amount: json["total_price"].toString(),
+      vendorOrderStatus: tempStatus,
+      orderStatus: orderStatus,
+      days: json["days"].toString(),
+      customer: CustomerDetailsModel.fromJson(json["customer_details"]),
+      timing: tempTiming,
+      end_date: json["event_end_date"].toString(),
+      service_name: tempServiceName,
+      category: tempCategoryName,
+      admin_remarks: json["admin_remarks"],
+      remaining_amount: json["remaining_amount"]?? 0.00,
+    );
   }
 }
