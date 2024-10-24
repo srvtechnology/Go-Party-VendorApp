@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -7,6 +9,8 @@ import 'package:utsavlife/core/models/dropdown.dart';
 import 'package:utsavlife/core/models/order.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/repo/order.dart';
+import 'package:utsavlife/core/features/ccavenues/models/enc_val_res.dart';
+import 'package:utsavlife/core/features/ccavenues/patmentWebview.dart';
 
 import '../core/utils/UIColor.dart';
 
@@ -25,14 +29,13 @@ class PartialPaymentPage extends StatefulWidget {
 class _PartialPaymentPageState extends State<PartialPaymentPage> {
   TextEditingController _controller = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   int selectedPaymentMode = 0;
-
 
   List<DropDownField> paymentModes = [
     DropDownField(title: "Online", value: "O"),
     DropDownField(title: "Cash", value: "C"),
-
   ];
   @override
   void initState() {
@@ -95,7 +98,7 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
                                   widget.order.vendorOrderStatus ==
                                           VendorOrderStatus.approved
                                       ? "Accepted"
-                                      : widget.order!.vendorOrderStatus ==
+                                      : widget.order.vendorOrderStatus ==
                                               VendorOrderStatus.pending
                                           ? "Pending"
                                           : "Rejected")),
@@ -144,7 +147,7 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Remaining Amount",
+                    "Remaining Amount ",
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(
@@ -194,7 +197,7 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
                           style: TextStyle(color: UIColor.hint_text_color),
                         ),
                         suffixIcon: IconButton(
-                         icon:  Icon(Icons.arrow_drop_down),
+                          icon: Icon(Icons.arrow_drop_down),
                           color: UIColor.prefix_icon_tint,
                           onPressed: null,
                         ),
@@ -221,7 +224,7 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
                             .toList(),
                         onChanged: (DropDownField? value) {
                           setState(() {
-                            selectedPaymentMode = paymentModes.indexOf(value!!);
+                            selectedPaymentMode = paymentModes.indexOf(value!);
                           });
                         },
                         underline: SizedBox.shrink(),
@@ -233,13 +236,28 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
                     height: 20,
                   ),
                   GradientButton(
-                      buttonInsideMaterialBox: true,
-                      text: paymentModes[selectedPaymentMode].value == "C"
-                          ? "Confirm"
-                          : "Pay",
-                      onPressed: () {
-                        _payAmount();
-                      }),
+                    buttonInsideMaterialBox: true,
+                    text: _isLoading
+                        ? "Processing..."
+                        : (paymentModes[selectedPaymentMode].value == "C"
+                            ? "Confirm"
+                            : "Pay"),
+                    onPressed: () {
+                      if (_isLoading) return;
+                      _payAmount();
+                    },
+                    child: _isLoading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : null,
+                  )
                 ],
               ),
             ),
@@ -249,19 +267,76 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
     );
   }
 
+  void payViaOnline() async {
+    try {
+      log(widget.order.id, name: "Order Id");
+      log(widget.order.remaining_amount.toString(), name: "Amount");
+      final res = await payPartialAmount(context.read<AuthProvider>(),
+          widget.order.id, (widget.order.remaining_amount).toString());
+      log(res.toString(), name: "response");
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentWebView(
+            generateOrderValue: GenerateOrderValue(
+              orderId: int.parse(res['fullPayObject']['order_id'].toString()),
+              accessCode: res['fullPayObject']['access_code'],
+              redirectUrl: res['fullPayObject']['redirect_url'],
+              cancelUrl: res['fullPayObject']['cancel_url'],
+              encVal: res['fullPayObject']['enc_val'],
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error occurred, please try later")));
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void payViaCash() async {
+    // if (formKey.currentState!.validate()) {
+    try {
+      await payPartialAmountCash(
+          context.read<AuthProvider>(), widget.order.id, _controller.text);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Amount Paid")));
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error occured, please try later")));
+      //Navigator.pop(context);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+    //
+  }
+
   void _payAmount() async {
-    if (formKey.currentState!.validate()) {
-      try {
-        await payPartialAmount(
-            context.read<AuthProvider>(), widget.order.id, _controller.text);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Amount Paid")));
-        Navigator.pop(context);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Error occured, please try later")));
-        //Navigator.pop(context);
-      }
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (paymentModes[selectedPaymentMode].value == "O") {
+      // Online payment
+      payViaOnline();
+    } else if (paymentModes[selectedPaymentMode].value == "C") {
+      // Cash payment
+      payViaCash();
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Invalid payment mode selected")),
+      );
     }
   }
 

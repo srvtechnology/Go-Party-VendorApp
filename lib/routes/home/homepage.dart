@@ -60,9 +60,7 @@ class _HomepageState extends State<Homepage> {
     const History(),
     const Profilescreen(),
   ];
-  List<String> itemName =["Orders","History","Profile"];
-
-
+  List<String> itemName = ["Orders", "History", "Profile"];
 
   @override
   void initState() {
@@ -129,13 +127,15 @@ class _HomepageState extends State<Homepage> {
                       title: Text("Settings"),
                       leading: Icon(Icons.settings),
                       onTap: () {
-                        Navigator.popAndPushNamed(context, SettingsPage.routeName);
+                        Navigator.popAndPushNamed(
+                            context, SettingsPage.routeName);
                       }),
                   ListTile(
                       title: Text("Your Money"),
                       leading: Icon(Icons.wallet),
                       onTap: () {
-                        Navigator.popAndPushNamed(context, WalletPage.routeName);
+                        Navigator.popAndPushNamed(
+                            context, WalletPage.routeName);
                       }),
                   ListTile(
                       title: Text("Logout"),
@@ -150,14 +150,16 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
           ),
-          appBar: AppToolbar(toolbarTitle: "${itemName[index]}", onPressed: () {
-            try {
-              ShowCaseWidget.of(context)
-                  .startShowCase([_addServices, _serviceList]);
-            } catch (e) {}
-            _scaffoldKey.currentState!.openDrawer();
-          },
-          leadingIcon: Icon(Icons.menu),
+          appBar: AppToolbar(
+            toolbarTitle: "${itemName[index]}",
+            onPressed: () {
+              try {
+                ShowCaseWidget.of(context)
+                    .startShowCase([_addServices, _serviceList]);
+              } catch (e) {}
+              _scaffoldKey.currentState!.openDrawer();
+            },
+            leadingIcon: Icon(Icons.menu),
           ),
           body: items[index],
           bottomNavigationBar: CustomBottomNavBar(
@@ -301,7 +303,6 @@ class _DashboardState extends State<Dashboard> {
   }
 }
 
-
 class History extends StatefulWidget {
   const History({super.key});
 
@@ -410,6 +411,7 @@ class _HistoryState extends State<History> {
                                               MaterialPageRoute(
                                                   builder: (context) =>
                                                       OrderDetailsPage(
+                                                        order: e,
                                                         id: e.id,
                                                         readOnly: true,
                                                       )))
@@ -426,5 +428,3 @@ class _HistoryState extends State<History> {
     );
   }
 }
-
-

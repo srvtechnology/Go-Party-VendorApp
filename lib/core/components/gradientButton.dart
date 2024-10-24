@@ -6,13 +6,15 @@ class GradientButton extends StatelessWidget {
   final VoidCallback onPressed;
   final List<Color> colors;
   bool buttonInsideMaterialBox = false;
+  Widget? child;
 
   GradientButton(
       {Key? key,
       required this.text,
       required this.onPressed,
       this.colors = const [UIColor.theme_color, UIColor.theme_color],
-      this.buttonInsideMaterialBox = false})
+      this.buttonInsideMaterialBox = false,
+      child})
       : super(key: key);
 
   @override
@@ -28,7 +30,8 @@ class GradientButton extends StatelessWidget {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: buttonInsideMaterialBox?  0 : 15),
+        margin:
+            EdgeInsets.symmetric(horizontal: buttonInsideMaterialBox ? 0 : 15),
         padding: EdgeInsets.symmetric(vertical: 15),
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -38,12 +41,13 @@ class GradientButton extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Center(
-          child: Text(
-            text,
-            style: TextStyle(color: Colors.white, fontSize: 16),
-          ),
-        ),
+        child: child ??
+            Center(
+              child: Text(
+                text,
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
       ),
     );
   }

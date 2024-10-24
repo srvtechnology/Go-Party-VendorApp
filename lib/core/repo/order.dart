@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -168,7 +170,23 @@ Future<String> rejectOrder(
   }
 }
 
-Future<void> payPartialAmount(
+Future<Map<String, dynamic>> payPartialAmount(
+    AuthProvider auth, String orderId, String amount) async {
+  log(orderId, name: "orderId");
+  log(amount, name: "amount");
+
+  Response response =
+      await Dio().post("${APIConfig.baseUrl}/api/vendor/create-payment",
+          options: Options(headers: {"Authorization": "Bearer ${auth.token}"}),
+          data: FormData.fromMap({
+            "order_id": orderId.toString(),
+            "full_amount": amount,
+          }));
+
+  return response.data;
+}
+
+Future<void> payPartialAmountCash(
     AuthProvider auth, String orderId, String amount) async {
   try {
     Response response = await Dio().post(

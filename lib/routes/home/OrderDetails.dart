@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,9 +18,14 @@ class OrderDetailsPage extends StatefulWidget {
   String id;
   Function? onPop;
   bool readOnly;
+  OrderModel order;
 
   OrderDetailsPage(
-      {Key? key, required this.id, required this.readOnly, this.onPop})
+      {Key? key,
+      required this.id,
+      required this.readOnly,
+      this.onPop,
+      required this.order})
       : super(key: key);
 
   @override
@@ -146,12 +153,15 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                   ),
                   DetailTile(
                       "Service Name", singleOrderState.order!.service_name!),
-                 if(compareDate(startDate: singleOrderState.order?.date ?? "", dayCount: 7)) DetailTile("Address", singleOrderState.order!.address),
+                  if (compareDate(
+                      startDate: singleOrderState.order?.date ?? "",
+                      dayCount: 7))
+                    DetailTile("Address", singleOrderState.order!.address),
                   Row(
                     children: [
                       Expanded(
                           child: DetailTile("Order start date",
-                              formatDate(singleOrderState.order!.date!))),
+                              formatDate(singleOrderState.order!.date))),
                       Expanded(
                           child: DetailTile("Order end date",
                               formatDate(singleOrderState.order!.end_date!))),
@@ -181,36 +191,38 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                         ),
                       ],
                     ),
-                    Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 20),
-                            child: Text(
-                              "Customer Information",
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
+                  Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          margin:
+                              EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                          child: Text(
+                            "Customer Information",
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
-                          Row(
-                            children: [
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                                child: DetailTile(
+                                    "Name",
+                                    singleOrderState.order!.customer?.name ??
+                                        "Not Set")),
+                            if (singleOrderState.order?.vendorOrderStatus ==
+                                VendorOrderStatus.approved)
                               Expanded(
                                   child: DetailTile(
-                                      "Name",
-                                      singleOrderState.order!.customer?.name ??
+                                      "email",
+                                      singleOrderState.order!.customer?.email ??
                                           "Not Set")),
-                              if (singleOrderState.order?.vendorOrderStatus ==
-                                  VendorOrderStatus.approved)
-                                Expanded(
-                                    child: DetailTile(
-                                        "email",
-                                        singleOrderState
-                                                .order!.customer?.email ??
-                                            "Not Set")),
-                            ],
-                          ),
-                          if(compareDate(startDate: singleOrderState.order?.date ?? "", dayCount: 7))  Row(
+                          ],
+                        ),
+                        if (compareDate(
+                            startDate: singleOrderState.order?.date ?? "",
+                            dayCount: 7))
+                          Row(
                             children: [
                               Expanded(
                                   child: DetailTile(
@@ -220,9 +232,9 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                           "Not Set")),
                             ],
                           ),
-                        ],
-                      ),
+                      ],
                     ),
+                  ),
                 ],
               ));
             },
@@ -265,15 +277,26 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                 backgroundColor:
                                     Theme.of(context).primaryColorDark),
                             onPressed: () {
+                              log((singleOrderState.order?.remaining_amount)
+                                      .toString() ??
+                                  "");
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => PartialPaymentPage(
-                                          order:
-                                              singleOrderState.order!))).then(
-                                  (value) => widget.onPop != null
+                                          order: widget.order))).then((value) =>
+                                  widget.onPop != null
                                       ? widget.onPop!()
                                       : null);
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) => PartialPaymentPage(
+                              //             order:
+                              //                 singleOrderState.order!))).then(
+                              //     (value) => widget.onPop != null
+                              //         ? widget.onPop!()
+                              //         : null);
                             },
                             child: Text(
                               "Pay",
@@ -317,9 +340,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     var strDate = DateTime.parse(startDate);
     var currentDate = DateTime.now();
 
-    return strDate.difference(currentDate).inDays  < dayCount;
+    return strDate.difference(currentDate).inDays < dayCount;
   }
-
 
   void approveOrder(BuildContext context) async {
     try {

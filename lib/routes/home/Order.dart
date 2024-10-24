@@ -34,6 +34,7 @@ import '../../core/models/order.dart';
 import '../../core/utils/scaling.dart';
 import '../mainpage.dart';
 import 'dart:io';
+
 class Orders extends StatefulWidget {
   const Orders({super.key});
 
@@ -74,7 +75,7 @@ class _OrdersState extends State<Orders> {
           title: Filter2(
             onsearch: (String searchItem) {
               setState(
-                    () {
+                () {
                   searchitem = searchItem;
                   context.read<UpcomingOrderProvider>().load_upcoming_orders();
                 },
@@ -109,7 +110,7 @@ class _OrdersState extends State<Orders> {
                     return Showcase(
                       key: _order,
                       description:
-                      "This is the upcoming order section. The Pending and Upcoming orders will be shown here",
+                          "This is the upcoming order section. The Pending and Upcoming orders will be shown here",
                       child: Container(
                         alignment: Alignment.topCenter,
                         width: double.infinity,
@@ -121,38 +122,39 @@ class _OrdersState extends State<Orders> {
                   return Showcase(
                     key: _order,
                     description:
-                    "This is the upcoming order section. The Pending and Upcoming orders will be shown here",
+                        "This is the upcoming order section. The Pending and Upcoming orders will be shown here",
                     child: SingleChildScrollView(
                       child: Column(
                           children: orderState.orders
                               .where((element) =>
-                          (element.amount.contains(searchitem) ||
-                              element.service_name!
-                                  .toLowerCase()
-                                  .contains(searchitem.toLowerCase())))
+                                  (element.amount.contains(searchitem) ||
+                                      element.service_name!
+                                          .toLowerCase()
+                                          .contains(searchitem.toLowerCase())))
                               .where((element) {
-                            if (orderStatus == null) return true;
-                            return element.vendorOrderStatus == orderStatus;
-                          })
+                                if (orderStatus == null) return true;
+                                return element.vendorOrderStatus == orderStatus;
+                              })
                               .map((e) => CustomOrderItem(
-                            state: orderState,
-                            order: e,
-                            ontap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          OrderDetailsPage(
-                                            onPop: () {
-                                              orderState
-                                                  .load_upcoming_orders();
-                                            },
-                                            id: e.id,
-                                            readOnly: false,
-                                          )))
-                                  .then((value) => refresh(context));
-                            },
-                          ))
+                                    state: orderState,
+                                    order: e,
+                                    ontap: () {
+                                      Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      OrderDetailsPage(
+                                                        order: e,
+                                                        onPop: () {
+                                                          orderState
+                                                              .load_upcoming_orders();
+                                                        },
+                                                        id: e.id,
+                                                        readOnly: false,
+                                                      )))
+                                          .then((value) => refresh(context));
+                                    },
+                                  ))
                               .toList()),
                     ),
                   );
