@@ -51,6 +51,7 @@ void main() {
               builder: Builder(
                 builder: (context) {
                   return MaterialApp(
+                    debugShowCheckedModeBanner: false,
                     theme: ThemeData(
                         primaryColor:const Color(0xff0264a5),
                         appBarTheme: const AppBarTheme(color: Color(0xff0264a5),
