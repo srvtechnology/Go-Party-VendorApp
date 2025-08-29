@@ -37,6 +37,7 @@ class OrderModel {
   String latitude;
   String longitude;
   String date;
+  String orderId;
   String amount;
   String? category;
   String? service_name;
@@ -45,14 +46,13 @@ class OrderModel {
   String days;
   CustomerDetailsModel? customer;
   OrderPaymentStatus paymentStatus;
-  VendorOrderStatus vendorOrderStatus ;
-  OrderModel(
-      {
-        required this.id,
+  VendorOrderStatus vendorOrderStatus;
+  OrderModel({required this.id,
         required this.address,
         required this.latitude,
         required this.longitude,
         required this.date,
+        required this.orderId,
         required this.amount,
         required this.vendorOrderStatus,
         required this.days,
@@ -106,6 +106,7 @@ class OrderModel {
         latitude: json["lat"].toString(),
         longitude: json["long"].toString(),
         date:json["event_date"].toString(),
+        orderId:json["order_id"].toString(),
         amount: json["total_price"].toString(),
         vendorOrderStatus: tempStatus,
         days: json["days"].toString(),

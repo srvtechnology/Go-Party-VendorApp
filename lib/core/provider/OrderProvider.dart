@@ -21,11 +21,22 @@ class UpcomingOrderProvider with ChangeNotifier{
     _isLoading = false;
     notifyListeners();
   }
-  void load_upcoming_orders()async{
+  void load_upcoming_orders() async {
     startLoading();
     _orders = await get_upcoming_order_list(auth);
     stopLoading();
   }
+
+
+
+  Future<Map<String, dynamic>> deliverMyOrder(String id) async {
+    startLoading();
+    Map<String, dynamic> isOk = await deliverOrders(auth,id);
+    stopLoading();
+    return isOk;
+  }
+
+
 
 }
 class HistoryOrderProvider with ChangeNotifier{

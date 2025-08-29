@@ -33,6 +33,50 @@ Future<List<OrderModel>> get_upcoming_order_list(AuthProvider auth)async{
     return Future.error(e);
         }
 }
+
+Future<Map<String, dynamic>> deliverOrders(AuthProvider auth, String orderId) async {
+  try {
+    final response = await Dio().post(
+      "${APIConfig.baseUrl}/api/vendor-deliver-order",
+      data: {
+        "id": orderId,
+      },
+      options: Options(
+        headers: {
+          "Authorization": "Bearer ${auth.token}"
+        },
+      ),
+    );
+
+    final status = response.statusCode == 200 && response.data["status"] == "success";
+    final message = response.data["message"] ?? "Unknown response";
+
+    return {
+      "success": status,
+      "message": message,
+    };
+  } catch (e) {
+    if (e is DioError) {
+      if (e.response?.statusCode == 401) {
+        auth.reLogin();
+      }
+      return {
+        "success": false,
+        "message": e.response?.data["message"] ?? "Unauthorized or server error"
+      };
+    }
+
+    return {
+      "success": false,
+      "message": "Something went wrong"
+    };
+  }
+}
+
+
+
+
+
 Future<List<OrderModel>> get_history_order_list(AuthProvider auth)async{
   Response response;
   Dio dio = new Dio();

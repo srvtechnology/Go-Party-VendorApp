@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -12,6 +11,7 @@ import 'otpPage.dart';
 class SignIn extends StatefulWidget {
   static const routeName ="signin";
   bool showPopup;
+
   SignIn({ Key? key ,this.showPopup=false}) : super(key: key);
 
   @override
@@ -22,7 +22,8 @@ class _SignInState extends State<SignIn> {
   final TextEditingController _email=TextEditingController();
   final TextEditingController _password=TextEditingController();
   final _formKey = GlobalKey<FormState>();
-    @override
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Consumer<AuthProvider>(
@@ -130,10 +131,11 @@ class _SignInState extends State<SignIn> {
       ),
     );
   }
+
   Widget SignInButton(BuildContext context){
     return ElevatedButton(
       onPressed: (){
-        if(_formKey.currentState!.validate()){
+        if(_formKey.currentState!.validate()) {
           context.read<AuthProvider>().login(_email.text, _password.text);
         }
       },
@@ -141,4 +143,3 @@ class _SignInState extends State<SignIn> {
     );
   }
 }
-

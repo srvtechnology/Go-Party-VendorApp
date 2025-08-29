@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:logger/logger.dart';
 import 'package:utsavlife/core/repo/auth.dart' as authRepo;
+
 final logger = Logger();
 class OtpProvider extends ChangeNotifier {
   String? _user_id ;
@@ -18,14 +19,17 @@ class OtpProvider extends ChangeNotifier {
     _otp = t ;
     notifyListeners();
   }
+
   void _startLoading(){
     _isLoading = true;
     notifyListeners();
   }
+
   void _stopLoading(){
     _isLoading = false;
     notifyListeners();
   }
+
   void get_otp(String email)async{
    try{
      _startLoading();
@@ -37,6 +41,7 @@ class OtpProvider extends ChangeNotifier {
      _errorMessage = e.toString();
    }
   }
+
   Future<void> setPassword(String password)async{
     _startLoading();
     try{

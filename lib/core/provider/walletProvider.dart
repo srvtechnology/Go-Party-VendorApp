@@ -30,4 +30,8 @@ class WalletProvider with ChangeNotifier{
     _transactionData= await getTransactionDetails(auth);
     stopLoading();
   }
+
+  void refreshData(AuthProvider auth)  {
+     getDetails(auth);
+  }
 }

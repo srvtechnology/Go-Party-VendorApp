@@ -63,6 +63,14 @@ class AuthProvider with ChangeNotifier {
     print("Getting user data");
     _user = await userRepo.get_UserData(_token!); // from repo
   }
+
+
+  Future<void> getUserbytoken(String token)async{
+    print("Getting user data");
+    _user = await userRepo.get_UserData(token); // from repo
+  }
+  
+  
   void saveTokenToStorage(String tempToken){
       pref.setString("token", tempToken);
   }
@@ -108,9 +116,55 @@ class AuthProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+
   void deleteAllFromStorage(){
     pref.clear();
   }
+  Future<Response?> submitOtp(AuthProvider state, String userid, String otp) async {
+    try {
+      Response? response = await authRepo.submitVendorOtp(state, userid, otp);
+
+      if (response != null) {
+        final data = response.data;
+
+        if (data["success"] == true || data["result"]?["code"] == "200") {
+          saveTokenToStorage(data["token"]);
+          _token=data["token"];
+          await getUserbytoken(data["token"]);
+          notifyListeners();
+        } else {
+          final message = data["message"] ?? "OTP verification failed";
+          CustomLogger.error("OTP Error: $message");
+        }
+
+        return response;
+      }
+      return null;
+    } catch (e) {
+      CustomLogger.error("OTP submission failed: $e");
+      return null;
+    }
+  }
+
+
+
+
+
+  Future<Response?> resendOtp(String userId) async {
+    try {
+      var response = await authRepo.resendVendorOtp(userId);
+      if (response != null) {
+        CustomLogger.debug("OTP resent successfully.");
+        // You can optionally refresh something if needed
+      }
+      return response;
+    } catch (e) {
+      CustomLogger.error("Resend OTP failed: $e");
+      return null;
+    }
+  }
+
+
   void logout(){
       _token = null;
       _authState = AuthState.LoggedOut;
@@ -144,11 +198,13 @@ class AuthProvider with ChangeNotifier {
       
     }
   }
+
   void setRegisterProgress(RegisterProgress progress)async{
     getUser();
     _user?.progress = progress;
     notifyListeners();
   }
+
   void clear()async{
     CustomLogger.debug("Deleting all data");
     final SharedPreferences instance = await SharedPreferences.getInstance();

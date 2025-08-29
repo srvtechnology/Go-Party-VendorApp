@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:utsavlife/core/models/order.dart';
@@ -23,6 +24,7 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
   String selectedReason = "";
   bool ShowReasonField = false;
   bool showReason = false;
+
   @override
   void initState(){
     super.initState();
@@ -88,13 +90,16 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                           Container(
                             height: 6.h,
                             padding: EdgeInsets.symmetric(horizontal: 20,vertical: 10),
-                            child: Text("₹ ${singleOrderState.order!.amount}",style: Theme.of(context).textTheme.headlineSmall,),
+                            child: Text("₹ ${addGstToAmount(singleOrderState.order!.amount)}",style: Theme.of(context).textTheme.headlineSmall,),
                           ),
                           SizedBox(height: 10,),
                           Container(
                             margin: EdgeInsets.symmetric(vertical: 5,horizontal: 20),
                             child: Text("General Information",style: Theme.of(context).textTheme.bodyMedium,),
                           ),
+
+                          DetailTile("Order ID ", singleOrderState.order!.orderId!),
+
                           Row(
                             children: [
                               Expanded(child: DetailTile("Status", singleOrderState.order!.vendorOrderStatus == VendorOrderStatus.approved?"Accepted":singleOrderState.order!.vendorOrderStatus == VendorOrderStatus.pending?"Pending":"Rejected")),
@@ -108,11 +113,12 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                             ],
                           ),
                           DetailTile("Service Name", singleOrderState.order!.service_name!),
+
                           DetailTile("Address", singleOrderState.order!.address!),
                           Row(
                             children: [
-                              Expanded(child:DetailTile("Order start date", singleOrderState.order!.date!)),
-                              Expanded(child:DetailTile("Order end date", singleOrderState.order!.end_date!)),
+                              Expanded(child:DetailTile("Order start date", formatDate(singleOrderState.order!.date!))),
+                              Expanded(child:DetailTile("Order end date", formatDate(singleOrderState.order!.end_date!))),
                             ],
                           ),
                           Row(
@@ -176,7 +182,7 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
                   if(singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.rejected || singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.pending)
                   BottomButton(context:context,onPressed: ()=>approveOrder(context),text: "Accept",primaryColor: Colors.green),
                   if(singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.approved || singleOrderState.order?.vendorOrderStatus == VendorOrderStatus.pending)
-                  BottomButton(context:context,onPressed: () => rejectOrder(context,reasonState.reasons??[]),text: "Reject",primaryColor: Colors.red),
+                 !isOldDate(singleOrderState.order!.date!)? BottomButton(context:context,onPressed: () => rejectOrder(context,reasonState.reasons??[]),text: "Reject",primaryColor: Colors.red) :SizedBox(),
                 ],
               ),
           );
@@ -188,6 +194,31 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
       ),
     );
   }
+
+  bool isOldDate(String orderDate) {
+    try {
+      final parsedDate = DateTime.parse(orderDate);
+      final now = DateTime.now();
+      return parsedDate.isBefore(DateTime(now.year, now.month, now.day));
+    } catch (e) {
+      return false; // If date parsing fails, assume it's not old
+    }
+  }
+
+
+  String formatDate(String date) {
+    DateTime parsedDate = DateTime.parse(date);
+    return DateFormat('dd-MM-yyyy').format(parsedDate);
+  }
+
+
+  double addGstToAmount(dynamic amount, {double gstPercent = 18}) {
+    // Ensure amount is parsed correctly
+    double baseAmount = double.tryParse(amount.toString()) ?? 0.0;
+    double gstAmount = baseAmount * gstPercent / 100;
+    return baseAmount + gstAmount;
+  }
+
   void approveOrder(BuildContext context)async{
     try {
       await context.read<SingleOrderProvider>().change_status(
@@ -196,7 +227,6 @@ class _SingleOrderPageState extends State<SingleOrderPage> {
     }catch(e){
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
-    
   }
 
   Widget ReasonDialog(BuildContext context,List<String> rejectReasons){

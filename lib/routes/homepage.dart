@@ -29,9 +29,11 @@ import 'package:utsavlife/routes/singleServiceAdd.dart';
 import 'package:utsavlife/routes/wallet.dart';
 import '../core/models/dropdown.dart';
 import '../core/models/order.dart';
+import '../core/provider/paymentstatusprovider.dart';
 import '../core/utils/scaling.dart';
 import 'mainpage.dart';
 import 'dart:io';
+
 class Homepage extends StatefulWidget {
   int startingIndex;
   static const routeName = "home";
@@ -42,6 +44,8 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
   int startingIndex;
   GlobalKey _drawer = GlobalKey();
   GlobalKey _addServices = GlobalKey();
@@ -60,9 +64,83 @@ class _HomepageState extends State<Homepage> {
     super.initState();
     index=startingIndex;
   }
+
+  void onClose(){
+    print(">>>>close");
+    Provider.of<PaymentStatusProvider>(context, listen: false).isPaid=false;
+  }
+
+  Widget successCard(String? address, String? shippingName, VoidCallback onClose) {
+    print(">>>>$address");
+    return Stack(
+      children: [
+        // Card Container
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          padding: const EdgeInsets.all(12.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(width: 0.5, color: Colors.grey.shade400),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green, size: 22),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Amount Paid Successfully",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 5),
+              Text(
+                "Confirmation will be sent to your message center",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black54,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Close Button Positioned at Top Right
+        Positioned(
+          top: 0,
+          right: 0,
+          child: IconButton(
+            icon: Icon(Icons.close, color: Colors.red),
+            onPressed: onClose, // Function to handle close action
+          ),
+        ),
+      ],
+    );
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      key: rootNavigatorKey,
       child: MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_)=>UpcomingOrderProvider(
@@ -144,8 +222,22 @@ class _HomepageState extends State<Homepage> {
               }, icon: Icon(Icons.notifications,color: Theme.of(context).primaryColorDark))
             ],
           ),
-            body: items[index],
-            bottomNavigationBar:CustomBottomNavBar(
+          body: Column(
+            children: [
+              Consumer<PaymentStatusProvider>(
+                builder: (context, value, child) {
+                  return value.isPaid
+                      ? successCard(value.address, value.shippingto, onClose)
+                      : SizedBox();
+                },
+              ),
+              Expanded(
+                child: items[index], // this fixes the rendering issue
+              ),
+            ],
+          ),
+
+          bottomNavigationBar:CustomBottomNavBar(
               index: index,
               ontap: (i){
                 setState(() {
@@ -343,9 +435,12 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) =>
-        ShowCaseWidget.of(context).startShowCase([_profile])
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final showcase = ShowCaseWidget.of(context);
+      if (showcase != null) {
+        showcase.startShowCase([_profile]);
+      }
+    });
     Provider.of<AuthProvider>(context,listen: false).getUser();
     selectedOfficeCountry = Provider.of<AuthProvider>(context,listen: false).user?.officeCountry??Country(id:"101", name:"India");
     selectedCountry = Country(id:"101", name:"India");
@@ -1129,30 +1224,32 @@ class History extends StatefulWidget {
   @override
   State<History> createState() => _HistoryState();
 }
-
 class _HistoryState extends State<History> {
   String searchitem = "";
   VendorOrderStatus? orderStatus;
   GlobalKey _history = GlobalKey();
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) =>
-        ShowCaseWidget.of(context).startShowCase([_history])
-    );
-  }
-  void refresh(BuildContext context){
-    context.read<HistoryOrderProvider>().load_history_orders();
-    setState(() {
-      searchitem = "";
-      orderStatus==null ;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ShowCaseWidget.of(context).startShowCase([_history]);
     });
   }
+
+  Future<void> refreshHistory(BuildContext context) async {
+     context.read<HistoryOrderProvider>().load_history_orders();
+    setState(() {
+      searchitem = "";
+      orderStatus = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return NestedScrollView(
       floatHeaderSlivers: true,
-      headerSliverBuilder: (context,isScrolled){
+      headerSliverBuilder: (context, isScrolled) {
         return [
           SliverAppBar(
             automaticallyImplyLeading: false,
@@ -1161,17 +1258,20 @@ class _HistoryState extends State<History> {
             expandedHeight: 70,
             elevation: 1,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            title: Filter(onsearch: (String searchItem) {
-              setState(() {
-                searchitem = searchItem ;
-              });
-              context.watch<HistoryOrderProvider>().load_history_orders();
-            },onstatusSelect: (VendorOrderStatus? status) {
-              setState(() {
-                orderStatus=status;
-              });
-              context.watch<HistoryOrderProvider>().load_history_orders();
-            },),
+            title: Filter(
+              onsearch: (String searchItem) {
+                setState(() {
+                  searchitem = searchItem;
+                });
+                context.read<HistoryOrderProvider>().load_history_orders();
+              },
+              onstatusSelect: (VendorOrderStatus? status) {
+                setState(() {
+                  orderStatus = status;
+                });
+                context.read<HistoryOrderProvider>().load_history_orders();
+              },
+            ),
             centerTitle: true,
           )
         ];
@@ -1180,39 +1280,68 @@ class _HistoryState extends State<History> {
         key: _history,
         description: "This is the section where you can see your previous orders.",
         child: Container(
-            height: double.infinity,
-            width: double.infinity,
-            padding:const EdgeInsets.all(10),
-            child: Column(children: [
-              Expanded(flex: 16,child: Consumer<HistoryOrderProvider>(
-                builder: (context,orderState,child){
-                  if(orderState.isLoading){
-                    return Container(
-                      alignment: Alignment.topCenter,
-                      child:const CircularProgressIndicator(),
-                    );
-                  }
-                  else if(orderState.orders.isEmpty){
-                    return Container(
-                      alignment: Alignment.topCenter,
-                      margin: EdgeInsets.all(10),
-                      child: Text("No History"),
-                    );
-                  }
-                  return SingleChildScrollView(
-                    child: Column(
-                        children:orderState.orders.where((element) => (element.amount.contains(searchitem)|| element.service_name!.toLowerCase().contains(searchitem.toLowerCase())))
-                            .where((element) {
-                          if(orderStatus==null)return true;
-                          return element.vendorOrderStatus == orderStatus ;
-                        }).map((e) => CustomOrderItem(showButtons: false,order: e,ontap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(id:e.id,readOnly: true,))).then((value) => refresh(context));
-                        },)).toList()),
-                  );
-                },
-              ))
+          height: double.infinity,
+          width: double.infinity,
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              Expanded(
+                flex: 16,
+                child: Consumer<HistoryOrderProvider>(
+                  builder: (context, orderState, child) {
+                    if (orderState.isLoading) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (orderState.orders.isEmpty) {
+                      return Center(
+                        child: Text("No History"),
+                      );
+                    }
 
-            ]),
+                    final filteredOrders = orderState.orders
+                        .where((element) =>
+                    element.amount.contains(searchitem) ||
+                        element.service_name!
+                            .toLowerCase()
+                            .contains(searchitem.toLowerCase()))
+                        .where((element) {
+                      if (orderStatus == null) return true;
+                      return element.vendorOrderStatus == orderStatus;
+                    })
+                        .toList();
+
+                    return RefreshIndicator(
+                      onRefresh: () => refreshHistory(context),
+                      child: ListView.builder(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        itemCount: filteredOrders.length,
+                        itemBuilder: (context, index) {
+                          final e = filteredOrders[index];
+                          return CustomOrderItem(
+                            showButtons: false,
+                            order: e,
+                            context: context,
+                            ontap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SingleOrderPage(
+                                    id: e.id,
+                                    readOnly: true,
+                                  ),
+                                ),
+                              ).then((value) => refreshHistory(context));
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -1229,91 +1358,129 @@ class Orders extends StatefulWidget {
 class _OrdersState extends State<Orders> {
   String searchitem = "";
   VendorOrderStatus? orderStatus;
-  GlobalKey _order = GlobalKey();
-  void refresh(BuildContext context){
+  final GlobalKey _order = GlobalKey();
+
+  void refresh(BuildContext context) {
     context.read<UpcomingOrderProvider>().load_upcoming_orders();
     setState(() {
-    searchitem="";
-    orderStatus=null;
+      searchitem = "";
+      orderStatus = null;
     });
   }
+
   @override
-  void initState(){
+  void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) =>
-        ShowCaseWidget.of(context).startShowCase([_order])
-    );
+        ShowCaseWidget.of(context).startShowCase([_order]));
   }
+
   @override
   Widget build(BuildContext context) {
     return NestedScrollView(
       floatHeaderSlivers: true,
-      headerSliverBuilder: (context,isScrolled)=> [
+      headerSliverBuilder: (context, isScrolled) => [
         SliverAppBar(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           floating: true,
           snap: true,
-          title: Filter2(onsearch: (String searchItem) {
-            setState(() {
-              searchitem = searchItem;
-              context.read<UpcomingOrderProvider>().load_upcoming_orders();
-            },);
-          }, onstatusSelect: (VendorOrderStatus? status) {
-            setState(() {
-              orderStatus=status;
-              context.read<UpcomingOrderProvider>().load_upcoming_orders();
-            });
-          },),
+          title: Filter2(
+            onsearch: (String searchItem) {
+              setState(() {
+                searchitem = searchItem;
+                context.read<UpcomingOrderProvider>().load_upcoming_orders();
+              });
+            },
+            onstatusSelect: (VendorOrderStatus? status) {
+              setState(() {
+                orderStatus = status;
+                context.read<UpcomingOrderProvider>().load_upcoming_orders();
+              });
+            },
+          ),
           centerTitle: true,
           automaticallyImplyLeading: false,
         )
       ],
       body: Container(
-        height: double.infinity,
+        padding: const EdgeInsets.all(10),
         width: double.infinity,
-        padding:const EdgeInsets.all(10),
-        child: Column(children: [
-          Expanded(flex: 16,child: Consumer<UpcomingOrderProvider>(
-            builder: (context,orderState,child){
-              if(orderState.isLoading){
-                return Container(
-                  alignment: Alignment.topCenter,
-                  child:const CircularProgressIndicator(),
-                );
-              }
-              else if(orderState.orders.isEmpty){
-                return Showcase(
-                  key: _order,
-                  description: "This is the upcoming order section. The Pending and Upcoming orders will be shown here",
-                  child: Container(
-                    alignment: Alignment.topCenter,
-                    width: double.infinity,
-                    margin: EdgeInsets.all(10),
-                    child: Text("No upcoming orders"),
-                  ),
-                );
-              }
+        child: Consumer<UpcomingOrderProvider>(
+          builder: (context, orderState, child) {
+            if (orderState.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (orderState.orders.isEmpty) {
               return Showcase(
                 key: _order,
-                description: "This is the upcoming order section. The Pending and Upcoming orders will be shown here",
-                child: SingleChildScrollView(
-                  child: Column(
-                      children: orderState.orders.where((element) => (element.amount.contains(searchitem) || element.service_name!.toLowerCase().contains(searchitem.toLowerCase())))
-                          .where((element) {
-                        if(orderStatus==null)return true;
-                        return element.vendorOrderStatus == orderStatus ;
-                      }).map((e) => CustomOrderItem(state: orderState,order: e,ontap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleOrderPage(onPop: (){
-                          orderState.load_upcoming_orders();
-                        },id:e.id,readOnly: false,))).then((value) => refresh(context));
-                      },)).toList()),
+                description:
+                "This is the upcoming order section. The Pending and Upcoming orders will be shown here",
+                child: const Center(
+                  child: Text("No upcoming orders"),
                 ),
               );
-            },
-          ))
-        ]),
+            }
+
+            // Filtered Orders
+            final filteredOrders = orderState.orders
+                .where((element) =>
+            element.amount.contains(searchitem) ||
+                element.service_name!
+                    .toLowerCase()
+                    .contains(searchitem.toLowerCase()))
+                .where((element) =>
+            orderStatus == null ||
+                element.vendorOrderStatus == orderStatus)
+                .toList();
+
+            return Showcase(
+              key: _order,
+              description:
+              "This is the upcoming order section. The Pending and Upcoming orders will be shown here",
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  refresh(context);
+                  await Future.delayed(const Duration(milliseconds: 300));
+                },
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: filteredOrders.length,
+                  itemBuilder: (context, index) {
+                    final order = filteredOrders[index];
+                    return CustomOrderItem(
+                      state: orderState,
+                      order: order,
+                      context: context,
+                      ontap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SingleOrderPage(
+                              onPop: () {
+                                orderState.load_upcoming_orders();
+                              },
+                              id: order.id,
+                              readOnly: false,
+                            ),
+                          ),
+                        ).then((value) => refresh(context));
+                      },
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
+
+
+
+
+
+
+
 }
+
 

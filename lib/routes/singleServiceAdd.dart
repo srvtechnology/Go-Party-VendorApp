@@ -77,8 +77,8 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       ],
       child: Consumer<DropDownOptionProvider>(
         builder:(context,state,child){
-          if(state.auth.user?.kycType==null){
-            return errorScreenRoute(icon: Icons.error_outline, message: "Please complete your registration first.");
+          if(state.auth.user?.kycType==null) {
+            return errorScreenRoute(icon: Icons.error_outline, message: "Please wait for approval.");
           }
          if(state.isLoading && state.options==null) {
            return LoadingWidget(willRedirect:true,);
@@ -330,6 +330,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       ),
     );
   }
+
   Widget InputField(String title,TextEditingController controller,{MapProvider? state,bool hide=false,bool autoComplete = false,validatePhone=false,digits=false}){
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 15,horizontal: 20),
@@ -357,6 +358,7 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       ),
     );
   }
+
   void createService(AuthProvider auth)async{
     if(serviceId==null){
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select service")));
@@ -413,7 +415,6 @@ class _AddServiceRouteState extends State<AddServiceRoute> {
       }
     }
   }
-
 }
 
 class AddProductPhoto extends StatefulWidget {

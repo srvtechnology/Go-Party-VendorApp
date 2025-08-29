@@ -22,7 +22,7 @@ Future<String> login(String email,String password)async{
         "user_type":"vendor",
       }));
       CustomLogger.debug(response.data);
-      return response.data['result']['token'];
+      return response.data['token'];
     }
     catch(e){
     if(e is DioError){
@@ -31,11 +31,71 @@ Future<String> login(String email,String password)async{
       return Future.error(e);
     }
 }
-Future<bool> signUpMain(Map data)async{
+Future<Response?> submitVendorOtp(AuthProvider state,String userId, String otp) async {
+  try {
+    Dio dio = Dio();
+    (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
+        (HttpClient client) {
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+      return client;
+    };
+
+    Response response = await dio.post(
+      "${APIConfig.baseUrl}/api/vendor/otp-submission",
+      data: FormData.fromMap({
+        "reg_otp": otp,
+        "user_id": userId,
+      }),
+
+    );
+
+    state.saveTokenToStorage(response.data["token"]);
+    CustomLogger.debug(response.data);
+    return response;
+  } catch (e) {
+    if (e is DioError) {
+      CustomLogger.error(e.response?.data);
+      return e.response;
+    }
+    CustomLogger.error("Unexpected error: $e");
+    return Future.error(e);
+  }
+}
+
+Future<Response?> resendVendorOtp(String userId) async {
+  try {
+    Dio dio = Dio();
+    (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
+        (HttpClient client) {
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+      return client;
+    };
+    Response response = await dio.post(
+      "${APIConfig.baseUrl}/api/vendor/reg-otp-resend",
+      data: FormData.fromMap({
+        "user_id": userId,
+      }),
+    );
+    CustomLogger.debug(response.data);
+    if (response.data["result"]["code"] == "200") {
+      return response;
+    }
+    return null;
+  } catch (e) {
+    if (e is DioError) {
+      CustomLogger.error(e.response?.data);
+    }
+    return Future.error(e);
+  }
+}
+
+Future<Response> signUpMain(Map data)async{
   Response response;
-  try{
+  try {
       response = await Dio().post("${APIConfig.baseUrl}/api/vendor/register",data:data);
-      return true;
+      return response;
     }
     catch(e){
       if(e is DioError){
@@ -46,7 +106,7 @@ Future<bool> signUpMain(Map data)async{
     }
 }
 
-Future<String> GetOtp(String email)async{
+Future<String> GetOtp(String email) async {
   Response response;
   Dio dio = new Dio();
   (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
@@ -62,7 +122,7 @@ Future<String> GetOtp(String email)async{
         }));
     return response.data["user"]["id"].toString();
   }
-    catch(e){
+    catch(e) {
       return Future.error(e);
     }
 }

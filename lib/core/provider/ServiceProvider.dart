@@ -33,9 +33,7 @@ class ServiceListProvider with ChangeNotifier {
       }
       stopLoading();
       }
-
 }
-
 
 class DropDownOptionProvider with ChangeNotifier {
   ServiceDropDownOptions? options;
@@ -65,5 +63,4 @@ class DropDownOptionProvider with ChangeNotifier {
     }
     stopLoading();
   }
-
 }

@@ -5,6 +5,8 @@ import 'package:utsavlife/core/models/order.dart';
 import 'package:utsavlife/core/provider/AuthProvider.dart';
 import 'package:utsavlife/core/repo/order.dart';
 
+import '../core/provider/paymentstatusprovider.dart';
+
 class PartialPaymentPage extends StatefulWidget {
   final OrderModel order;
 
@@ -17,8 +19,16 @@ class PartialPaymentPage extends StatefulWidget {
 class _PartialPaymentPageState extends State<PartialPaymentPage> {
   TextEditingController _controller = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  late double paidamount,remainingamount;
+
   @override
   Widget build(BuildContext context) {
+
+    paidamount=getPaidAmount(widget.order.amount);
+    remainingamount=getRemainingAmount(widget.order.amount, paidamount);
+
+    _controller.text="${addGstToAmount(remainingamount).toStringAsFixed(2)}";
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -55,7 +65,7 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
                       children: [
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Text("₹ ${widget.order.amount}",style: Theme.of(context).textTheme.headlineSmall,),
+                          child: Text("₹ ${addGstToAmount(widget.order.amount)}",style: Theme.of(context).textTheme.headlineSmall,),
                         ),
                         Row(
                           children: [
@@ -67,6 +77,14 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
                           children: [
                             Expanded(child: DetailTile("Category", widget.order.category!)),
                             Expanded(child: DetailTile("Payment Status", widget.order.paymentStatus==OrderPaymentStatus.partial?"Partial Payment":"Payment Completed",)),
+                          ],
+                        ),
+                        //paid amount will be total amount * 0.25.
+
+                        Row(
+                          children: [
+                            Expanded(child: DetailTile("Remaining Amount", "${addGstToAmount(remainingamount).toStringAsFixed(2)}")),
+                            Expanded(child: DetailTile("Paid amount", "${addGstToAmount(paidamount).toStringAsFixed(2)}",)),
                           ],
                         ),
                       ],
@@ -98,6 +116,7 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
                   Form(
                     key: formKey,
                     child: TextFormField(
+                      readOnly: true,
                       keyboardType: TextInputType.numberWithOptions(signed: false),
                       validator: (text){
                         if(text==null || text.isEmpty)return "Please enter an amount";
@@ -128,12 +147,36 @@ class _PartialPaymentPageState extends State<PartialPaymentPage> {
       ),
     );
   }
+
+
+
+
+  double addGstToAmount(dynamic amount, {double gstPercent = 18}) {
+    // Ensure amount is parsed correctly
+    double baseAmount = double.tryParse(amount.toString()) ?? 0.0;
+    double gstAmount = baseAmount * gstPercent / 100;
+    return baseAmount + gstAmount;
+  }
+
+double getPaidAmount(dynamic amount) {
+    double baseAmount = double.tryParse(amount.toString()) ?? 0.0;
+    double gstAmount = baseAmount  *0.2;
+    return  gstAmount;
+  }
+
+  double getRemainingAmount(dynamic amount,double paidamount) {
+    double baseAmount = double.tryParse(amount.toString()) ?? 0.0;
+    double gstAmount = baseAmount -paidamount;
+    return  gstAmount;
+  }
+
   void _payAmount()async{
     if(formKey.currentState!.validate()){
       try{
         await payPartialAmount(context.read<AuthProvider>(), widget.order.id, _controller.text);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Amount Paid")));
-        Navigator.pop(context);
+        Provider.of<PaymentStatusProvider>(context, listen: false).isPaid=true;
+    Navigator.pop(context);
       }catch(e){
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error occured, please try later")));
         //Navigator.pop(context);

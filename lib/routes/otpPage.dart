@@ -21,6 +21,7 @@ class _OtpPageRouteState extends State<OtpPageRoute> {
 
   @override
   Widget build(BuildContext context) {
+
     return ListenableProvider(
       create: (_)=>OtpProvider(),
       builder:(context,child)=> Consumer<OtpProvider>(
@@ -74,7 +75,9 @@ class _OtpPageRouteState extends State<OtpPageRoute> {
       ),
     );
   }
+
   Widget OtpScaffold(OtpProvider state){
+    final String otp = ModalRoute.of(context)!.settings.arguments as String;
     return Scaffold(
       appBar: AppBar(
         title: Text("OTP"),
@@ -108,7 +111,8 @@ class _OtpPageRouteState extends State<OtpPageRoute> {
       ),
     );
   }
-  void showError(String message){
+
+  void showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
   void handleChange(OtpProvider state)async{
@@ -129,6 +133,7 @@ class _OtpPageRouteState extends State<OtpPageRoute> {
       }
       }
     }
+
   Widget ChangePassScaffold(OtpProvider state){
     return Scaffold(
       appBar: AppBar(),

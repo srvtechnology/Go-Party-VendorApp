@@ -1,5 +1,3 @@
-
-
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +18,7 @@ import 'package:utsavlife/routes/singleServiceAdd.dart';
 import 'package:utsavlife/routes/splash.dart';
 import 'package:utsavlife/routes/wallet.dart';
 import 'core/provider/networkProvider.dart';
+import 'core/provider/paymentstatusprovider.dart';
 import 'core/provider/showcaseProvider.dart';
 
 void main() {
@@ -36,10 +35,10 @@ void main() {
             ChangeNotifierProvider(create: (_)=>AuthProvider()),
             ChangeNotifierProvider(create: (_)=>NetworkProvider()),
             ChangeNotifierProvider(create: (_)=>ShowCaseProvider()),
+            ChangeNotifierProvider(create: (_)=>PaymentStatusProvider()),
           ],
           child: Consumer<ShowCaseProvider>(
             builder:(context,state,child){
-
               if(state.isLoading){
                 return LoadingWidget();
               }
