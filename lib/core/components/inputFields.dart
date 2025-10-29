@@ -24,13 +24,13 @@ class _InputFieldState extends State<InputField> {
     return Container(
       margin:const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
       child: TextFormField(
-        style: TextStyle(color: Colors.white),
+        style: TextStyle(color: Colors.black),
         obscureText: widget.obscureText,
         controller: widget.controller,
         decoration: InputDecoration(
             prefixIcon: widget.leading,
-            prefixIconColor: Colors.white,
-            label:Text(widget.title,style: TextStyle(color: Colors.white),),
+            prefixIconColor: Colors.black,
+            label:Text(widget.title,style: TextStyle(color: Colors.black),),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
@@ -40,7 +40,7 @@ class _InputFieldState extends State<InputField> {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(
-                color: Colors.white,
+                color: Colors.black,
                 width: 1.0,
               ),
             ),suffixIcon: widget.isPassword?
@@ -49,7 +49,7 @@ class _InputFieldState extends State<InputField> {
             setState(() {
               widget.obscureText=!widget.obscureText;
             });
-          },icon: Icon(Icons.remove_red_eye_outlined,color: Colors.white,),
+          },icon: Icon(Icons.remove_red_eye_outlined,color: Colors.black,),
         )
             :
         null),

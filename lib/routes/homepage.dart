@@ -568,37 +568,17 @@ class _ProfileState extends State<Profile> {
                             margin: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 16.sp),
                             child: TabBar(
-                                unselectedLabelColor: Colors.black,
-                                labelColor: Colors.white,
-                                indicator: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: Theme.of(context).primaryColorDark),
-                                tabs: [
-                                  Tab(
-                                    child: Text(
-                                      "Personal",
-                                      style: TextStyle(fontSize: 14.sp),
-                                    ),
-                                  ),
-                                  Tab(
-                                    child: Text(
-                                      "Office",
-                                      style: TextStyle(fontSize: 15.sp),
-                                    ),
-                                  ),
-                                  Tab(
-                                    child: Text(
-                                      "Bank",
-                                      style: TextStyle(fontSize: 15.sp),
-                                    ),
-                                  ),
-                                  Tab(
-                                    child: Text(
-                                      "Doc",
-                                      style: TextStyle(fontSize: 15.sp),
-                                    ),
-                                  ),
-                                ]),
+                              unselectedLabelColor: Colors.black,
+                              labelColor: Theme.of(context).primaryColor, // selected text color
+                              indicatorColor: Theme.of(context).primaryColor, // underline color
+                              indicatorWeight: 3, // thickness of underline
+                              tabs: [
+                                Tab(child: Text("Personal", style: TextStyle(fontSize: 14.sp))),
+                                Tab(child: Text("Office", style: TextStyle(fontSize: 15.sp))),
+                                Tab(child: Text("Bank", style: TextStyle(fontSize: 15.sp))),
+                                Tab(child: Text("Doc", style: TextStyle(fontSize: 15.sp))),
+                              ],
+                            ),
                           ),
                         ),
                         Expanded(

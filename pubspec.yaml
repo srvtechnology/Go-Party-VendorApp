@@ -55,7 +55,7 @@ dependencies:
   dropdown_search: ^5.0.6
   showcaseview: ^4.0.1
   intl_phone_field: ^3.2.0
-  csc_picker: ^0.2.7
+  csc_picker_plus: ^0.0.3
   geolocator: ^10.0.0
   geocoding: ^2.1.0
 
